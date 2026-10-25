@@ -862,15 +862,15 @@ export const BooksModule: React.FC = () => {
                             transform: isPickedUp
                               ? 'translateY(-28px) scale(1.05)'
                               : isDragOver
-                              ? 'translateY(-12px) rotateY(-8deg) scale(1.03)'
+                              ? 'translateY(-12px) rotateY(8deg) scale(1.03)'
                               : isDragged
                               ? 'opacity-40 scale-95'
                               : undefined,
-                            transformOrigin: 'left bottom',
+                            transformOrigin: 'center bottom',
                           }}
-                          className={`relative w-full h-full rounded-r-lg rounded-l-[3px] p-2 flex flex-col justify-between border-y border-r bg-gradient-to-r ${palette.gradient} transition-all duration-300 ease-out shadow-[3px_10px_24px_rgba(0,0,0,0.85)] group-hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_24px_rgba(245,158,11,0.4)] ${
+                          className={`relative w-full h-full rounded-r-lg rounded-l-[3px] p-2 flex flex-col justify-between border-y border-r bg-gradient-to-r ${palette.gradient} transition-all duration-300 ease-out shadow-[-3px_10px_24px_rgba(0,0,0,0.85)] group-hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_24px_rgba(245,158,11,0.4)] ${
                             !isPickedUp && !isDragOver && !isDragged
-                              ? '[transform:perspective(750px)_rotateY(-18deg)_rotateX(1.5deg)] group-hover:[transform:perspective(750px)_rotateY(-6deg)_translateY(-8px)_scale(1.02)]'
+                              ? '[transform:perspective(750px)_rotateY(18deg)_rotateX(1.5deg)] group-hover:[transform:perspective(750px)_rotateY(6deg)_translateY(-8px)_scale(1.02)]'
                               : ''
                           } ${
                             isPickedUp
@@ -1033,9 +1033,9 @@ export const BooksModule: React.FC = () => {
                           setShowAddModal(true);
                         }}
                         style={{
-                          transformOrigin: 'left bottom',
+                          transformOrigin: 'center bottom',
                         }}
-                        className="w-full h-full rounded-r-lg rounded-l-[3px] border-2 border-dashed border-emerald-500/40 hover:border-emerald-400/80 bg-emerald-950/20 hover:bg-emerald-900/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 p-3 text-emerald-300/70 hover:text-emerald-100 cursor-pointer shadow-inner [transform:perspective(750px)_rotateY(-18deg)_rotateX(1.5deg)] hover:[transform:perspective(750px)_rotateY(-6deg)_translateY(-8px)_scale(1.02)]"
+                        className="w-full h-full rounded-r-lg rounded-l-[3px] border-2 border-dashed border-emerald-500/40 hover:border-emerald-400/80 bg-emerald-950/20 hover:bg-emerald-900/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 p-3 text-emerald-300/70 hover:text-emerald-100 cursor-pointer shadow-inner [transform:perspective(750px)_rotateY(18deg)_rotateX(1.5deg)] hover:[transform:perspective(750px)_rotateY(6deg)_translateY(-8px)_scale(1.02)]"
                         title="Add a new physical book to this shelf"
                       >
                         <div className="w-7 h-7 rounded-full bg-emerald-700/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner group-hover:scale-110 transition-transform">
