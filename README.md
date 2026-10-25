@@ -1,5 +1,11 @@
 # 🌸 BecomingMe — Personal Life Dashboard
 
+![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6?logo=typescript&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-38bdf8?logo=tailwindcss&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-6-646cff?logo=vite&logoColor=white)
+![Build](https://img.shields.io/badge/Build-Passing-10b981)
+
 A modern, offline-first personal dashboard built to organize every dimension of your life in an elegant dark-mode aesthetic.
 
 Repository: [https://github.com/sarahobermeit-create/BecomingMe](https://github.com/sarahobermeit-create/BecomingMe)
