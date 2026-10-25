@@ -31,6 +31,7 @@ import { KindleScreen } from '../common/KindleScreen';
 import { HeadphonesOverCorner } from '../common/HeadphonesOverCorner';
 import { GiantKindleLibrary } from '../books/GiantKindleLibrary';
 import { PhoneAudiobookLibrary } from '../books/PhoneAudiobookLibrary';
+import { BookFormatVisual } from '../books/BookFormatVisual';
 
 type LibraryTab =
   | 'bookshelf_physical'
@@ -958,7 +959,7 @@ export const BooksModule: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5">
               {filteredBooks.map((book) => {
                 const isAudio = book.format === 'audiobook';
                 const progressPct = isAudio
@@ -968,103 +969,94 @@ export const BooksModule: React.FC = () => {
                 return (
                   <div
                     key={book.id}
-                    className="p-5 rounded-2xl bg-[#06140b]/35 backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-500/40 transition-all flex flex-col justify-between group shadow-xl"
+                    className="p-3 sm:p-3.5 rounded-xl bg-[#06140b]/40 backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-400/50 transition-all flex flex-col justify-between group shadow-lg"
                   >
-                    <div className="flex gap-4">
-                      {/* Book Cover */}
-                      <div
-                        onClick={() => setSelectedBook(book)}
-                        className="w-20 h-28 rounded-lg overflow-hidden shrink-0 border border-white/10 shadow-lg bg-slate-800 cursor-pointer group-hover:scale-105 transition-transform relative"
-                      >
-                        <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover" />
-                        <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded bg-black/85 text-[8px] font-bold text-slate-200">
-                          {book.format === 'audiobook' ? '🎧' : book.format === 'ebook' ? '📱' : '🪵'}
-                        </div>
+                    <div className="flex gap-3">
+                      {/* Format Visual Representation: Physical Book, Kindle Screen, or Phone with Headphones */}
+                      <div onClick={() => setSelectedBook(book)} className="shrink-0">
+                        <BookFormatVisual book={book} size="sm" />
                       </div>
 
                       {/* Book Info */}
-                      <div className="flex-1 overflow-hidden">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <div className="flex items-center gap-1.5">
-                              <span
-                                className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                                  book.status === 'reading'
-                                    ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-                                    : book.status === 'want_to_read'
-                                    ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
-                                    : 'bg-slate-500/15 text-slate-300 border-slate-500/30'
-                                }`}
-                              >
-                                {book.status === 'want_to_read' ? 'Next Read' : book.status.replace('_', ' ')}
-                              </span>
-                              <span className="text-[10px] text-slate-400 capitalize">
-                                • {book.format || 'physical'}
-                              </span>
-                            </div>
-                            <h3
-                              onClick={() => setSelectedBook(book)}
-                              className="text-sm font-bold text-white mt-1.5 truncate cursor-pointer hover:text-emerald-300 transition-colors"
+                      <div className="flex-1 min-w-0 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between gap-1">
+                            <span
+                              className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                                book.status === 'reading'
+                                  ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                                  : book.status === 'want_to_read'
+                                  ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                                  : 'bg-slate-500/15 text-slate-300 border-slate-500/30'
+                              }`}
                             >
-                              {book.title}
-                            </h3>
-                            <p className="text-xs text-slate-400">{book.author}</p>
+                              {book.status === 'want_to_read' ? 'Next Read' : book.status === 'reading' ? 'Reading' : 'Completed'}
+                            </span>
+
+                            <button
+                              onClick={() => deleteBook(book.id)}
+                              className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-500 hover:text-rose-400 transition-opacity cursor-pointer"
+                              title="Delete book"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
                           </div>
 
-                          <button
-                            onClick={() => deleteBook(book.id)}
-                            className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-rose-400 transition-opacity cursor-pointer"
-                            title="Delete book"
+                          <h3
+                            onClick={() => setSelectedBook(book)}
+                            className="text-xs sm:text-sm font-bold text-white mt-1 truncate cursor-pointer hover:text-emerald-300 transition-colors font-serif"
+                            title={book.title}
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                            {book.title}
+                          </h3>
+                          <p className="text-[11px] text-slate-400 truncate font-serif italic">{book.author}</p>
                         </div>
 
                         {/* Rating */}
                         {book.rating && (
-                          <div className="flex items-center gap-0.5 mt-2 text-amber-400">
+                          <div className="flex items-center gap-0.5 mt-1 text-amber-400">
                             {Array.from({ length: 5 }).map((_, i) => (
                               <Star
                                 key={i}
-                                className={`w-3.5 h-3.5 ${
-                                  i < (book.rating || 0) ? 'fill-amber-400 text-amber-400' : 'text-slate-600'
+                                className={`w-3 h-3 ${
+                                  i < (book.rating || 0) ? 'fill-amber-400 text-amber-400' : 'text-slate-700'
                                 }`}
                               />
                             ))}
                           </div>
                         )}
 
-                        {/* Progress Bar & Quick Updater */}
-                        <div className="mt-3">
-                          <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
-                            <span>{isAudio ? 'Audio Progress' : 'Reading Progress'}</span>
+                        {/* Progress Bar & Compact Adjuster */}
+                        <div className="mt-2">
+                          <div className="flex items-center justify-between text-[10px] text-slate-400 mb-0.5">
+                            <span className="capitalize">{book.format || 'physical'}</span>
                             <span className="font-mono text-emerald-300 font-bold">{progressPct}%</span>
                           </div>
-                          <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden mb-2">
+                          <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden mb-1.5">
                             <div
                               className="bg-emerald-500 h-full rounded-full transition-all"
                               style={{ width: `${progressPct}%` }}
                             />
                           </div>
 
-                          <div className="flex items-center justify-between text-xs text-slate-400">
-                            <span>
+                          <div className="flex items-center justify-between text-[10px] text-slate-400">
+                            <span className="truncate max-w-[85px] font-mono">
                               {isAudio
                                 ? `${formatMinutes(book.currentAudioMinutes)} / ${formatMinutes(book.audioDurationMinutes)}`
-                                : `Page ${book.currentPage} / ${book.totalPages}`}
+                                : `p. ${book.currentPage}/${book.totalPages}`}
                             </span>
                             <div className="flex items-center gap-1">
                               {isAudio ? (
                                 <>
                                   <button
                                     onClick={() => handleUpdateAudioTime(book, (book.currentAudioMinutes || 0) - 15)}
-                                    className="px-1.5 py-0.5 bg-white/[0.04] hover:bg-white/[0.08] rounded text-[10px] text-slate-300 cursor-pointer"
+                                    className="px-1.5 py-0.2 bg-white/[0.05] hover:bg-white/[0.1] rounded text-[9px] text-slate-300 cursor-pointer"
                                   >
                                     -15m
                                   </button>
                                   <button
                                     onClick={() => handleUpdateAudioTime(book, (book.currentAudioMinutes || 0) + 15)}
-                                    className="px-1.5 py-0.5 bg-white/[0.04] hover:bg-white/[0.08] rounded text-[10px] text-slate-300 cursor-pointer"
+                                    className="px-1.5 py-0.2 bg-white/[0.05] hover:bg-white/[0.1] rounded text-[9px] text-slate-300 cursor-pointer"
                                   >
                                     +15m
                                   </button>
@@ -1073,13 +1065,13 @@ export const BooksModule: React.FC = () => {
                                 <>
                                   <button
                                     onClick={() => handleUpdatePage(book, book.currentPage - 10)}
-                                    className="px-1.5 py-0.5 bg-white/[0.04] hover:bg-white/[0.08] rounded text-[10px] text-slate-300 cursor-pointer"
+                                    className="px-1.5 py-0.2 bg-white/[0.05] hover:bg-white/[0.1] rounded text-[9px] text-slate-300 cursor-pointer"
                                   >
                                     -10
                                   </button>
                                   <button
                                     onClick={() => handleUpdatePage(book, book.currentPage + 10)}
-                                    className="px-1.5 py-0.5 bg-white/[0.04] hover:bg-white/[0.08] rounded text-[10px] text-slate-300 cursor-pointer"
+                                    className="px-1.5 py-0.2 bg-white/[0.05] hover:bg-white/[0.1] rounded text-[9px] text-slate-300 cursor-pointer"
                                   >
                                     +10
                                   </button>
