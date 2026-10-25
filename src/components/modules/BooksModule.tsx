@@ -34,6 +34,7 @@ import {
   ChevronLeft,
   ChevronRight,
   FileCheck,
+  ArrowDownAZ,
 } from 'lucide-react';
 import { Book, BookStatus, BookFormat } from '../../types';
 import { calculateDailyReadingStreak } from '../../utils/streak';
@@ -149,7 +150,7 @@ export const BooksModule: React.FC = () => {
   // Physical library search query & pagination
   const [physicalSearchQuery, setPhysicalSearchQuery] = useState('');
   const [physicalPage, setPhysicalPage] = useState(1);
-  const BOOKS_PER_PAGE = 30; // 6 shelves of 5 books per page
+  const BOOKS_PER_PAGE = 40; // 4 shelves of 10 books per page
 
   // CSV Import State
   const csvFileInputRef = useRef<HTMLInputElement>(null);
@@ -161,9 +162,34 @@ export const BooksModule: React.FC = () => {
   const [csvErrorMessage, setCsvErrorMessage] = useState<string | null>(null);
   const [isImportingCsv, setIsImportingCsv] = useState(false);
 
-  const physicalBooks = state.books.filter((b) => (b.format || 'physical') === 'physical');
+  // Physical books ordered alphabetically by author name (and then by title)
+  const physicalBooks = [...state.books]
+    .filter((b) => (b.format || 'physical') === 'physical')
+    .sort((a, b) => {
+      const authorA = (a.author || 'Unknown Author').trim().toLowerCase();
+      const authorB = (b.author || 'Unknown Author').trim().toLowerCase();
+      const cmp = authorA.localeCompare(authorB);
+      if (cmp !== 0) return cmp;
+      return (a.title || '').trim().toLowerCase().localeCompare((b.title || '').trim().toLowerCase());
+    });
+
   const ebookBooks = state.books.filter((b) => b.format === 'ebook');
   const audiobookBooks = state.books.filter((b) => b.format === 'audiobook');
+
+  const sortPhysicalBooksByAuthor = () => {
+    const nonPhysicalBooks = state.books.filter((b) => (b.format || 'physical') !== 'physical');
+    const sortedPhysical = [...state.books]
+      .filter((b) => (b.format || 'physical') === 'physical')
+      .sort((a, b) => {
+        const authorA = (a.author || 'Unknown Author').trim().toLowerCase();
+        const authorB = (b.author || 'Unknown Author').trim().toLowerCase();
+        const cmp = authorA.localeCompare(authorB);
+        if (cmp !== 0) return cmp;
+        return (a.title || '').trim().toLowerCase().localeCompare((b.title || '').trim().toLowerCase());
+      });
+    reorderBooks([...sortedPhysical, ...nonPhysicalBooks]);
+    setPhysicalPage(1);
+  };
 
   // Filter books based on active tab
   const filteredBooks = state.books.filter((b) => {
@@ -379,7 +405,7 @@ export const BooksModule: React.FC = () => {
     physicalStartIndex,
     physicalStartIndex + BOOKS_PER_PAGE
   );
-  const physicalShelves = chunkShelves(paginatedPhysicalBooks, 5);
+  const physicalShelves = chunkShelves(paginatedPhysicalBooks, 10);
 
   const handleCsvFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -496,12 +522,12 @@ export const BooksModule: React.FC = () => {
 
   const getBookHeight = (book: Book) => {
     const hash = (book.id + (book.title || '')).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return 195 + (hash % 25);
+    return 138 + (hash % 12);
   };
 
   const getBookWidth = (book: Book) => {
     const hash = (book.id + (book.title || '')).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return 122 + (hash % 16);
+    return 78 + (hash % 6);
   };
 
   const formatMinutes = (mins: number = 0) => {
@@ -870,6 +896,17 @@ export const BooksModule: React.FC = () => {
                 <span>DNF</span>
               </span>
 
+              {/* Sort by Author Button */}
+              <button
+                type="button"
+                onClick={sortPhysicalBooksByAuthor}
+                className="px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer bg-[#0a2e1d] hover:bg-[#14472f] text-emerald-200 border border-emerald-400/40 shadow-sm hover:border-emerald-300"
+                title="Sort physical books in order of author name (A-Z)"
+              >
+                <ArrowDownAZ className="w-3.5 h-3.5 text-emerald-300" />
+                <span>Author (A-Z)</span>
+              </button>
+
               {/* Import CSV Button */}
               <button
                 type="button"
@@ -1084,16 +1121,16 @@ export const BooksModule: React.FC = () => {
           )}
 
           {/* Shelves Container */}
-          <div className="p-3 sm:p-6 space-y-12 victorian-wood-panel relative">
+          <div className="p-3 sm:p-5 space-y-8 sm:space-y-10 victorian-wood-panel relative">
             <div className="absolute top-1/4 right-8 w-72 h-72 rounded-full bg-amber-500/5 blur-3xl pointer-events-none" />
             <div className="absolute bottom-1/4 left-8 w-72 h-72 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none" />
 
             {physicalShelves.map((shelfBooks, shelfIdx) => (
               <div key={shelfIdx} className="relative">
-                {/* Book Spines Row sitting on the shelf */}
-                <div className="relative flex items-end px-2 sm:px-6 min-h-[265px] overflow-x-auto no-scrollbar gap-4 sm:gap-6 pb-2 pt-6">
+                {/* Book Spines Row sitting on the shelf (10 books per shelf, compact & neat) */}
+                <div className="relative flex items-end px-2 sm:px-4 min-h-[185px] sm:min-h-[200px] overflow-x-auto no-scrollbar gap-2 sm:gap-2.5 pb-1.5 pt-5">
                   {/* Left Realistic Raven on Branch Bookend */}
-                  <RealisticRavenBookend flip={false} />
+                  <RealisticRavenBookend flip={false} compact={true} />
 
                   {/* Empty Search Result Message on Shelf */}
                   {searchedPhysicalBooks.length === 0 && (
@@ -1182,23 +1219,23 @@ export const BooksModule: React.FC = () => {
                           style={{
                             borderColor: palette.border,
                             transform: isPickedUp
-                              ? 'translateY(-28px) scale(1.05)'
+                              ? 'translateY(-22px) scale(1.05)'
                               : isDragOver
-                              ? 'translateY(-12px) rotateY(8deg) scale(1.03)'
+                              ? 'translateY(-10px) rotateY(8deg) scale(1.03)'
                               : isDragged
                               ? 'opacity-40 scale-95'
                               : undefined,
                             transformOrigin: 'center bottom',
                           }}
-                          className={`relative w-full h-full rounded-r-lg rounded-l-[3px] transition-all duration-300 ease-out shadow-[-3px_10px_24px_rgba(0,0,0,0.85)] group-hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_24px_rgba(245,158,11,0.4)] ${
+                          className={`relative w-full h-full rounded-r-lg rounded-l-[3px] transition-all duration-300 ease-out shadow-[-2px_8px_18px_rgba(0,0,0,0.85)] group-hover:shadow-[0_16px_28px_rgba(0,0,0,0.95),0_0_20px_rgba(245,158,11,0.35)] ${
                             !isPickedUp && !isDragOver && !isDragged
-                              ? '[transform:perspective(750px)_rotateY(18deg)_rotateX(1.5deg)] group-hover:[transform:perspective(750px)_rotateY(6deg)_translateY(-8px)_scale(1.02)]'
+                              ? '[transform:perspective(750px)_rotateY(16deg)_rotateX(1deg)] group-hover:[transform:perspective(750px)_rotateY(4deg)_translateY(-6px)_scale(1.03)]'
                               : ''
                           } ${
                             isPickedUp
-                              ? 'ring-2 ring-emerald-300 shadow-[0_0_30px_rgba(52,211,153,0.95)] z-40'
+                              ? 'ring-2 ring-emerald-300 shadow-[0_0_25px_rgba(52,211,153,0.95)] z-40'
                               : isDragOver
-                              ? 'ring-2 ring-amber-300 shadow-[0_0_25px_rgba(251,191,36,0.8)] z-30'
+                              ? 'ring-2 ring-amber-300 shadow-[0_0_20px_rgba(251,191,36,0.8)] z-30'
                               : 'hover:z-30'
                           }`}
                         >
@@ -1218,12 +1255,12 @@ export const BooksModule: React.FC = () => {
                                 <div className="absolute inset-0 bg-gradient-to-tr from-black/45 via-transparent to-white/10 pointer-events-none" />
 
                                 {/* Hardcover Crease Line near Spine */}
-                                <div className="absolute inset-y-0 left-3 w-[1px] bg-black/45 shadow-[1px_0_1px_rgba(255,255,255,0.15)] pointer-events-none" />
+                                <div className="absolute inset-y-0 left-2 w-[1px] bg-black/45 shadow-[1px_0_1px_rgba(255,255,255,0.15)] pointer-events-none" />
 
                                 {/* Reading Status Badge in Top Corner */}
-                                <div className="absolute top-2 right-2 z-20 pointer-events-none">
+                                <div className="absolute top-1.5 right-1.5 z-20 pointer-events-none">
                                   <span
-                                    className={`text-[8px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow-lg backdrop-blur-md border ${
+                                    className={`text-[7px] font-mono font-bold uppercase tracking-wider px-1 py-0.5 rounded shadow backdrop-blur-md border ${
                                       book.status === 'reading'
                                         ? 'bg-emerald-950/90 text-emerald-300 border-emerald-400/60 shadow-emerald-950/50'
                                         : book.status === 'want_to_read'
@@ -1250,37 +1287,36 @@ export const BooksModule: React.FC = () => {
                             ) : (
                               /* Fallback Embossed Leather Face for books without cover image */
                               <div
-                                className={`w-full h-full p-2.5 flex flex-col justify-between bg-gradient-to-r ${palette.gradient}`}
+                                className={`w-full h-full p-1.5 flex flex-col justify-between bg-gradient-to-r ${palette.gradient}`}
                               >
                                 <div className="flex items-center justify-between">
-                                  <span className="text-[8px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border border-amber-400/40 text-amber-200">
+                                  <span className="text-[7px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border border-amber-400/40 text-amber-200">
                                     {book.status === 'reading' ? `${progressPct}%` : 'Tome'}
                                   </span>
-                                  <BookOpen className="w-3 h-3 text-amber-300/80" />
+                                  <BookOpen className="w-2.5 h-2.5 text-amber-300/80" />
                                 </div>
-                                <div className="text-center px-1">
-                                  <h3 className="font-serif font-black text-xs leading-tight line-clamp-3 text-amber-100">
+                                <div className="text-center px-0.5">
+                                  <h3 className="font-serif font-black text-[10px] leading-tight line-clamp-2 text-amber-100">
                                     {book.title}
                                   </h3>
-                                  <p className="font-serif italic text-[9.5px] text-amber-300/75 truncate mt-1">
+                                  <p className="font-serif italic text-[8.5px] text-amber-300/75 truncate mt-0.5">
                                     by {book.author}
                                   </p>
                                 </div>
                                 <div className="text-center">
-                                  <span className="text-[7.5px] font-mono text-amber-200/60 uppercase tracking-widest">
-                                    Hardcover Edition
+                                  <span className="text-[6.5px] font-mono text-amber-200/60 uppercase tracking-widest">
+                                    Hardcover
                                   </span>
                                 </div>
                               </div>
                             )}
 
                             {/* 3D Cylindrical Spine Shading on Left Edge */}
-                            <div className="absolute inset-y-0 left-0 w-3 bg-gradient-to-r from-black/80 via-white/10 to-transparent pointer-events-none rounded-l-[3px]" />
+                            <div className="absolute inset-y-0 left-0 w-2.5 bg-gradient-to-r from-black/80 via-white/10 to-transparent pointer-events-none rounded-l-[3px]" />
                           </div>
 
                           {/* 3D Paper Pages Rim (Right edge showing page thickness) */}
-                          <div className="absolute top-1 bottom-1 -right-1.5 w-1.5 rounded-r-xs bg-gradient-to-r from-[#d8ceb9] via-[#f1eadb] to-[#dfd6c5] shadow-[2px_3px_6px_rgba(0,0,0,0.7)] border-y border-r border-[#beaf91] pointer-events-none flex flex-col justify-around py-3">
-                            <div className="w-full h-[0.5px] bg-[#beb196]/60" />
+                          <div className="absolute top-0.5 bottom-0.5 -right-1 w-1 rounded-r-xs bg-gradient-to-r from-[#d8ceb9] via-[#f1eadb] to-[#dfd6c5] shadow-[1px_2px_4px_rgba(0,0,0,0.7)] border-y border-r border-[#beaf91] pointer-events-none flex flex-col justify-around py-1.5">
                             <div className="w-full h-[0.5px] bg-[#beb196]/60" />
                             <div className="w-full h-[0.5px] bg-[#beb196]/60" />
                           </div>
@@ -1288,15 +1324,15 @@ export const BooksModule: React.FC = () => {
                           {/* Silk Bookmark Ribbon dangling over the shelf plank */}
                           <div
                             style={{ backgroundColor: palette.ribbon }}
-                            className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3.5 h-4.5 shadow-md pointer-events-none z-20 transition-transform group-hover:translate-y-1"
+                            className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-2.5 h-3.5 shadow-md pointer-events-none z-20 transition-transform group-hover:translate-y-1"
                           >
-                            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-[#120703] [clip-path:polygon(0_100%,50%_0,100%_100%)]" />
+                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#120703] [clip-path:polygon(0_100%,50%_0,100%_100%)]" />
                           </div>
                         </div>
 
                         {/* Picked-up Indicator */}
                         {isPickedUp && (
-                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-emerald-400 text-black font-extrabold text-[9px] px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap animate-bounce flex items-center gap-1 z-50">
+                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-emerald-400 text-black font-extrabold text-[8px] px-1.5 py-0.5 rounded-full shadow-lg whitespace-nowrap animate-bounce flex items-center gap-1 z-50">
                             <Hand className="w-2.5 h-2.5" />
                             <span>PICKED UP</span>
                           </div>
@@ -1304,39 +1340,40 @@ export const BooksModule: React.FC = () => {
 
                         {/* Target slot indicator when another book is picked up */}
                         {pickedUpBookId && !isPickedUp && (
-                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-amber-400 text-black font-bold text-[9px] px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap transition-opacity pointer-events-none z-50">
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-amber-400 text-black font-bold text-[8px] px-1.5 py-0.5 rounded-full shadow-lg whitespace-nowrap transition-opacity pointer-events-none z-50">
                             Place Here ↓
                           </div>
                         )}
 
                         {/* Quick Nudge Buttons (Left/Right) for effortless moving */}
                         {!pickedUpBookId && (
-                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:flex items-center gap-1 z-50 bg-black/90 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-emerald-400/40 shadow-xl">
+                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 hidden group-hover:flex items-center gap-0.5 z-50 bg-black/90 backdrop-blur-md px-1 py-0.5 rounded-lg border border-emerald-400/40 shadow-xl">
                             <button
                               type="button"
                               title="Move left"
                               onClick={(e) => nudgeBook(book.id, -1, e)}
                               className="p-0.5 rounded hover:bg-emerald-500/40 text-emerald-300 hover:text-white transition-colors cursor-pointer"
                             >
-                              <ArrowLeft className="w-2.5 h-2.5" />
+                              <ArrowLeft className="w-2 h-2" />
                             </button>
-                            <span className="text-[8px] text-emerald-200 font-mono px-0.5">Move</span>
+                            <span className="text-[7.5px] text-emerald-200 font-mono px-0.5">Move</span>
                             <button
                               type="button"
                               title="Move right"
                               onClick={(e) => nudgeBook(book.id, 1, e)}
                               className="p-0.5 rounded hover:bg-emerald-500/40 text-emerald-300 hover:text-white transition-colors cursor-pointer"
                             >
-                              <ArrowRight className="w-2.5 h-2.5" />
+                              <ArrowRight className="w-2 h-2" />
                             </button>
                           </div>
                         )}
 
                         {/* Hover Tooltip / Floating Card Preview (only shown when not in pick-up mode) */}
                         {!pickedUpBookId && !rearrangeMode && (
-                          <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap bg-[#0b1c11]/95 text-white text-[11px] px-3 py-1.5 rounded-lg border border-emerald-400/50 shadow-2xl backdrop-blur-md flex items-center gap-2">
+                          <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap bg-[#0b1c11]/95 text-white text-[10px] px-2 py-1 rounded-lg border border-emerald-400/50 shadow-2xl backdrop-blur-md flex items-center gap-1.5">
                             <span className="font-serif font-bold text-amber-200">{book.title}</span>
-                            <span className="text-emerald-300/80 font-mono text-[10px]">
+                            <span className="text-emerald-300/80 font-serif italic text-[9px]">by {book.author}</span>
+                            <span className="text-emerald-300/80 font-mono text-[9px]">
                               {book.status === 'reading'
                                 ? `${progressPct}%`
                                 : book.status === 'completed'
@@ -1353,8 +1390,8 @@ export const BooksModule: React.FC = () => {
                   {shelfIdx === physicalShelves.length - 1 && (
                     <div
                       style={{
-                        height: '200px',
-                        width: '120px',
+                        height: '142px',
+                        width: '80px',
                         perspective: '900px',
                       }}
                       className="shrink-0 relative group"
@@ -1368,24 +1405,24 @@ export const BooksModule: React.FC = () => {
                         style={{
                           transformOrigin: 'center bottom',
                         }}
-                        className="w-full h-full rounded-r-lg rounded-l-[3px] border-2 border-dashed border-emerald-500/40 hover:border-emerald-400/80 bg-emerald-950/20 hover:bg-emerald-900/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 p-3 text-emerald-300/70 hover:text-emerald-100 cursor-pointer shadow-inner [transform:perspective(750px)_rotateY(18deg)_rotateX(1.5deg)] hover:[transform:perspective(750px)_rotateY(6deg)_translateY(-8px)_scale(1.02)]"
+                        className="w-full h-full rounded-r-lg rounded-l-[3px] border-2 border-dashed border-emerald-500/40 hover:border-emerald-400/80 bg-emerald-950/20 hover:bg-emerald-900/40 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 p-2 text-emerald-300/70 hover:text-emerald-100 cursor-pointer shadow-inner [transform:perspective(750px)_rotateY(16deg)_rotateX(1deg)] hover:[transform:perspective(750px)_rotateY(4deg)_translateY(-6px)_scale(1.02)]"
                         title="Add a new physical book to this shelf"
                       >
-                        <div className="w-7 h-7 rounded-full bg-emerald-700/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner group-hover:scale-110 transition-transform">
-                          <Plus className="w-3.5 h-3.5" />
+                        <div className="w-6 h-6 rounded-full bg-emerald-700/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner group-hover:scale-110 transition-transform">
+                          <Plus className="w-3 h-3" />
                         </div>
-                        <span className="font-serif font-bold text-xs uppercase tracking-wider text-emerald-200 text-center">
+                        <span className="font-serif font-bold text-[10px] uppercase tracking-wider text-emerald-200 text-center leading-tight">
                           + New Tome
                         </span>
-                        <span className="text-[9px] font-serif italic opacity-75 text-emerald-300/70 text-center">
-                          Place on Shelf
+                        <span className="text-[8px] font-serif italic opacity-75 text-emerald-300/70 text-center">
+                          On Shelf
                         </span>
                       </button>
                     </div>
                   )}
 
                   {/* Right Realistic Raven on Branch Bookend */}
-                  <RealisticRavenBookend flip={true} />
+                  <RealisticRavenBookend flip={true} compact={true} />
                 </div>
 
                 {/* The Heavy Dark Dark Obsidian Mahogany Wooden Shelf Base */}
