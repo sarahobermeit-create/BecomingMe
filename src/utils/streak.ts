@@ -67,3 +67,57 @@ export const calculateDailyStreak = (state: LifeState, todayStr: string): number
 
   return Math.max(streak, maxRoutineStreak);
 };
+
+/**
+ * Calculates the active daily reading streak:
+ * Checks reading-related routines (e.g. "Read 20 pages", tags with "Reading"),
+ * reading activity dates, and consecutive daily engagement.
+ */
+export const calculateDailyReadingStreak = (state: LifeState, todayStr: string): number => {
+  const readingDates = new Set<string>();
+
+  // 1. Reading routines
+  const readingRoutines = state.routines.filter(
+    (r) =>
+      r.title.toLowerCase().includes('read') ||
+      r.title.toLowerCase().includes('book') ||
+      r.tags.some((t) => t.toLowerCase() === 'reading' || t.toLowerCase() === 'growth')
+  );
+
+  readingRoutines.forEach((r) => {
+    r.completedDates.forEach((d) => readingDates.add(d));
+  });
+
+  const maxReadingRoutineStreak = Math.max(0, ...readingRoutines.map((r) => r.streak || 0));
+
+  // Date helpers
+  const parseDate = (dStr: string) => new Date(dStr + 'T00:00:00');
+  const formatDate = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
+  let streak = 0;
+  const curr = parseDate(todayStr);
+
+  if (!readingDates.has(todayStr)) {
+    curr.setDate(curr.getDate() - 1);
+    if (!readingDates.has(formatDate(curr))) {
+      return Math.max(0, maxReadingRoutineStreak);
+    }
+  }
+
+  while (true) {
+    const dStr = formatDate(curr);
+    if (readingDates.has(dStr)) {
+      streak++;
+      curr.setDate(curr.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+
+  return Math.max(streak, maxReadingRoutineStreak);
+};

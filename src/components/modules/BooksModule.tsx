@@ -25,8 +25,10 @@ import {
   ArrowRight,
   Hand,
   Check,
+  Flame,
 } from 'lucide-react';
 import { Book, BookStatus, BookFormat } from '../../types';
+import { calculateDailyReadingStreak } from '../../utils/streak';
 import { RealisticRavenBookend } from '../common/RealisticRavenBookend';
 import { KindleScreen } from '../common/KindleScreen';
 import { HeadphonesOverCorner } from '../common/HeadphonesOverCorner';
@@ -121,6 +123,10 @@ export const BooksModule: React.FC = () => {
 
   // Inspection modal quote addition state
   const [newQuoteText, setNewQuoteText] = useState('');
+
+  // Daily Reading Streak
+  const todayDate = new Date().toISOString().split('T')[0];
+  const dailyReadingStreak = calculateDailyReadingStreak(state, todayDate);
 
   const physicalBooks = state.books.filter((b) => (b.format || 'physical') === 'physical');
   const ebookBooks = state.books.filter((b) => b.format === 'ebook');
@@ -317,13 +323,33 @@ export const BooksModule: React.FC = () => {
             </p>
           </div>
 
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="px-3.5 py-2 rounded-xl bg-emerald-700/85 hover:bg-emerald-600 text-white font-medium text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/50 transition-all shrink-0 self-start sm:self-auto border border-emerald-400/25 cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add New Book</span>
-          </button>
+          <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto flex-wrap sm:flex-nowrap">
+            {/* Daily Reading Streak Badge */}
+            <div
+              className="flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-500/15 via-orange-500/20 to-amber-500/15 border border-amber-400/40 shadow-[0_0_18px_rgba(245,158,11,0.25)] select-none"
+              title={`${dailyReadingStreak} day consecutive reading streak!`}
+            >
+              <div className="p-1 sm:p-1.5 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-400">
+                <Flame className="w-4 h-4 fill-amber-400 text-amber-400 animate-pulse" />
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-amber-300">
+                  Daily Reading Streak
+                </span>
+                <span className="font-mono font-black text-xs sm:text-sm text-amber-100 leading-tight">
+                  {dailyReadingStreak} {dailyReadingStreak === 1 ? 'Day' : 'Days'}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="px-3.5 py-2 rounded-xl bg-emerald-700/85 hover:bg-emerald-600 text-white font-medium text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/50 transition-all border border-emerald-400/25 cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add New Book</span>
+            </button>
+          </div>
         </div>
       </div>
 
