@@ -286,25 +286,25 @@ export const BooksModule: React.FC = () => {
           onClick={() => setActiveTab('bookshelf_physical')}
           className={`p-4 rounded-2xl text-left transition-all shadow-xl group relative overflow-hidden border cursor-pointer ${
             activeTab === 'bookshelf_physical'
-              ? 'bg-gradient-to-br from-[#24130a]/90 via-[#190d06]/95 to-[#0e0703] border-amber-500/80 ring-2 ring-amber-400/40 shadow-amber-950/60'
-              : 'bg-[#06140b]/50 backdrop-blur-md border-emerald-500/30 hover:border-amber-400/70 hover:bg-[#150e08]/60 hover:shadow-amber-950/40'
+              ? 'bg-gradient-to-br from-[#0c2618]/95 via-[#071a10]/95 to-[#040e09] border-emerald-400 ring-2 ring-emerald-400/40 shadow-emerald-950/60'
+              : 'bg-[#06140b]/50 backdrop-blur-md border-emerald-500/30 hover:border-emerald-400/70 hover:bg-[#0a2214]/60 hover:shadow-emerald-950/40'
           }`}
           title="Click to view all physical books sitting on the Victorian wooden bookshelves with raven bookends"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-200 flex items-center gap-1.5 font-serif">
-              <Library className="w-4 h-4 text-amber-400" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-200 flex items-center gap-1.5 font-serif">
+              <Library className="w-4 h-4 text-emerald-400" />
               <span>Total Physical Library</span>
             </span>
-            <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/30 font-semibold group-hover:bg-amber-500/30 transition-colors">
+            <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 font-semibold group-hover:bg-emerald-500/30 transition-colors">
               Raven Shelves 🪵
             </span>
           </div>
           <div className="flex items-baseline justify-between mt-2">
-            <p className="text-2xl font-black text-amber-300 font-mono">
+            <p className="text-2xl font-black text-emerald-300 font-mono">
               {physicalBooks.length}
             </p>
-            <span className="text-[11px] text-amber-200/80 group-hover:text-amber-100 flex items-center gap-1 font-medium">
+            <span className="text-[11px] text-emerald-200/80 group-hover:text-emerald-100 flex items-center gap-1 font-medium">
               View Shelves →
             </span>
           </div>
@@ -438,13 +438,13 @@ export const BooksModule: React.FC = () => {
           onClick={() => setActiveTab('bookshelf_physical')}
           className={`px-3.5 py-2 rounded-xl font-semibold flex items-center gap-2 transition-all cursor-pointer ${
             activeTab === 'bookshelf_physical'
-              ? 'bg-gradient-to-r from-amber-900 to-amber-800 text-amber-100 border border-amber-400/50 shadow-lg shadow-amber-950/50'
-              : 'text-amber-200/80 hover:text-white bg-[#06140b]/40 border border-emerald-500/20 hover:border-amber-500/40'
+              ? 'bg-gradient-to-r from-[#0e3b24] via-[#1b5536] to-[#0e3b24] text-emerald-100 border border-emerald-400/50 shadow-lg shadow-emerald-950/60'
+              : 'text-emerald-200/80 hover:text-white bg-[#06140b]/40 border border-emerald-500/20 hover:border-emerald-500/40'
           }`}
         >
-          <Library className="w-3.5 h-3.5 text-amber-400" />
+          <Library className="w-3.5 h-3.5 text-emerald-300" />
           <span>Total Physical Library</span>
-          <span className="px-1.5 py-0.2 rounded-full bg-black/40 text-[10px] font-mono text-amber-300">
+          <span className="px-1.5 py-0.2 rounded-full bg-black/40 text-[10px] font-mono text-emerald-300">
             {physicalBooks.length}
           </span>
         </button>
@@ -527,16 +527,16 @@ export const BooksModule: React.FC = () => {
       {/* VIEW 1: VICTORIAN PHYSICAL BOOKSHELVES VIEW (WITH RAVEN BOOKENDS & DARK DARK WOOD) */}
       {activeTab === 'bookshelf_physical' && (
         <div className="relative rounded-2xl border-2 border-[#1c0d06]/80 shadow-2xl overflow-hidden bg-gradient-to-b from-[#0a0503] via-[#050302] to-[#020101]">
-          {/* Top Arch Bookcase Header with Brass Plaque */}
-          <div className="relative px-4 py-3 bg-gradient-to-r from-[#0d0502] via-[#1a0a04] to-[#0d0502] border-b border-[#240e06] flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-inner">
+          {/* Top Arch Bookcase Header with Plaque */}
+          <div className="relative px-4 py-3 bg-gradient-to-r from-[#07190f] via-[#0d2a1b] to-[#07190f] border-b border-[#143d27]/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-inner">
             <div className="flex items-center gap-3">
-              {/* Antique Engraved Brass Plaque */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded bg-gradient-to-r from-[#b8860b] via-[#f5d77f] to-[#aa771c] text-[#241305] shadow-md border border-[#7a5410]">
+              {/* Dark Forest Green Engraved Plaque */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded bg-gradient-to-r from-[#0a2e1d] via-[#14472f] to-[#0a2e1d] text-emerald-200 shadow-md border border-emerald-400/40">
                 <span className="text-[10px] font-serif font-black tracking-widest uppercase">
                   Victorian Library • Physical Collection
                 </span>
               </div>
-              <span className="text-[11px] text-amber-200/70 font-serif italic hidden md:inline">
+              <span className="text-[11px] text-emerald-200/70 font-serif italic hidden md:inline">
                 Guarded by realistic ravens perched on gnarled oak branches • Click any tome to pull it from the shelf
               </span>
             </div>
@@ -669,10 +669,10 @@ export const BooksModule: React.FC = () => {
                         setFormat('physical');
                         setShowAddModal(true);
                       }}
-                      className="shrink-0 h-[220px] w-12 sm:w-14 rounded-t-md border-2 border-dashed border-amber-500/40 hover:border-amber-400/80 bg-amber-950/15 hover:bg-amber-900/30 transition-all flex flex-col items-center justify-center gap-2 p-1.5 text-amber-300/70 hover:text-amber-100 group cursor-pointer shadow-inner"
+                      className="shrink-0 h-[220px] w-12 sm:w-14 rounded-t-md border-2 border-dashed border-emerald-500/40 hover:border-emerald-400/80 bg-emerald-950/20 hover:bg-emerald-900/40 transition-all flex flex-col items-center justify-center gap-2 p-1.5 text-emerald-300/70 hover:text-emerald-100 group cursor-pointer shadow-inner"
                       title="Add a new physical book to this shelf"
                     >
-                      <Plus className="w-5 h-5 group-hover:scale-125 transition-transform text-amber-400" />
+                      <Plus className="w-5 h-5 group-hover:scale-125 transition-transform text-emerald-400" />
                       <span className="writing-mode-vertical font-serif text-[10px] tracking-wider uppercase font-semibold">
                         + New Tome
                       </span>
@@ -688,13 +688,13 @@ export const BooksModule: React.FC = () => {
                   <div className="h-3.5 bg-gradient-to-r from-[#0c0603] via-[#160a05] to-[#0c0603] border-t border-[#261207] shadow-inner" />
                   <div className="h-6 sm:h-7 bg-gradient-to-b from-[#0a0502] via-[#050201] to-[#010100] border-b-2 border-black flex items-center justify-between px-4 sm:px-6 shadow-md">
                     <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-600/70 shadow-sm" />
-                      <span className="text-[10px] font-serif font-bold text-amber-200/50 tracking-widest uppercase">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/70 shadow-sm" />
+                      <span className="text-[10px] font-serif font-bold text-emerald-200/60 tracking-widest uppercase">
                         Tier {shelfIdx + 1} • Dark Obsidian Mahogany
                       </span>
                     </div>
 
-                    <span className="text-[10px] font-serif text-amber-300/30 hidden sm:inline">
+                    <span className="text-[10px] font-serif text-emerald-300/30 hidden sm:inline">
                       Raven Guardians On Gnarled Branches • Dark Ancient Oak
                     </span>
                   </div>
