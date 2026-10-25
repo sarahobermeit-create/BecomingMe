@@ -15,6 +15,7 @@ import { HobbiesModule } from './components/modules/HobbiesModule';
 import { ExerciseModule } from './components/modules/ExerciseModule';
 import { IdeasModule } from './components/modules/IdeasModule';
 import { CalendarModule } from './components/modules/CalendarModule';
+import { VictorianAtmosphere } from './components/common/VictorianAtmosphere';
 
 const MainLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -61,6 +62,8 @@ const MainLayout: React.FC = () => {
           />
           {/* Atmospheric vignette so the entire room, rain, and fire are visible across the screen */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#070e0a]/65 via-[#070e0a]/70 to-[#070e0a]/80" />
+          {/* Active burning fireplace embers & rain streaming down the glass */}
+          <VictorianAtmosphere />
         </div>
       )}
 
