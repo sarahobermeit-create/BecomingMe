@@ -6,6 +6,7 @@ export interface IsbnBookData {
   quote?: string;
   description?: string;
   publishYear?: string;
+  isbn?: string;
 }
 
 /**
@@ -84,6 +85,7 @@ export const lookupBookByIsbn = async (isbnRaw: string): Promise<IsbnBookData> =
           quote: data.quote || '',
           description: data.description || '',
           publishYear: data.publishYear || '',
+          isbn: cleanIsbn,
         };
       }
     }
@@ -122,6 +124,7 @@ export const lookupBookByIsbn = async (isbnRaw: string): Promise<IsbnBookData> =
         quote,
         description,
         publishYear: bookData.publish_date || '',
+        isbn: cleanIsbn,
       };
     }
   } catch (err) {
@@ -158,6 +161,7 @@ export const lookupBookByIsbn = async (isbnRaw: string): Promise<IsbnBookData> =
           totalPages: Number(data.number_of_pages) || 300,
           coverUrl: `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg`,
           description,
+          isbn: cleanIsbn,
         };
       }
     }
@@ -165,5 +169,66 @@ export const lookupBookByIsbn = async (isbnRaw: string): Promise<IsbnBookData> =
     console.warn('Open Library direct ISBN endpoint failed...', err);
   }
 
-  throw new Error(`No book found for ISBN "${isbnRaw}". Check the number or enter details manually.`);
+  throw new Error(`No book found for ISBN "${isbnRaw}". Check the number or search by book name.`);
+};
+
+/**
+ * Searches online book database by title, author, or keywords.
+ * If query is an ISBN, delegates directly to lookupBookByIsbn.
+ */
+export const searchBooksOnline = async (queryRaw: string): Promise<IsbnBookData[]> => {
+  const query = queryRaw.trim();
+  if (!query) return [];
+
+  // If query is an ISBN (10 or 13 digits), resolve directly
+  const cleanIsbn = normalizeIsbn(query);
+  if (cleanIsbn.length === 10 || cleanIsbn.length === 13) {
+    try {
+      const single = await lookupBookByIsbn(cleanIsbn);
+      return [single];
+    } catch {
+      // If ISBN lookup fails, still try general text search below
+    }
+  }
+
+  // 1. Try local server proxy (/api/book-search?q=...)
+  try {
+    const res = await fetch(`/api/book-search?q=${encodeURIComponent(query)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.results && Array.isArray(data.results) && data.results.length > 0) {
+        return data.results;
+      }
+    }
+  } catch (err) {
+    console.warn('Local /api/book-search proxy failed, trying direct Open Library...', err);
+  }
+
+  // 2. Direct browser fetch to Open Library search.json
+  try {
+    const res = await fetch(
+      `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=8&fields=title,author_name,cover_i,number_of_pages_median,first_publish_year,isbn`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const results: IsbnBookData[] = (data.docs || []).map((d: any) => ({
+        title: d.title || '',
+        author: (d.author_name || []).join(', ') || '',
+        totalPages: Number(d.number_of_pages_median) || 300,
+        coverUrl: d.cover_i
+          ? `https://covers.openlibrary.org/b/id/${d.cover_i}-L.jpg`
+          : (d.isbn && d.isbn[0]
+          ? `https://covers.openlibrary.org/b/isbn/${d.isbn[0]}-L.jpg`
+          : ''),
+        publishYear: d.first_publish_year ? String(d.first_publish_year) : '',
+        isbn: (d.isbn || [])[0] || '',
+      }));
+
+      if (results.length > 0) return results;
+    }
+  } catch (err) {
+    console.warn('Direct Open Library search failed...', err);
+  }
+
+  throw new Error(`No books found matching "${query}". Check spelling or try searching with an ISBN.`);
 };

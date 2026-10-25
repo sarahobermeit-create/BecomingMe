@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import { Book, BookStatus, BookFormat } from '../../types';
 import { calculateDailyReadingStreak } from '../../utils/streak';
-import { lookupBookByIsbn } from '../../utils/isbnLookup';
+import { lookupBookByIsbn, searchBooksOnline, IsbnBookData } from '../../utils/isbnLookup';
 import { RealisticRavenBookend } from '../common/RealisticRavenBookend';
 import { KindleScreen } from '../common/KindleScreen';
 import { HeadphonesOverCorner } from '../common/HeadphonesOverCorner';
@@ -122,11 +122,12 @@ export const BooksModule: React.FC = () => {
   const [notes, setNotes] = useState('');
   const [quoteInput, setQuoteInput] = useState('');
 
-  // ISBN Auto-Fill lookup state
-  const [isbnInput, setIsbnInput] = useState('');
-  const [isSearchingIsbn, setIsSearchingIsbn] = useState(false);
-  const [isbnError, setIsbnError] = useState<string | null>(null);
-  const [isbnSuccessMessage, setIsbnSuccessMessage] = useState<string | null>(null);
+  // Online Book Search & Auto-Fill state
+  const [onlineSearchQuery, setOnlineSearchQuery] = useState('');
+  const [isSearchingOnline, setIsSearchingOnline] = useState(false);
+  const [searchResults, setSearchResults] = useState<IsbnBookData[]>([]);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [searchSuccessMessage, setSearchSuccessMessage] = useState<string | null>(null);
 
   // Audio player playback simulation state
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
@@ -214,42 +215,55 @@ export const BooksModule: React.FC = () => {
     setCoverUrl('');
     setNotes('');
     setQuoteInput('');
-    setIsbnInput('');
-    setIsbnError(null);
-    setIsbnSuccessMessage(null);
+    setOnlineSearchQuery('');
+    setSearchResults([]);
+    setSearchError(null);
+    setSearchSuccessMessage(null);
     setShowAddModal(false);
   };
 
-  const handleIsbnLookup = async () => {
-    if (!isbnInput.trim()) {
-      setIsbnError('Please enter a 10 or 13-digit ISBN number.');
+  const handleSelectBook = (book: IsbnBookData) => {
+    setTitle(book.title);
+    setAuthor(book.author);
+    if (book.totalPages > 0) {
+      setTotalPages(book.totalPages.toString());
+    }
+    if (book.coverUrl) {
+      setCoverUrl(book.coverUrl);
+    }
+    if (book.quote) {
+      setQuoteInput(book.quote);
+    } else if (book.description) {
+      setNotes(book.description.slice(0, 300));
+    }
+    setSearchSuccessMessage(`Auto-filled details for "${book.title}" by ${book.author || 'Author'}!`);
+    setSearchResults([]);
+    setSearchError(null);
+  };
+
+  const handleOnlineSearch = async () => {
+    if (!onlineSearchQuery.trim()) {
+      setSearchError('Please enter a book name, author, or ISBN.');
       return;
     }
 
-    setIsSearchingIsbn(true);
-    setIsbnError(null);
-    setIsbnSuccessMessage(null);
+    setIsSearchingOnline(true);
+    setSearchError(null);
+    setSearchSuccessMessage(null);
+    setSearchResults([]);
 
     try {
-      const data = await lookupBookByIsbn(isbnInput);
-      setTitle(data.title);
-      setAuthor(data.author);
-      if (data.totalPages > 0) {
-        setTotalPages(data.totalPages.toString());
+      const results = await searchBooksOnline(onlineSearchQuery);
+      if (results.length === 1) {
+        // Direct exact match
+        handleSelectBook(results[0]);
+      } else {
+        setSearchResults(results);
       }
-      if (data.coverUrl) {
-        setCoverUrl(data.coverUrl);
-      }
-      if (data.quote) {
-        setQuoteInput(data.quote);
-      } else if (data.description) {
-        setNotes(data.description.slice(0, 300));
-      }
-      setIsbnSuccessMessage(`Found "${data.title}" by ${data.author || 'Author'}! Book details & cover art populated.`);
     } catch (err: any) {
-      setIsbnError(err.message || 'Book not found for this ISBN.');
+      setSearchError(err.message || 'No books found. Check spelling or try an ISBN.');
     } finally {
-      setIsSearchingIsbn(false);
+      setIsSearchingOnline(false);
     }
   };
 
@@ -1482,9 +1496,10 @@ export const BooksModule: React.FC = () => {
               </h3>
               <button
                 onClick={() => {
-                  setIsbnInput('');
-                  setIsbnError(null);
-                  setIsbnSuccessMessage(null);
+                  setOnlineSearchQuery('');
+                  setSearchResults([]);
+                  setSearchError(null);
+                  setSearchSuccessMessage(null);
                   setShowAddModal(false);
                 }}
                 className="text-slate-400 hover:text-white text-xs px-2 py-1 rounded cursor-pointer"
@@ -1534,42 +1549,42 @@ export const BooksModule: React.FC = () => {
                 </div>
               </div>
 
-              {/* ISBN Auto-Fill Section */}
-              <div className="bg-gradient-to-r from-emerald-950/60 via-[#0a2014] to-emerald-950/60 border border-emerald-500/35 rounded-xl p-3 shadow-inner">
-                <div className="flex items-center justify-between mb-1.5">
+              {/* Online Book Search & Auto-Fill Section (By Title, Author, or ISBN) */}
+              <div className="bg-gradient-to-r from-emerald-950/60 via-[#0a2014] to-emerald-950/60 border border-emerald-500/35 rounded-xl p-3 shadow-inner space-y-2">
+                <div className="flex items-center justify-between">
                   <label className="text-emerald-300 font-semibold flex items-center gap-1.5 text-xs">
                     <Search className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Auto-Fill from ISBN</span>
+                    <span>Auto-Fill from Title, Author, or ISBN</span>
                   </label>
-                  <span className="text-[10px] text-emerald-400/70 font-mono">10 or 13 digits</span>
+                  <span className="text-[10px] text-emerald-400/70 font-mono">Online Lookup</span>
                 </div>
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="e.g. 9780141439518 or 0451524934"
-                    value={isbnInput}
+                    placeholder="e.g. Sapiens, Lauren Jackson, or 9780141439518"
+                    value={onlineSearchQuery}
                     onChange={(e) => {
-                      setIsbnInput(e.target.value);
-                      if (isbnError) setIsbnError(null);
+                      setOnlineSearchQuery(e.target.value);
+                      if (searchError) setSearchError(null);
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        handleIsbnLookup();
+                        handleOnlineSearch();
                       }
                     }}
-                    className="flex-1 glass-input px-3 py-2 rounded-xl text-xs font-mono placeholder:text-slate-500"
+                    className="flex-1 glass-input px-3 py-2 rounded-xl text-xs font-medium placeholder:text-slate-500"
                   />
                   <button
                     type="button"
-                    onClick={handleIsbnLookup}
-                    disabled={isSearchingIsbn || !isbnInput.trim()}
+                    onClick={handleOnlineSearch}
+                    disabled={isSearchingOnline || !onlineSearchQuery.trim()}
                     className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium text-xs flex items-center gap-1.5 transition-all shadow cursor-pointer shrink-0"
                   >
-                    {isSearchingIsbn ? (
+                    {isSearchingOnline ? (
                       <>
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Finding...</span>
+                        <span>Searching...</span>
                       </>
                     ) : (
                       <>
@@ -1580,19 +1595,58 @@ export const BooksModule: React.FC = () => {
                   </button>
                 </div>
 
+                {/* Multiple Search Results Match Cards */}
+                {searchResults.length > 0 && (
+                  <div className="mt-2 space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                    <p className="text-[10px] text-emerald-300/80 font-medium">Select a match to auto-fill:</p>
+                    <div className="space-y-1.5">
+                      {searchResults.map((bookResult, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => handleSelectBook(bookResult)}
+                          className="flex items-center gap-2.5 p-2 rounded-lg bg-black/50 hover:bg-emerald-900/40 border border-emerald-500/20 hover:border-emerald-400/60 cursor-pointer transition-all group"
+                        >
+                          <div className="w-8 h-11 shrink-0 rounded overflow-hidden bg-slate-900 border border-emerald-500/30">
+                            {bookResult.coverUrl ? (
+                              <img src={bookResult.coverUrl} alt={bookResult.title} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-500">📖</div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h5 className="font-serif font-bold text-xs text-white group-hover:text-emerald-300 truncate">
+                              {bookResult.title}
+                            </h5>
+                            <p className="font-serif italic text-[10px] text-slate-300 truncate">
+                              {bookResult.author || 'Unknown Author'}
+                            </p>
+                            <span className="text-[9px] font-mono text-emerald-400/70">
+                              {bookResult.publishYear ? `${bookResult.publishYear} • ` : ''}
+                              {bookResult.totalPages} pages
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-emerald-400 font-semibold shrink-0 group-hover:underline">
+                            Select →
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Success Message Banner */}
-                {isbnSuccessMessage && (
+                {searchSuccessMessage && (
                   <div className="mt-2.5 p-2 rounded-lg bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 text-[11px] flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>{isbnSuccessMessage}</span>
+                    <span>{searchSuccessMessage}</span>
                   </div>
                 )}
 
                 {/* Error Message Banner */}
-                {isbnError && (
+                {searchError && (
                   <div className="mt-2.5 p-2 rounded-lg bg-rose-500/15 border border-rose-400/40 text-rose-200 text-[11px] flex items-center gap-2">
                     <span className="shrink-0 text-rose-400 font-bold">✕</span>
-                    <span>{isbnError}</span>
+                    <span>{searchError}</span>
                   </div>
                 )}
               </div>
@@ -1717,9 +1771,10 @@ export const BooksModule: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    setIsbnInput('');
-                    setIsbnError(null);
-                    setIsbnSuccessMessage(null);
+                    setOnlineSearchQuery('');
+                    setSearchResults([]);
+                    setSearchError(null);
+                    setSearchSuccessMessage(null);
                     setShowAddModal(false);
                   }}
                   className="px-3 py-2 rounded-xl bg-white/[0.05] text-slate-300 hover:bg-white/[0.1] cursor-pointer"

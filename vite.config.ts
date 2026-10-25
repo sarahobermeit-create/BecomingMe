@@ -44,6 +44,52 @@ function localSyncPlugin(): Plugin {
           return
         }
 
+        // GET /api/book-search?q=... (Search online books by Title, Author, or keywords)
+        if (req.url?.startsWith('/api/book-search') && req.method === 'GET') {
+          const urlObj = new URL(req.url, 'http://localhost')
+          const q = urlObj.searchParams.get('q')?.trim() || ''
+          res.setHeader('Content-Type', 'application/json')
+          res.setHeader('Access-Control-Allow-Origin', '*')
+
+          if (!q) {
+            res.statusCode = 400
+            res.end(JSON.stringify({ error: 'Missing query parameter', results: [] }))
+            return
+          }
+
+          ;(async () => {
+            try {
+              const searchRes = await fetch(
+                `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=8&fields=title,author_name,cover_i,number_of_pages_median,first_publish_year,isbn`
+              )
+              if (searchRes.ok) {
+                const searchData = (await searchRes.json()) as any
+                const results = (searchData?.docs || []).map((d: any) => ({
+                  title: d.title || '',
+                  author: (d.author_name || []).join(', ') || '',
+                  totalPages: Number(d.number_of_pages_median) || 300,
+                  coverUrl: d.cover_i
+                    ? `https://covers.openlibrary.org/b/id/${d.cover_i}-L.jpg`
+                    : (d.isbn && d.isbn[0]
+                    ? `https://covers.openlibrary.org/b/isbn/${d.isbn[0]}-L.jpg`
+                    : ''),
+                  publishYear: d.first_publish_year ? String(d.first_publish_year) : '',
+                  isbn: (d.isbn || [])[0] || '',
+                }))
+
+                res.end(JSON.stringify({ results }))
+                return
+              }
+
+              res.end(JSON.stringify({ results: [] }))
+            } catch (err: any) {
+              res.statusCode = 500
+              res.end(JSON.stringify({ error: err.message || 'Search failed', results: [] }))
+            }
+          })()
+          return
+        }
+
         // GET /api/isbn?isbn=...
         if (req.url?.startsWith('/api/isbn') && req.method === 'GET') {
           const urlObj = new URL(req.url, 'http://localhost')
