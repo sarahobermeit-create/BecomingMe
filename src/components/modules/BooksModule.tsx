@@ -19,6 +19,11 @@ import {
   Clock,
   Layers,
   Volume2,
+  Move,
+  ArrowLeft,
+  ArrowRight,
+  Hand,
+  Check,
 } from 'lucide-react';
 import { Book, BookStatus, BookFormat } from '../../types';
 import { RealisticRavenBookend } from '../common/RealisticRavenBookend';
@@ -81,10 +86,16 @@ const SPINE_PALETTES = [
 ];
 
 export const BooksModule: React.FC = () => {
-  const { state, addBook, updateBook, deleteBook } = useLife();
+  const { state, addBook, updateBook, deleteBook, reorderBooks } = useLife();
   const [activeTab, setActiveTab] = useState<LibraryTab>('bookshelf_physical');
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+
+  // Rearranging / Drag & Drop / Click & Move State for Physical Shelves
+  const [rearrangeMode, setRearrangeMode] = useState(false);
+  const [draggedBookId, setDraggedBookId] = useState<string | null>(null);
+  const [dragOverBookId, setDragOverBookId] = useState<string | null>(null);
+  const [pickedUpBookId, setPickedUpBookId] = useState<string | null>(null);
 
   // New Book Form
   const [title, setTitle] = useState('');
@@ -106,6 +117,10 @@ export const BooksModule: React.FC = () => {
   // Inspection modal quote addition state
   const [newQuoteText, setNewQuoteText] = useState('');
 
+  const physicalBooks = state.books.filter((b) => (b.format || 'physical') === 'physical');
+  const ebookBooks = state.books.filter((b) => b.format === 'ebook');
+  const audiobookBooks = state.books.filter((b) => b.format === 'audiobook');
+
   // Filter books based on active tab
   const filteredBooks = state.books.filter((b) => {
     const bookFormat = b.format || 'physical';
@@ -116,9 +131,36 @@ export const BooksModule: React.FC = () => {
     return b.status === activeTab;
   });
 
-  const physicalBooks = state.books.filter((b) => (b.format || 'physical') === 'physical');
-  const ebookBooks = state.books.filter((b) => b.format === 'ebook');
-  const audiobookBooks = state.books.filter((b) => b.format === 'audiobook');
+  // Reorder Physical Books Handler
+  const handleReorderPhysicalBooks = (newPhysicalList: Book[]) => {
+    const nonPhysicalBooks = state.books.filter((b) => (b.format || 'physical') !== 'physical');
+    reorderBooks([...newPhysicalList, ...nonPhysicalBooks]);
+  };
+
+  const moveBook = (sourceId: string, targetId: string) => {
+    if (sourceId === targetId) return;
+    const fromIndex = physicalBooks.findIndex((b) => b.id === sourceId);
+    const toIndex = physicalBooks.findIndex((b) => b.id === targetId);
+    if (fromIndex < 0 || toIndex < 0) return;
+
+    const updated = [...physicalBooks];
+    const [movedBook] = updated.splice(fromIndex, 1);
+    updated.splice(toIndex, 0, movedBook);
+    handleReorderPhysicalBooks(updated);
+  };
+
+  const nudgeBook = (bookId: string, direction: -1 | 1, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const fromIndex = physicalBooks.findIndex((b) => b.id === bookId);
+    if (fromIndex < 0) return;
+    const toIndex = fromIndex + direction;
+    if (toIndex < 0 || toIndex >= physicalBooks.length) return;
+
+    const updated = [...physicalBooks];
+    const [movedBook] = updated.splice(fromIndex, 1);
+    updated.splice(toIndex, 0, movedBook);
+    handleReorderPhysicalBooks(updated);
+  };
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -541,7 +583,7 @@ export const BooksModule: React.FC = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-3 self-end sm:self-auto text-[11px] text-amber-100/80">
+            <div className="flex items-center gap-3 self-end sm:self-auto text-[11px] text-amber-100/80 flex-wrap">
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
                 <span>Reading</span>
@@ -554,8 +596,76 @@ export const BooksModule: React.FC = () => {
                 <span className="w-2.5 h-2.5 rounded-full bg-yellow-300 inline-block shadow-[0_0_6px_rgba(253,224,71,0.8)]" />
                 <span>Completed</span>
               </span>
+
+              {/* Rearrange Shelves Toggle Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setRearrangeMode(!rearrangeMode);
+                  setPickedUpBookId(null);
+                }}
+                className={`ml-1 px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  rearrangeMode || pickedUpBookId
+                    ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(52,211,153,0.7)] ring-2 ring-emerald-300 font-bold'
+                    : 'bg-[#0a2e1d] hover:bg-[#14472f] text-emerald-200 border border-emerald-400/40'
+                }`}
+                title="Toggle shelf rearrangement mode"
+              >
+                {rearrangeMode || pickedUpBookId ? (
+                  <>
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Done Rearranging</span>
+                  </>
+                ) : (
+                  <>
+                    <Move className="w-3.5 h-3.5 text-emerald-300" />
+                    <span>Rearrange Books</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
+
+          {/* Rearrange Mode Active Guidance Bar */}
+          {(rearrangeMode || pickedUpBookId) && (
+            <div className="relative z-30 px-4 py-2 bg-gradient-to-r from-[#092b1a] via-[#10472c] to-[#092b1a] border-b border-emerald-400/50 flex items-center justify-between gap-3 text-xs text-emerald-100 shadow-lg">
+              <div className="flex items-center gap-2">
+                <Hand className="w-4 h-4 text-emerald-300 animate-pulse shrink-0" />
+                <span>
+                  {pickedUpBookId ? (
+                    <>
+                      Moving <strong className="text-amber-200 font-serif">"{physicalBooks.find((b) => b.id === pickedUpBookId)?.title}"</strong>: Click any book to slide it into that position! Or drag it across the shelf.
+                    </>
+                  ) : (
+                    <>
+                      <strong>Click any book</strong> to pick it up, or use the <strong>◀ ▶ arrows</strong> on the book spine, or <strong>drag & drop</strong> directly!
+                    </>
+                  )}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {pickedUpBookId && (
+                  <button
+                    type="button"
+                    onClick={() => setPickedUpBookId(null)}
+                    className="px-2 py-0.5 rounded bg-black/40 hover:bg-black/60 text-emerald-300 hover:text-white border border-emerald-400/30 text-[11px] cursor-pointer"
+                  >
+                    Cancel Pick Up
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRearrangeMode(false);
+                    setPickedUpBookId(null);
+                  }}
+                  className="px-2 py-0.5 rounded bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-[11px] cursor-pointer shadow"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Shelves Container */}
           <div className="p-3 sm:p-6 space-y-12 victorian-wood-panel relative">
@@ -575,19 +685,109 @@ export const BooksModule: React.FC = () => {
                     const bookHeight = getBookHeight(book);
                     const bookWidth = getBookWidth(book);
                     const progressPct = Math.min(100, Math.round((book.currentPage / book.totalPages) * 100));
+                    const isPickedUp = pickedUpBookId === book.id;
+                    const isDragged = draggedBookId === book.id;
+                    const isDragOver = dragOverBookId === book.id;
 
                     return (
                       <div
                         key={book.id}
-                        onClick={() => setSelectedBook(book)}
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData('text/plain', book.id);
+                          setDraggedBookId(book.id);
+                        }}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.dataTransfer.dropEffect = 'move';
+                          if (dragOverBookId !== book.id) setDragOverBookId(book.id);
+                        }}
+                        onDragLeave={() => {
+                          if (dragOverBookId === book.id) setDragOverBookId(null);
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          const srcId = e.dataTransfer.getData('text/plain') || draggedBookId;
+                          if (srcId && srcId !== book.id) {
+                            moveBook(srcId, book.id);
+                          }
+                          setDraggedBookId(null);
+                          setDragOverBookId(null);
+                        }}
+                        onDragEnd={() => {
+                          setDraggedBookId(null);
+                          setDragOverBookId(null);
+                        }}
+                        onClick={() => {
+                          if (pickedUpBookId) {
+                            if (pickedUpBookId === book.id) {
+                              setPickedUpBookId(null);
+                            } else {
+                              moveBook(pickedUpBookId, book.id);
+                              setPickedUpBookId(null);
+                            }
+                            return;
+                          }
+                          if (rearrangeMode) {
+                            setPickedUpBookId(book.id);
+                            return;
+                          }
+                          setSelectedBook(book);
+                        }}
                         style={{
                           height: `${bookHeight}px`,
                           width: `${bookWidth}px`,
                         }}
-                        className={`group relative shrink-0 cursor-pointer rounded-t-md transition-all duration-300 ease-out hover:-translate-y-4 hover:scale-[1.03] select-none shadow-[2px_6px_14px_rgba(0,0,0,0.85)] hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_24px_rgba(245,158,11,0.45)] bg-gradient-to-r ${palette.gradient} flex flex-col justify-between p-1.5 border-t border-x border-[${palette.border}] z-10 hover:z-30`}
+                        className={`group relative shrink-0 cursor-pointer rounded-t-md transition-all duration-300 ease-out select-none flex flex-col justify-between p-1.5 border-t border-x border-[${palette.border}] z-10 ${
+                          isPickedUp
+                            ? '-translate-y-9 scale-105 ring-2 ring-emerald-300 shadow-[0_0_30px_rgba(52,211,153,0.9),0_20px_40px_rgba(0,0,0,0.95)] z-40 bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-900'
+                            : isDragOver
+                            ? '-translate-y-5 scale-105 ring-2 ring-amber-300 shadow-[0_0_25px_rgba(251,191,36,0.8)] z-30'
+                            : isDragged
+                            ? 'opacity-40 scale-95'
+                            : 'hover:-translate-y-4 hover:scale-[1.03] shadow-[2px_6px_14px_rgba(0,0,0,0.85)] hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_24px_rgba(245,158,11,0.45)] hover:z-30'
+                        } bg-gradient-to-r ${palette.gradient}`}
                       >
                         {/* 3D Cylindrical Spine Shading & Leather Texture */}
                         <div className="absolute inset-0 rounded-t-md pointer-events-none shadow-[inset_3px_0_4px_rgba(255,255,255,0.22),inset_-4px_0_6px_rgba(0,0,0,0.7)] wood-grain opacity-40" />
+
+                        {/* Picked-up Indicator */}
+                        {isPickedUp && (
+                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-emerald-400 text-black font-extrabold text-[9px] px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap animate-bounce flex items-center gap-1 z-50">
+                            <Hand className="w-2.5 h-2.5" />
+                            <span>PICKED UP</span>
+                          </div>
+                        )}
+
+                        {/* Target slot indicator when another book is picked up */}
+                        {pickedUpBookId && !isPickedUp && (
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-amber-400 text-black font-bold text-[9px] px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap transition-opacity pointer-events-none z-50">
+                            Place Here ↓
+                          </div>
+                        )}
+
+                        {/* Quick Nudge Buttons (Left/Right) for effortless moving */}
+                        {!pickedUpBookId && (
+                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 hidden group-hover:flex items-center gap-1 z-50 bg-black/90 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-emerald-400/40 shadow-xl">
+                            <button
+                              type="button"
+                              title="Move left"
+                              onClick={(e) => nudgeBook(book.id, -1, e)}
+                              className="p-1 rounded hover:bg-emerald-500/40 text-emerald-300 hover:text-white transition-colors cursor-pointer"
+                            >
+                              <ArrowLeft className="w-3 h-3" />
+                            </button>
+                            <span className="text-[9px] text-emerald-200 font-mono px-0.5">Move</span>
+                            <button
+                              type="button"
+                              title="Move right"
+                              onClick={(e) => nudgeBook(book.id, 1, e)}
+                              className="p-1 rounded hover:bg-emerald-500/40 text-emerald-300 hover:text-white transition-colors cursor-pointer"
+                            >
+                              <ArrowRight className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
 
                         {/* Top Gilt Filigree Band & Status Emblem */}
                         <div className="relative z-10 flex flex-col items-center">
@@ -647,17 +847,19 @@ export const BooksModule: React.FC = () => {
                           <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-[#120703] [clip-path:polygon(0_100%,50%_0,100%_100%)]" />
                         </div>
 
-                        {/* Hover Tooltip / Floating Card Preview */}
-                        <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap bg-[#0b1c11]/95 text-white text-[11px] px-3 py-1.5 rounded-lg border border-emerald-400/50 shadow-2xl backdrop-blur-md flex items-center gap-2">
-                          <span className="font-serif font-bold text-amber-200">{book.title}</span>
-                          <span className="text-emerald-300/80 font-mono text-[10px]">
-                            {book.status === 'reading'
-                              ? `${progressPct}%`
-                              : book.status === 'completed'
-                              ? 'Finished'
-                              : 'Next Read'}
-                          </span>
-                        </div>
+                        {/* Hover Tooltip / Floating Card Preview (only shown when not in pick-up mode) */}
+                        {!pickedUpBookId && !rearrangeMode && (
+                          <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap bg-[#0b1c11]/95 text-white text-[11px] px-3 py-1.5 rounded-lg border border-emerald-400/50 shadow-2xl backdrop-blur-md flex items-center gap-2">
+                            <span className="font-serif font-bold text-amber-200">{book.title}</span>
+                            <span className="text-emerald-300/80 font-mono text-[10px]">
+                              {book.status === 'reading'
+                                ? `${progressPct}%`
+                                : book.status === 'completed'
+                                ? 'Finished'
+                                : 'Next Read'}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     );
                   })}

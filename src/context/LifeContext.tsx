@@ -37,6 +37,7 @@ interface LifeContextType {
   addBook: (book: Omit<Book, 'id'>) => void;
   updateBook: (book: Book) => void;
   deleteBook: (id: string) => void;
+  reorderBooks: (reorderedBooks: Book[]) => void;
   // Mood
   logMood: (mood: Omit<MoodEntry, 'id'>) => void;
   // Junk Journal
@@ -352,6 +353,13 @@ export const LifeProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   };
 
+  const reorderBooks = (reorderedBooks: Book[]) => {
+    setState((prev) => ({
+      ...prev,
+      books: reorderedBooks,
+    }));
+  };
+
   // Mood Actions
   const logMood = (mood: Omit<MoodEntry, 'id'>) => {
     setState((prev) => {
@@ -578,6 +586,7 @@ export const LifeProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addBook,
         updateBook,
         deleteBook,
+        reorderBooks,
         logMood,
         addJournalCard,
         updateJournalCard,
