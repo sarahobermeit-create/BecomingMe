@@ -29,6 +29,8 @@ import { Book, BookStatus, BookFormat } from '../../types';
 import { RealisticRavenBookend } from '../common/RealisticRavenBookend';
 import { KindleScreen } from '../common/KindleScreen';
 import { HeadphonesOverCorner } from '../common/HeadphonesOverCorner';
+import { GiantKindleLibrary } from '../books/GiantKindleLibrary';
+import { PhoneAudiobookLibrary } from '../books/PhoneAudiobookLibrary';
 
 type LibraryTab =
   | 'bookshelf_physical'
@@ -360,15 +362,15 @@ export const BooksModule: React.FC = () => {
               ? 'bg-gradient-to-br from-[#0c2b20]/90 via-[#071d15]/95 to-[#04120d] border-emerald-400 ring-2 ring-emerald-400/40 shadow-emerald-950/60'
               : 'bg-[#06140b]/50 backdrop-blur-md border-emerald-500/30 hover:border-emerald-400 hover:bg-[#0a2013]/60 hover:shadow-emerald-900/30'
           }`}
-          title="Click to view all digital e-books in your e-reader folio"
+          title="Click to view all digital e-books displayed on shelves in the Giant Kindle"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5 font-serif">
               <Tablet className="w-4 h-4 text-emerald-400" />
               <span>Total Ebook Library</span>
             </span>
             <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 font-semibold group-hover:bg-emerald-500/30 transition-colors">
-              Digital Folio 📱
+              Giant Kindle 📖
             </span>
           </div>
           <div className="flex items-baseline justify-between mt-2">
@@ -376,7 +378,7 @@ export const BooksModule: React.FC = () => {
               {ebookBooks.length}
             </p>
             <span className="text-[11px] text-emerald-200/80 group-hover:text-emerald-100 flex items-center gap-1 font-medium">
-              Open E-Books →
+              Open Kindle →
             </span>
           </div>
         </button>
@@ -386,25 +388,25 @@ export const BooksModule: React.FC = () => {
           onClick={() => setActiveTab('bookshelf_audiobook')}
           className={`p-4 rounded-2xl text-left transition-all shadow-xl group relative overflow-hidden border cursor-pointer ${
             activeTab === 'bookshelf_audiobook'
-              ? 'bg-gradient-to-br from-[#1a1738]/90 via-[#100e26]/95 to-[#0a0817] border-purple-400 ring-2 ring-purple-400/40 shadow-purple-950/60'
-              : 'bg-[#06140b]/50 backdrop-blur-md border-emerald-500/30 hover:border-purple-400 hover:bg-[#130f24]/60 hover:shadow-purple-900/30'
+              ? 'bg-gradient-to-br from-[#092b1a]/95 via-[#061e12]/95 to-[#031109] border-emerald-400 ring-2 ring-emerald-400/40 shadow-emerald-950/60'
+              : 'bg-[#06140b]/50 backdrop-blur-md border-emerald-500/30 hover:border-emerald-400 hover:bg-[#072416]/60 hover:shadow-emerald-900/30'
           }`}
-          title="Click to view all audiobooks in your acoustic parlor"
+          title="Click to view all audiobooks displayed on phone shelves with studio headphones"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
-              <Headphones className="w-4 h-4 text-purple-400" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-200 flex items-center gap-1.5 font-serif">
+              <Headphones className="w-4 h-4 text-emerald-400" />
               <span>Total Audio Book Library</span>
             </span>
-            <span className="text-[9px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-200 border border-purple-400/30 font-semibold group-hover:bg-purple-500/30 transition-colors">
-              Audio Parlor 🎧
+            <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 font-semibold group-hover:bg-emerald-500/30 transition-colors">
+              Phone Shelves 🎧
             </span>
           </div>
           <div className="flex items-baseline justify-between mt-2">
-            <p className="text-2xl font-black text-purple-300 font-mono">
+            <p className="text-2xl font-black text-emerald-300 font-mono">
               {audiobookBooks.length}
             </p>
-            <span className="text-[11px] text-purple-200/80 group-hover:text-purple-100 flex items-center gap-1 font-medium">
+            <span className="text-[11px] text-emerald-200/80 group-hover:text-emerald-100 flex items-center gap-1 font-medium">
               Listen & Browse →
             </span>
           </div>
@@ -510,13 +512,13 @@ export const BooksModule: React.FC = () => {
           onClick={() => setActiveTab('bookshelf_audiobook')}
           className={`px-3.5 py-2 rounded-xl font-semibold flex items-center gap-2 transition-all cursor-pointer ${
             activeTab === 'bookshelf_audiobook'
-              ? 'bg-gradient-to-r from-purple-900 to-purple-800 text-purple-100 border border-purple-400/50 shadow-lg shadow-purple-950/50'
-              : 'text-purple-200/80 hover:text-white bg-[#06140b]/40 border border-emerald-500/20 hover:border-purple-500/40'
+              ? 'bg-gradient-to-r from-[#0d3820] to-[#124d2c] text-emerald-100 border border-emerald-400/50 shadow-lg shadow-emerald-950/60'
+              : 'text-emerald-200/80 hover:text-white bg-[#06140b]/40 border border-emerald-500/20 hover:border-emerald-500/40'
           }`}
         >
-          <Headphones className="w-3.5 h-3.5 text-purple-300" />
+          <Headphones className="w-3.5 h-3.5 text-emerald-300" />
           <span>Total Audio Book Library</span>
-          <span className="px-1.5 py-0.2 rounded-full bg-black/40 text-[10px] font-mono text-purple-300">
+          <span className="px-1.5 py-0.2 rounded-full bg-black/40 text-[10px] font-mono text-emerald-200">
             {audiobookBooks.length}
           </span>
         </button>
@@ -908,248 +910,32 @@ export const BooksModule: React.FC = () => {
         </div>
       )}
 
-      {/* VIEW 2: TOTAL EBOOK LIBRARY (KINDLE E-READER SCREENS) */}
+      {/* VIEW 2: TOTAL EBOOK LIBRARY (ONE GIANT DARK GREEN KINDLE WITH SHELVES) */}
       {activeTab === 'bookshelf_ebook' && (
-        <div className="space-y-4">
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-[#072418]/90 via-[#0a3322]/80 to-[#072418]/90 border border-emerald-500/30 flex items-center justify-between shadow-xl">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                <Tablet className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>Total Ebook Library</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono">
-                    {ebookBooks.length} titles
-                  </span>
-                </h3>
-                <p className="text-[11px] text-emerald-200/70">
-                  Titles displayed directly on glare-free Kindle Paperwhite e-ink screens. Tap any Kindle to read or inspect.
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => {
-                setFormat('ebook');
-                setShowAddModal(true);
-              }}
-              className="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-medium flex items-center gap-1.5 shadow-md cursor-pointer border border-emerald-400/30"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add E-Book</span>
-            </button>
-          </div>
-
-          {/* Kindle Screens Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 justify-items-center pt-2">
-            {ebookBooks.map((book) => (
-              <KindleScreen
-                key={book.id}
-                book={book}
-                onSelect={() => setSelectedBook(book)}
-              />
-            ))}
-
-            {ebookBooks.length === 0 && (
-              <div className="col-span-full p-8 text-center rounded-2xl bg-[#061a10]/30 border border-dashed border-emerald-500/30 text-slate-400 space-y-2">
-                <Tablet className="w-8 h-8 text-emerald-400 mx-auto opacity-60" />
-                <p className="text-sm font-medium text-white">Your E-Book Folio is currently empty</p>
-                <p className="text-xs text-slate-400">Add digital epubs to display on your Kindles.</p>
-                <button
-                  onClick={() => {
-                    setFormat('ebook');
-                    setShowAddModal(true);
-                  }}
-                  className="px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-medium cursor-pointer inline-flex items-center gap-1.5"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add First E-Book</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+        <GiantKindleLibrary
+          books={ebookBooks}
+          onSelectBook={(book) => setSelectedBook(book)}
+          onAddBook={() => {
+            setFormat('ebook');
+            setShowAddModal(true);
+          }}
+        />
       )}
 
-      {/* VIEW 3: TOTAL AUDIO BOOK LIBRARY (HEADPHONES DRAPED OVER BOOK CORNERS) */}
+      {/* VIEW 3: TOTAL AUDIO BOOK LIBRARY (DARK GREEN PHONE SCREEN WITH HEADPHONES & SHELVES) */}
       {activeTab === 'bookshelf_audiobook' && (
-        <div className="space-y-4">
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-[#170e2b]/90 via-[#231540]/80 to-[#170e2b]/90 border border-purple-500/30 flex items-center justify-between shadow-xl">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-400/30">
-                <Headphones className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>Total Audio Book Library</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono">
-                    {audiobookBooks.length} narrations
-                  </span>
-                </h3>
-                <p className="text-[11px] text-purple-200/70">
-                  Audiobook editions with studio headphones draped over book corners for immersive listening.
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => {
-                setFormat('audiobook');
-                setShowAddModal(true);
-              }}
-              className="px-3 py-1.5 rounded-xl bg-purple-800 hover:bg-purple-700 text-white text-xs font-medium flex items-center gap-1.5 shadow-md cursor-pointer border border-purple-400/30"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add Audio Book</span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {audiobookBooks.map((book) => {
-              const totalMins = book.audioDurationMinutes || 360;
-              const currentMins = book.currentAudioMinutes || 0;
-              const progressPct = Math.min(100, Math.round((currentMins / totalMins) * 100));
-              const isPlaying = playingAudioId === book.id;
-
-              return (
-                <div
-                  key={book.id}
-                  className="p-5 rounded-2xl bg-[#110c22]/55 backdrop-blur-md border border-purple-500/25 hover:border-purple-400/50 transition-all shadow-xl group flex flex-col justify-between space-y-4"
-                >
-                  <div className="flex gap-4">
-                    {/* Book Cover with Headphones Draped Over Corner */}
-                    <div
-                      onClick={() => setSelectedBook(book)}
-                      className="w-24 sm:w-28 h-28 sm:h-32 rounded-xl overflow-visible shrink-0 relative cursor-pointer group-hover:scale-105 transition-transform"
-                    >
-                      {/* Headphones Over Corner */}
-                      <HeadphonesOverCorner />
-
-                      {/* Cover Artwork */}
-                      <div className="w-full h-full rounded-xl overflow-hidden shadow-2xl border-2 border-purple-400/40 bg-slate-900 relative">
-                        <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end justify-center pb-1.5">
-                          <span className="text-[9px] font-sans font-bold text-purple-200 tracking-wider flex items-center gap-1">
-                            <Volume2 className="w-3 h-3 text-purple-400" />
-                            AUDIO
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex-1 overflow-hidden">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <span
-                            className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                              book.status === 'reading'
-                                ? 'bg-purple-500/20 text-purple-300 border-purple-500/30'
-                                : book.status === 'want_to_read'
-                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                                : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                            }`}
-                          >
-                            {book.status === 'want_to_read' ? 'Next Listen' : book.status === 'reading' ? 'Listening' : 'Completed'}
-                          </span>
-
-                          {/* Book Title with Audiobook */}
-                          <h4
-                            onClick={() => setSelectedBook(book)}
-                            className="text-base font-bold text-white font-serif mt-1.5 truncate hover:text-purple-300 transition-colors cursor-pointer"
-                          >
-                            {book.title}
-                          </h4>
-                          <p className="text-xs text-purple-200/70">{book.author}</p>
-                        </div>
-
-                        <button
-                          onClick={() => deleteBook(book.id)}
-                          className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-rose-400 transition-opacity cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      {/* Audio Controls & Progress */}
-                      <div className="flex items-center gap-2 mt-3">
-                        <button
-                          onClick={() => setPlayingAudioId(isPlaying ? null : book.id)}
-                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md shrink-0 ${
-                            isPlaying
-                              ? 'bg-purple-500 text-white shadow-purple-500/50 scale-105'
-                              : 'bg-purple-900/70 hover:bg-purple-800 text-purple-200 border border-purple-400/40'
-                          }`}
-                        >
-                          {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
-                        </button>
-
-                        <div className="flex-1 overflow-hidden">
-                          <div className="flex items-center justify-between text-[11px] text-purple-200/80 mb-1">
-                            <span className="flex items-center gap-1 font-mono">
-                              <Clock className="w-3 h-3 text-purple-400" />
-                              {formatMinutes(currentMins)} / {formatMinutes(totalMins)}
-                            </span>
-                            <span className="font-mono text-purple-300 font-bold">{progressPct}%</span>
-                          </div>
-                          <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden">
-                            <div
-                              className="bg-gradient-to-r from-purple-600 via-purple-400 to-amber-300 h-full rounded-full transition-all"
-                              style={{ width: `${progressPct}%` }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Quick chapter / time updater */}
-                  <div className="flex items-center justify-between pt-2 border-t border-purple-500/15 text-xs text-slate-400">
-                    <span className="text-[11px] text-purple-300/70">Adjust Listening:</span>
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => handleUpdateAudioTime(book, currentMins - 15)}
-                        className="px-2 py-0.5 rounded bg-white/[0.04] hover:bg-white/[0.08] text-[10px] text-purple-200 cursor-pointer"
-                      >
-                        -15m
-                      </button>
-                      <button
-                        onClick={() => handleUpdateAudioTime(book, currentMins + 15)}
-                        className="px-2 py-0.5 rounded bg-white/[0.04] hover:bg-white/[0.08] text-[10px] text-purple-200 cursor-pointer"
-                      >
-                        +15m
-                      </button>
-                      <button
-                        onClick={() => setSelectedBook(book)}
-                        className="px-2.5 py-0.5 rounded bg-purple-500/20 hover:bg-purple-500/30 text-[10px] text-purple-300 border border-purple-400/30 cursor-pointer ml-1"
-                      >
-                        Inspect Tome →
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-
-            {audiobookBooks.length === 0 && (
-              <div className="col-span-full p-8 text-center rounded-2xl bg-[#110c22]/30 border border-dashed border-purple-500/30 text-slate-400 space-y-2">
-                <Headphones className="w-8 h-8 text-purple-400 mx-auto opacity-60" />
-                <p className="text-sm font-medium text-white">No audiobooks in your acoustic collection</p>
-                <p className="text-xs text-slate-400">Add spoken narrations for commutes or bedtime unwind.</p>
-                <button
-                  onClick={() => {
-                    setFormat('audiobook');
-                    setShowAddModal(true);
-                  }}
-                  className="px-3.5 py-1.5 rounded-xl bg-purple-800 hover:bg-purple-700 text-white text-xs font-medium cursor-pointer inline-flex items-center gap-1.5"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add Audio Book</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+        <PhoneAudiobookLibrary
+          books={audiobookBooks}
+          selectedBook={selectedBook}
+          onSelectBook={(book) => setSelectedBook(book)}
+          onAddBook={() => {
+            setFormat('audiobook');
+            setShowAddModal(true);
+          }}
+          playingAudioId={playingAudioId}
+          onTogglePlay={(bookId) => setPlayingAudioId(playingAudioId === bookId ? null : bookId)}
+          onDeleteBook={(bookId) => deleteBook(bookId)}
+        />
       )}
 
       {/* VIEW 4: CARDS GRID VIEW (For All, Reading, Next Reads, Completed) */}
