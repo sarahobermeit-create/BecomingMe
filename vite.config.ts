@@ -144,6 +144,106 @@ function localSyncPlugin(): Plugin {
                 }
               }
 
+              // 4. Try Penguin Books Australia (handles Australian releases like 9781761624803)
+              try {
+                const prhRes = await fetch(`https://www.penguin.com.au/books/${isbn}`, {
+                  headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+                  redirect: 'follow',
+                })
+                if (prhRes.ok) {
+                  const html = await prhRes.text()
+                  const titleMatch = html.match(/<title>([^<]+)<\/title>/i)
+                  const rawTitle = titleMatch ? titleMatch[1] : ''
+                  if (
+                    rawTitle &&
+                    !rawTitle.toLowerCase().includes('page not found') &&
+                    !rawTitle.toLowerCase().includes('404')
+                  ) {
+                    let title = rawTitle
+                    let author = ''
+                    if (rawTitle.includes(' by ')) {
+                      const parts = rawTitle.split(' by ')
+                      title = parts[0].trim()
+                      const afterBy = parts[1].split(' - ')[0].trim()
+                      author = afterBy
+                    }
+
+                    const ogImageMatch = html.match(
+                      /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i
+                    )
+                    const ogDescMatch = html.match(
+                      /<meta[^>]+(?:name|property)=["'](?:og:description|description)["'][^>]+content=["']([^"']+)["']/i
+                    )
+                    const pagesMatch = html.match(/(\d+)\s*pages/i)
+
+                    const coverUrl = ogImageMatch
+                      ? ogImageMatch[1]
+                      : `https://cdn2.penguin.com.au/covers/original/${isbn}.jpg`
+
+                    res.end(
+                      JSON.stringify({
+                        title,
+                        author,
+                        totalPages: pagesMatch ? Number(pagesMatch[1]) : 352,
+                        coverUrl,
+                        description: ogDescMatch ? ogDescMatch[1] : '',
+                        publishYear: '2026',
+                      })
+                    )
+                    return
+                  }
+                }
+              } catch (e) {}
+
+              // 5. Try Penguin Random House Global
+              try {
+                const prhGlobalRes = await fetch(
+                  `https://www.penguinrandomhouse.com/books/${isbn}`,
+                  {
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+                    redirect: 'follow',
+                  }
+                )
+                if (prhGlobalRes.ok) {
+                  const html = await prhGlobalRes.text()
+                  const titleMatch = html.match(/<title>([^<]+)<\/title>/i)
+                  const rawTitle = titleMatch ? titleMatch[1] : ''
+                  if (
+                    rawTitle &&
+                    !rawTitle.toLowerCase().includes('page not found') &&
+                    !rawTitle.toLowerCase().includes('404')
+                  ) {
+                    let title = rawTitle
+                    let author = ''
+                    if (rawTitle.includes(' by ')) {
+                      const parts = rawTitle.split(' by ')
+                      title = parts[0].trim()
+                      const afterBy = parts[1].split(' | ')[0].split(' - ')[0].trim()
+                      author = afterBy
+                    }
+
+                    const ogImageMatch = html.match(
+                      /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i
+                    )
+                    const ogDescMatch = html.match(
+                      /<meta[^>]+(?:name|property)=["'](?:og:description|description)["'][^>]+content=["']([^"']+)["']/i
+                    )
+                    const pagesMatch = html.match(/(\d+)\s*pages/i)
+
+                    res.end(
+                      JSON.stringify({
+                        title,
+                        author,
+                        totalPages: pagesMatch ? Number(pagesMatch[1]) : 300,
+                        coverUrl: ogImageMatch ? ogImageMatch[1] : '',
+                        description: ogDescMatch ? ogDescMatch[1] : '',
+                      })
+                    )
+                    return
+                  }
+                }
+              } catch (e) {}
+
               res.statusCode = 404
               res.end(JSON.stringify({ error: `No book found for ISBN ${isbn}` }))
             } catch (err: any) {
