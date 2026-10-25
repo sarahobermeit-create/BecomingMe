@@ -75,30 +75,12 @@ export const BooksModule: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-full space-y-6 -m-4 md:-m-6 lg:-m-8 p-4 md:p-6 lg:p-8 rounded-3xl overflow-hidden">
-      {/* Victorian Library Ambient Background Image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none -z-10"
-        style={{
-          backgroundImage: `url('./victorian-library.jpg')`,
-        }}
-      />
-      {/* Dark Vignette Overlay for readability & dark forest mood */}
-      <div
-        className="absolute inset-0 bg-gradient-to-b from-[#070e0a]/80 via-[#070e0a]/90 to-[#070e0a] pointer-events-none -z-10 backdrop-blur-[1px]"
-      />
-
+    <div className="relative space-y-6">
       {/* Atmospheric Victorian Hero Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-emerald-500/25 p-6 lg:p-8 backdrop-blur-md shadow-2xl">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-30 pointer-events-none"
-          style={{ backgroundImage: `url('./victorian-library.jpg')` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#070e0a]/95 via-[#070e0a]/85 to-transparent pointer-events-none" />
-
+      <div className="relative overflow-hidden rounded-2xl border border-emerald-500/25 p-6 lg:p-8 bg-[#08150e]/50 backdrop-blur-md shadow-2xl">
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/25 text-xs font-medium text-emerald-300 mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-xs font-medium text-emerald-300 mb-2">
               <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
               <span>Victorian Reading Sanctuary</span>
             </div>
@@ -106,14 +88,14 @@ export const BooksModule: React.FC = () => {
               <BookOpen className="w-7 h-7 text-emerald-400" />
               <span>Welcome To Your Library</span>
             </h2>
-            <p className="text-xs text-emerald-100/70 mt-1.5 max-w-lg leading-relaxed flex items-center gap-2">
+            <p className="text-xs text-emerald-100/75 mt-1.5 max-w-lg leading-relaxed flex items-center gap-2">
               <span>Warm hearth fire crackling, rain pouring against the arched windows, and floor-to-ceiling shelves of timeless knowledge.</span>
             </p>
           </div>
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-medium text-xs flex items-center justify-center gap-2 shadow-xl shadow-emerald-950/60 transition-all shrink-0 self-start sm:self-auto border border-emerald-400/20"
+            className="px-4 py-2.5 rounded-xl bg-emerald-700/90 hover:bg-emerald-600 text-white font-medium text-xs flex items-center justify-center gap-2 shadow-xl shadow-emerald-950/60 transition-all shrink-0 self-start sm:self-auto border border-emerald-400/25"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Book</span>
@@ -212,7 +194,7 @@ export const BooksModule: React.FC = () => {
           return (
             <div
               key={book.id}
-              className="glass-panel p-5 rounded-2xl border border-white/[0.08] hover:border-white/[0.14] transition-all flex flex-col justify-between group"
+              className="p-5 rounded-2xl bg-[#09170f]/75 backdrop-blur-md border border-emerald-500/20 hover:border-emerald-500/40 transition-all flex flex-col justify-between group shadow-xl"
             >
               <div className="flex gap-4">
                 {/* Book Cover */}

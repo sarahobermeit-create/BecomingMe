@@ -51,12 +51,24 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070e0a] text-slate-100 flex flex-col font-sans selection:bg-emerald-700/30 selection:text-emerald-200">
+    <div className="min-h-screen bg-[#070e0a] text-slate-100 flex flex-col font-sans selection:bg-emerald-700/30 selection:text-emerald-200 relative">
+      {/* Full-screen Victorian Library Wallpaper when on Library tab */}
+      {activeTab === 'books' && (
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url('./victorian-library.jpg')` }}
+          />
+          {/* Atmospheric vignette so the entire room, rain, and fire are visible across the screen */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#070e0a]/65 via-[#070e0a]/70 to-[#070e0a]/80" />
+        </div>
+      )}
+
       {/* Top Navbar */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main Container */}
-      <div className="flex-1 flex flex-col lg:flex-row">
+      <div className="flex-1 flex flex-col lg:flex-row relative z-10">
         {/* Navigation Sidebar */}
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
