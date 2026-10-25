@@ -14,25 +14,11 @@ import {
 } from '../types';
 import { initialLifeState, getTodayDateString } from '../data/initialData';
 import confetti from 'canvas-confetti';
-import {
-  SyncConfig,
-  getSavedSyncConfig,
-  saveSyncConfig,
-  getSupabaseClient,
-  pushStateToCloud,
-  pullStateFromCloud,
-} from '../services/supabase';
 
 interface LifeContextType {
   state: LifeState;
   todayDate: string;
-  // Cloud Sync
-  syncConfig: SyncConfig;
-  syncStatus: 'idle' | 'syncing' | 'connected' | 'error';
-  lastSynced: string | null;
-  updateSyncConfig: (config: SyncConfig) => Promise<boolean>;
-  manualPush: () => Promise<void>;
-  manualPull: () => Promise<void>;
+  isLiveConnected: boolean;
   // Water
   addWater: (amountMl: number, date?: string) => void;
   setWaterTarget: (targetMl: number) => void;
@@ -81,7 +67,7 @@ interface LifeContextType {
   resetToDemoData: () => void;
 }
 
-const STORAGE_KEY = 'life_os_state_v1';
+const STORAGE_KEY = 'becoming_me_state_v1';
 
 const LifeContext = createContext<LifeContextType | undefined>(undefined);
 
@@ -98,17 +84,72 @@ export const LifeProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return initialLifeState;
   });
 
-  const [syncConfig, setSyncConfig] = useState<SyncConfig>(getSavedSyncConfig);
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'connected' | 'error'>('idle');
-  const [lastSynced, setLastSynced] = useState<string | null>(null);
-
-  // Ref to prevent echo loops when remote state changes trigger local updates
-  const isRemoteUpdateRef = useRef(false);
-  const pushDebounceTimeoutRef = useRef<any>(null);
+  const [isLiveConnected, setIsLiveConnected] = useState(false);
+  const isIncomingSyncRef = useRef(false);
+  const syncDebounceRef = useRef<any>(null);
 
   const todayDate = getTodayDateString();
 
-  // Save to localStorage whenever state changes
+  // 1. Initial State Fetch & Real-Time SSE Subscription
+  useEffect(() => {
+    // Fetch latest shared state from the server on startup
+    fetch('/api/state')
+      .then((res) => {
+        if (res.ok) return res.json();
+        return null;
+      })
+      .then((data) => {
+        if (data && !data.notFound) {
+          isIncomingSyncRef.current = true;
+          setState(data);
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          } catch (e) {}
+        }
+      })
+      .catch(() => {
+        // Server might not be available if opened purely offline
+      });
+
+    // Connect to live real-time stream
+    let eventSource: EventSource | null = null;
+    try {
+      eventSource = new EventSource('/api/events');
+
+      eventSource.onopen = () => {
+        setIsLiveConnected(true);
+      };
+
+      eventSource.onmessage = (event) => {
+        if (event.data) {
+          try {
+            const incomingState = JSON.parse(event.data);
+            if (incomingState && typeof incomingState === 'object') {
+              isIncomingSyncRef.current = true;
+              setState(incomingState);
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(incomingState));
+            }
+          } catch (err) {
+            console.error('Error parsing live update:', err);
+          }
+        }
+      };
+
+      eventSource.onerror = () => {
+        setIsLiveConnected(false);
+      };
+    } catch (err) {
+      setIsLiveConnected(false);
+    }
+
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
+  }, []);
+
+  // 2. Save changes locally & immediately broadcast to server
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -116,132 +157,33 @@ export const LifeProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Failed to save to localStorage:', e);
     }
 
-    // Auto-sync to Supabase if enabled
-    if (syncConfig.enabled && !isRemoteUpdateRef.current) {
-      const client = getSupabaseClient(syncConfig);
-      if (client) {
-        if (pushDebounceTimeoutRef.current) {
-          clearTimeout(pushDebounceTimeoutRef.current);
-        }
+    // If change was received from another device, don't re-broadcast it back
+    if (isIncomingSyncRef.current) {
+      isIncomingSyncRef.current = false;
+      return;
+    }
 
-        setSyncStatus('syncing');
-        pushDebounceTimeoutRef.current = setTimeout(async () => {
-          const success = await pushStateToCloud(client, syncConfig.syncKey, state);
-          if (success) {
-            setSyncStatus('connected');
-            setLastSynced(new Date().toLocaleTimeString());
-          } else {
-            setSyncStatus('error');
+    // Debounce push to server (300ms) to sync immediately across devices
+    if (syncDebounceRef.current) {
+      clearTimeout(syncDebounceRef.current);
+    }
+
+    syncDebounceRef.current = setTimeout(() => {
+      fetch('/api/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(state),
+      })
+        .then((res) => {
+          if (res.ok) {
+            setIsLiveConnected(true);
           }
-        }, 800); // Debounce 800ms
-      }
-    }
-
-    isRemoteUpdateRef.current = false;
-  }, [state, syncConfig]);
-
-  // Supabase real-time setup & initial pull
-  useEffect(() => {
-    if (!syncConfig.enabled) {
-      setSyncStatus('idle');
-      return;
-    }
-
-    const client = getSupabaseClient(syncConfig);
-    if (!client) {
-      setSyncStatus('error');
-      return;
-    }
-
-    setSyncStatus('syncing');
-
-    // 1. Initial Pull from Cloud
-    pullStateFromCloud(client, syncConfig.syncKey).then((remoteData) => {
-      if (remoteData) {
-        isRemoteUpdateRef.current = true;
-        setState(remoteData);
-        setSyncStatus('connected');
-        setLastSynced(new Date().toLocaleTimeString());
-      } else {
-        // If no remote record exists yet, push the current local state
-        pushStateToCloud(client, syncConfig.syncKey, state).then((ok) => {
-          setSyncStatus(ok ? 'connected' : 'error');
-          if (ok) setLastSynced(new Date().toLocaleTimeString());
+        })
+        .catch(() => {
+          setIsLiveConnected(false);
         });
-      }
-    });
-
-    // 2. Real-time Subscription to Postgres changes
-    const channel = client
-      .channel(`life_sync_${syncConfig.syncKey}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'life_data',
-          filter: `id=eq.${syncConfig.syncKey}`,
-        },
-        (payload) => {
-          if (payload.new && (payload.new as any).data) {
-            const incoming = (payload.new as any).data as LifeState;
-            isRemoteUpdateRef.current = true;
-            setState(incoming);
-            setSyncStatus('connected');
-            setLastSynced(new Date().toLocaleTimeString());
-          }
-        }
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          setSyncStatus('connected');
-        } else if (status === 'CHANNEL_ERROR') {
-          setSyncStatus('error');
-        }
-      });
-
-    return () => {
-      client.removeChannel(channel);
-    };
-  }, [syncConfig.enabled, syncConfig.supabaseUrl, syncConfig.supabaseAnonKey, syncConfig.syncKey]);
-
-  // Manual Push / Pull helpers
-  const manualPush = async () => {
-    const client = getSupabaseClient(syncConfig);
-    if (!client) return;
-    setSyncStatus('syncing');
-    const ok = await pushStateToCloud(client, syncConfig.syncKey, state);
-    setSyncStatus(ok ? 'connected' : 'error');
-    if (ok) setLastSynced(new Date().toLocaleTimeString());
-  };
-
-  const manualPull = async () => {
-    const client = getSupabaseClient(syncConfig);
-    if (!client) return;
-    setSyncStatus('syncing');
-    const remote = await pullStateFromCloud(client, syncConfig.syncKey);
-    if (remote) {
-      isRemoteUpdateRef.current = true;
-      setState(remote);
-      setSyncStatus('connected');
-      setLastSynced(new Date().toLocaleTimeString());
-    } else {
-      setSyncStatus('error');
-    }
-  };
-
-  const updateSyncConfig = async (newConfig: SyncConfig): Promise<boolean> => {
-    saveSyncConfig(newConfig);
-    setSyncConfig(newConfig);
-
-    if (newConfig.enabled) {
-      const client = getSupabaseClient(newConfig);
-      if (!client) return false;
-      const ok = await pushStateToCloud(client, newConfig.syncKey, state);
-      return ok;
-    }
-    return true;
-  };
+    }, 250);
+  }, [state]);
 
   const triggerCelebration = () => {
     confetti({
@@ -615,12 +557,7 @@ export const LifeProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         state,
         todayDate,
-        syncConfig,
-        syncStatus,
-        lastSynced,
-        updateSyncConfig,
-        manualPush,
-        manualPull,
+        isLiveConnected,
         addWater,
         setWaterTarget,
         resetTodayWater,

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { useLife } from '../../context/LifeContext';
 import {
   Download,
@@ -9,11 +9,10 @@ import {
   CheckCircle2,
   Droplets,
   Heart,
-  CloudLightning,
-  Cloud,
+  Wifi,
+  WifiOff,
 } from 'lucide-react';
 import { TabType } from '../../types';
-import { CloudSyncModal } from '../common/CloudSyncModal';
 
 interface NavbarProps {
   activeTab: TabType;
@@ -24,18 +23,12 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   const {
     state,
     todayDate,
-    syncConfig,
-    syncStatus,
-    lastSynced,
-    updateSyncConfig,
-    manualPush,
-    manualPull,
+    isLiveConnected,
     exportBackupJson,
     importBackupJson,
     resetToDemoData,
   } = useLife();
 
-  const [showSyncModal, setShowSyncModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const formattedDate = new Date().toLocaleDateString('en-US', {
@@ -68,145 +61,136 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   const todayMood = state.moods.find((m) => m.date === todayDate);
 
   return (
-    <>
-      <header className="sticky top-0 z-30 bg-[#0c0e17]/85 backdrop-blur-md border-b border-white/[0.08] px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4">
-        {/* Left: Branding & Date */}
-        <div className="flex items-center gap-4">
-          <div
-            onClick={() => setActiveTab('overview')}
-            className="flex items-center gap-2.5 cursor-pointer group"
-          >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-cyan-400 p-[1px] shadow-lg shadow-violet-500/20 group-hover:scale-105 transition-transform">
-              <div className="w-full h-full bg-[#0c0e17] rounded-[11px] flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-violet-400 animate-pulse" />
-              </div>
-            </div>
-            <div>
-              <h1 className="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
-                Becoming<span className="text-violet-400 font-extrabold">Me</span>
-              </h1>
-              <p className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
-                <CalendarIcon className="w-3 h-3 text-slate-500" />
-                {formattedDate}
-              </p>
+    <header className="sticky top-0 z-30 bg-[#0c0e17]/85 backdrop-blur-md border-b border-white/[0.08] px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+      {/* Left: Branding & Date */}
+      <div className="flex items-center gap-4">
+        <div
+          onClick={() => setActiveTab('overview')}
+          className="flex items-center gap-2.5 cursor-pointer group"
+        >
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-cyan-400 p-[1px] shadow-lg shadow-violet-500/20 group-hover:scale-105 transition-transform">
+            <div className="w-full h-full bg-[#0c0e17] rounded-[11px] flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-violet-400 animate-pulse" />
             </div>
           </div>
+          <div>
+            <h1 className="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
+              Becoming<span className="text-violet-400 font-extrabold">Me</span>
+            </h1>
+            <p className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
+              <CalendarIcon className="w-3 h-3 text-slate-500" />
+              {formattedDate}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Center: Live Today Quick Glance Indicators */}
+      <div className="hidden md:flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-full px-3 py-1 text-xs">
+        {/* Routines Badge */}
+        <button
+          onClick={() => setActiveTab('routines')}
+          className="flex items-center gap-1.5 hover:text-emerald-400 transition-colors"
+          title="Today's routines"
+        >
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="text-slate-300 font-medium">
+            {completedRoutines}/{totalRoutines}
+          </span>
+          <span className="text-slate-500 text-[11px]">Routines</span>
+        </button>
+
+        <span className="text-white/10">•</span>
+
+        {/* Water Badge */}
+        <button
+          onClick={() => setActiveTab('water')}
+          className="flex items-center gap-1.5 hover:text-cyan-400 transition-colors"
+          title="Today's water"
+        >
+          <Droplets className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="text-slate-300 font-medium">{waterPct}%</span>
+          <span className="text-slate-500 text-[11px]">Water</span>
+        </button>
+
+        <span className="text-white/10">•</span>
+
+        {/* Mood Badge */}
+        <button
+          onClick={() => setActiveTab('mood')}
+          className="flex items-center gap-1.5 hover:text-rose-400 transition-colors"
+          title="Today's mood"
+        >
+          <Heart className="w-3.5 h-3.5 text-rose-400" />
+          <span className="text-slate-300 font-medium">
+            {todayMood ? todayMood.label : 'Log mood'}
+          </span>
+        </button>
+      </div>
+
+      {/* Right: Live Connection Indicator & Data Tools */}
+      <div className="flex items-center gap-2">
+        {/* Real-time Cross-Device Status Indicator */}
+        <div
+          className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg border transition-all ${
+            isLiveConnected
+              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+              : 'bg-white/[0.04] text-slate-400 border-white/[0.06]'
+          }`}
+          title={
+            isLiveConnected
+              ? 'Real-time live sync connected! Changes update automatically between phone and PC'
+              : 'Running in local mode'
+          }
+        >
+          {isLiveConnected ? (
+            <>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <Wifi className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden sm:inline">Live Synced</span>
+            </>
+          ) : (
+            <>
+              <WifiOff className="w-3.5 h-3.5 text-slate-500" />
+              <span className="hidden sm:inline">Local Mode</span>
+            </>
+          )}
         </div>
 
-        {/* Center: Live Today Quick Glance Indicators */}
-        <div className="hidden md:flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-full px-3 py-1 text-xs">
-          {/* Routines Badge */}
-          <button
-            onClick={() => setActiveTab('routines')}
-            className="flex items-center gap-1.5 hover:text-emerald-400 transition-colors"
-            title="Today's routines"
-          >
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="text-slate-300 font-medium">
-              {completedRoutines}/{totalRoutines}
-            </span>
-            <span className="text-slate-500 text-[11px]">Routines</span>
-          </button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileUpload}
+          accept=".json"
+          className="hidden"
+        />
 
-          <span className="text-white/10">•</span>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          title="Import JSON backup"
+          className="flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] px-2.5 py-1.5 rounded-lg transition-all"
+        >
+          <Upload className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Import</span>
+        </button>
 
-          {/* Water Badge */}
-          <button
-            onClick={() => setActiveTab('water')}
-            className="flex items-center gap-1.5 hover:text-cyan-400 transition-colors"
-            title="Today's water"
-          >
-            <Droplets className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="text-slate-300 font-medium">{waterPct}%</span>
-            <span className="text-slate-500 text-[11px]">Water</span>
-          </button>
+        <button
+          onClick={exportBackupJson}
+          title="Export JSON backup"
+          className="flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] px-2.5 py-1.5 rounded-lg transition-all"
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Backup</span>
+        </button>
 
-          <span className="text-white/10">•</span>
-
-          {/* Mood Badge */}
-          <button
-            onClick={() => setActiveTab('mood')}
-            className="flex items-center gap-1.5 hover:text-rose-400 transition-colors"
-            title="Today's mood"
-          >
-            <Heart className="w-3.5 h-3.5 text-rose-400" />
-            <span className="text-slate-300 font-medium">
-              {todayMood ? todayMood.label : 'Log mood'}
-            </span>
-          </button>
-        </div>
-
-        {/* Right: Cloud Sync & Data Tools */}
-        <div className="flex items-center gap-2">
-          {/* Cloud Sync Status Button */}
-          <button
-            onClick={() => setShowSyncModal(true)}
-            className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg border transition-all ${
-              syncConfig.enabled && syncStatus === 'connected'
-                ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                : syncConfig.enabled && syncStatus === 'syncing'
-                ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border-amber-500/30'
-                : 'bg-violet-500/10 hover:bg-violet-500/20 text-violet-300 border-violet-500/30'
-            }`}
-            title="Configure cross-device cloud sync"
-          >
-            <CloudLightning className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">
-              {syncConfig.enabled && syncStatus === 'connected'
-                ? 'Cloud Synced'
-                : syncConfig.enabled && syncStatus === 'syncing'
-                ? 'Syncing...'
-                : 'Cloud Sync'}
-            </span>
-          </button>
-
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-            accept=".json"
-            className="hidden"
-          />
-
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            title="Import JSON backup"
-            className="flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] px-2.5 py-1.5 rounded-lg transition-all"
-          >
-            <Upload className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Import</span>
-          </button>
-
-          <button
-            onClick={exportBackupJson}
-            title="Export JSON backup"
-            className="flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] px-2.5 py-1.5 rounded-lg transition-all"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Backup</span>
-          </button>
-
-          <button
-            onClick={resetToDemoData}
-            title="Reset to starter sample data"
-            className="flex items-center gap-1 text-xs text-slate-500 hover:text-amber-400 p-1.5 hover:bg-white/[0.04] rounded-lg transition-colors"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </header>
-
-      {/* Cloud Sync Configuration Modal */}
-      <CloudSyncModal
-        isOpen={showSyncModal}
-        onClose={() => setShowSyncModal(false)}
-        config={syncConfig}
-        onSaveConfig={updateSyncConfig}
-        syncStatus={syncStatus}
-        lastSynced={lastSynced}
-        onManualPush={manualPush}
-        onManualPull={manualPull}
-      />
-    </>
+        <button
+          onClick={resetToDemoData}
+          title="Reset to starter sample data"
+          className="flex items-center gap-1 text-xs text-slate-500 hover:text-amber-400 p-1.5 hover:bg-white/[0.04] rounded-lg transition-colors"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </header>
   );
 };
