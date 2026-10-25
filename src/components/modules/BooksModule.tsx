@@ -274,9 +274,10 @@ export const BooksModule: React.FC = () => {
 
   const physicalShelves = chunkShelves(physicalBooks, 6);
 
-  const getBookPalette = (book: Book, index: number) => {
-    const hash = (book.id + book.title).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return SPINE_PALETTES[(hash + index) % SPINE_PALETTES.length];
+  const getBookPalette = (book: Book) => {
+    // Deterministic hash based purely on the book itself so spine colour NEVER changes upon rearrangement
+    const hash = (book.id + (book.title || '')).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return SPINE_PALETTES[Math.abs(hash) % SPINE_PALETTES.length];
   };
 
   const getBookHeight = (book: Book) => {
@@ -682,8 +683,8 @@ export const BooksModule: React.FC = () => {
                   <RealisticRavenBookend flip={false} />
 
                   {/* Books on this shelf */}
-                  {shelfBooks.map((book, bookIdx) => {
-                    const palette = getBookPalette(book, bookIdx);
+                  {shelfBooks.map((book) => {
+                    const palette = getBookPalette(book);
                     const bookHeight = getBookHeight(book);
                     const bookWidth = getBookWidth(book);
                     const progressPct = Math.min(100, Math.round((book.currentPage / book.totalPages) * 100));
@@ -740,15 +741,15 @@ export const BooksModule: React.FC = () => {
                           height: `${bookHeight}px`,
                           width: `${bookWidth}px`,
                         }}
-                        className={`group relative shrink-0 cursor-pointer rounded-t-md transition-all duration-300 ease-out select-none flex flex-col justify-between p-1.5 border-t border-x border-[${palette.border}] z-10 ${
+                        className={`group relative shrink-0 cursor-pointer rounded-t-md transition-all duration-300 ease-out select-none flex flex-col justify-between p-1.5 border-t border-x border-[${palette.border}] bg-gradient-to-r ${palette.gradient} z-10 ${
                           isPickedUp
-                            ? '-translate-y-9 scale-105 ring-2 ring-emerald-300 shadow-[0_0_30px_rgba(52,211,153,0.9),0_20px_40px_rgba(0,0,0,0.95)] z-40 bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-900'
+                            ? '-translate-y-9 scale-105 ring-2 ring-emerald-300 shadow-[0_0_30px_rgba(52,211,153,0.95),0_20px_40px_rgba(0,0,0,0.95)] z-40'
                             : isDragOver
                             ? '-translate-y-5 scale-105 ring-2 ring-amber-300 shadow-[0_0_25px_rgba(251,191,36,0.8)] z-30'
                             : isDragged
                             ? 'opacity-40 scale-95'
                             : 'hover:-translate-y-4 hover:scale-[1.03] shadow-[2px_6px_14px_rgba(0,0,0,0.85)] hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_24px_rgba(245,158,11,0.45)] hover:z-30'
-                        } bg-gradient-to-r ${palette.gradient}`}
+                        }`}
                       >
                         {/* 3D Cylindrical Spine Shading & Leather Texture */}
                         <div className="absolute inset-0 rounded-t-md pointer-events-none shadow-[inset_3px_0_4px_rgba(255,255,255,0.22),inset_-4px_0_6px_rgba(0,0,0,0.7)] wood-grain opacity-40" />
