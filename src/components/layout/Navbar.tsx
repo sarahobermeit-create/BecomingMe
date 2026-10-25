@@ -65,7 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
           </div>
           <div>
             <h1 className="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
-              Life<span className="text-violet-400 font-extrabold">OS</span>
+              Becoming<span className="text-violet-400 font-extrabold">Me</span>
             </h1>
             <p className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
               <CalendarIcon className="w-3 h-3 text-slate-500" />

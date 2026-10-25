@@ -191,7 +191,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
             "You do not rise to the level of your goals. You fall to the level of your systems."
           </p>
           <div className="mt-2.5 flex items-center justify-between text-[10px] text-slate-500">
-            <span>Life OS v1.0</span>
+            <span>BecomingMe v1.0</span>
             <span className="text-emerald-400 flex items-center gap-1 font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               All saved locally

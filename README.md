@@ -1,6 +1,8 @@
-# 🌿 Life OS — Personal Life Dashboard
+# 🌸 BecomingMe — Personal Life Dashboard
 
 A modern, offline-first personal dashboard built to organize every dimension of your life in an elegant dark-mode aesthetic.
+
+Repository: [https://github.com/sarahobermeit-create/BecomingMe](https://github.com/sarahobermeit-create/BecomingMe)
 
 ---
 
@@ -35,31 +37,6 @@ Open your browser at [http://localhost:5173](http://localhost:5173).
 npm run build
 npm run preview
 ```
-
----
-
-## 🐙 Push to Your GitHub Repository
-
-1. **Create a new repository on GitHub**:
-   - Go to [github.com/new](https://github.com/new)
-   - Repository name: `life` (or any name you prefer)
-   - Keep it **Public** or **Private**
-   - **Do NOT** initialize with a README, .gitignore, or license (we already created them)
-   - Click **Create repository**
-
-2. **Link and Push**:
-   Run the following commands in your terminal:
-
-   ```bash
-   # Add your GitHub remote URL (replace YOUR-USERNAME with your actual GitHub username):
-   git remote add origin https://github.com/YOUR-USERNAME/life.git
-
-   # Set primary branch to main
-   git branch -M main
-
-   # Push the code
-   git push -u origin main
-   ```
 
 ---
 
