@@ -139,6 +139,9 @@ export const BooksModule: React.FC = () => {
   const todayDate = new Date().toISOString().split('T')[0];
   const dailyReadingStreak = calculateDailyReadingStreak(state, todayDate);
 
+  // Physical library search query
+  const [physicalSearchQuery, setPhysicalSearchQuery] = useState('');
+
   const physicalBooks = state.books.filter((b) => (b.format || 'physical') === 'physical');
   const ebookBooks = state.books.filter((b) => b.format === 'ebook');
   const audiobookBooks = state.books.filter((b) => b.format === 'audiobook');
@@ -341,7 +344,16 @@ export const BooksModule: React.FC = () => {
     return shelves;
   };
 
-  const physicalShelves = chunkShelves(physicalBooks, 5);
+  const searchedPhysicalBooks = physicalBooks.filter((book) => {
+    if (!physicalSearchQuery.trim()) return true;
+    const q = physicalSearchQuery.toLowerCase().trim();
+    return (
+      (book.title && book.title.toLowerCase().includes(q)) ||
+      (book.author && book.author.toLowerCase().includes(q))
+    );
+  });
+
+  const physicalShelves = chunkShelves(searchedPhysicalBooks, 5);
 
   const getBookPalette = (book: Book) => {
     // Deterministic hash based purely on the book itself so spine colour NEVER changes upon rearrangement
@@ -754,6 +766,51 @@ export const BooksModule: React.FC = () => {
             </div>
           </div>
 
+          {/* Victorian Search & Filter Shelf Control Bar */}
+          <div className="px-4 py-2.5 bg-[#05140b]/90 border-b border-[#143d27]/70 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-inner">
+            <div className="relative w-full sm:w-80">
+              <Search className="w-3.5 h-3.5 text-emerald-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search physical shelves by title or author..."
+                value={physicalSearchQuery}
+                onChange={(e) => setPhysicalSearchQuery(e.target.value)}
+                className="w-full bg-[#081c10]/80 border border-emerald-500/35 focus:border-emerald-400 text-white placeholder:text-emerald-300/40 text-xs rounded-xl pl-8 pr-7 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-400/50 transition-all font-serif"
+              />
+              {physicalSearchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setPhysicalSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-emerald-400/70 hover:text-white text-xs cursor-pointer p-0.5"
+                  title="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 text-[11px] font-mono text-emerald-300/80 w-full sm:w-auto justify-between sm:justify-end">
+              {physicalSearchQuery ? (
+                <>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-400/40 text-emerald-200">
+                    {searchedPhysicalBooks.length} {searchedPhysicalBooks.length === 1 ? 'tome found' : 'tomes found'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPhysicalSearchQuery('')}
+                    className="text-amber-300 hover:text-amber-100 underline text-[10px] cursor-pointer font-serif"
+                  >
+                    Clear Filter
+                  </button>
+                </>
+              ) : (
+                <span className="text-[10px] font-serif italic text-emerald-300/60">
+                  {physicalBooks.length} {physicalBooks.length === 1 ? 'tome on physical shelves' : 'tomes on physical shelves'}
+                </span>
+              )}
+            </div>
+          </div>
+
           {/* Rearrange Mode Active Guidance Bar */}
           {(rearrangeMode || pickedUpBookId) && (
             <div className="relative z-30 px-4 py-2 bg-gradient-to-r from-[#092b1a] via-[#10472c] to-[#092b1a] border-b border-emerald-400/50 flex items-center justify-between gap-3 text-xs text-emerald-100 shadow-lg">
@@ -806,6 +863,26 @@ export const BooksModule: React.FC = () => {
                 <div className="relative flex items-end px-2 sm:px-6 min-h-[265px] overflow-x-auto no-scrollbar gap-4 sm:gap-6 pb-2 pt-6">
                   {/* Left Realistic Raven on Branch Bookend */}
                   <RealisticRavenBookend flip={false} />
+
+                  {/* Empty Search Result Message on Shelf */}
+                  {searchedPhysicalBooks.length === 0 && (
+                    <div className="flex-1 flex flex-col items-center justify-center py-10 text-center px-4 self-center">
+                      <Search className="w-6 h-6 text-emerald-500/40 mb-1.5" />
+                      <h4 className="font-serif font-bold text-sm text-amber-200">
+                        No tomes found on these shelves
+                      </h4>
+                      <p className="font-serif italic text-[11px] text-emerald-300/70 max-w-sm mt-0.5">
+                        No physical books match &quot;{physicalSearchQuery}&quot;. Check your spelling or reset the filter.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setPhysicalSearchQuery('')}
+                        className="mt-2.5 px-3 py-1 rounded-lg bg-emerald-700/80 hover:bg-emerald-600 text-white text-[11px] font-medium cursor-pointer transition-all shadow"
+                      >
+                        Reset Search Filter
+                      </button>
+                    </div>
+                  )}
 
                   {/* Books on this shelf */}
                   {shelfBooks.map((book) => {
