@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLife } from '../../context/LifeContext';
 import { TabType } from '../../types';
+import { calculateDailyStreak } from '../../utils/streak';
 import {
   CheckCircle2,
   Circle,
@@ -44,6 +45,9 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ setActiveT
   // Today mood
   const todayMood = state.moods.find((m) => m.date === todayDate);
 
+  // Overall Daily Streak
+  const dailyStreak = calculateDailyStreak(state, todayDate);
+
   // Currently reading book
   const currentBook = state.books.find((b) => b.status === 'reading');
 
@@ -77,21 +81,45 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ setActiveT
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            {/* Daily Streak Count Card */}
+            <div
               onClick={() => setActiveTab('routines')}
-              className="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-medium text-xs shadow-lg shadow-emerald-950/50 transition-all flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-orange-500/20 to-amber-500/15 border border-amber-400/40 shadow-[0_0_20px_rgba(245,158,11,0.25)] flex items-center gap-3 cursor-pointer hover:border-amber-400/70 hover:scale-[1.02] transition-all group"
+              title="Daily streak across your habits & routines! Click to view."
             >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Complete Routines</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('journal')}
-              className="px-4 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-white/[0.1] font-medium text-xs transition-all flex items-center gap-2"
-            >
-              <Pin className="w-4 h-4 text-emerald-300" />
-              <span>Junk Journal</span>
-            </button>
+              <div className="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400">
+                <Flame className="w-5 h-5 fill-amber-400 text-amber-400 animate-pulse group-hover:scale-110 transition-transform" />
+              </div>
+              <div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="font-mono font-black text-xl text-amber-200">
+                    {dailyStreak}
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-300 font-serif">
+                    {dailyStreak === 1 ? 'Day Streak' : 'Days Streak'}
+                  </span>
+                </div>
+                <p className="text-[10px] text-amber-200/70 font-medium">Keep the flame alive 🔥</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setActiveTab('routines')}
+                className="px-3.5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-medium text-xs shadow-lg shadow-emerald-950/50 transition-all flex items-center gap-2"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Routines</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('journal')}
+                className="px-3.5 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-white/[0.1] font-medium text-xs transition-all flex items-center gap-2"
+              >
+                <Pin className="w-4 h-4 text-emerald-300" />
+                <span className="hidden sm:inline">Journal</span>
+              </button>
+            </div>
           </div>
         </div>
 

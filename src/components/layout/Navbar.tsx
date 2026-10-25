@@ -11,8 +11,10 @@ import {
   Heart,
   Wifi,
   WifiOff,
+  Flame,
 } from 'lucide-react';
 import { TabType } from '../../types';
+import { calculateDailyStreak } from '../../utils/streak';
 
 interface NavbarProps {
   activeTab: TabType;
@@ -59,6 +61,9 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   const totalRoutines = state.routines.length;
 
   const todayMood = state.moods.find((m) => m.date === todayDate);
+
+  // Daily Streak calculation
+  const dailyStreak = calculateDailyStreak(state, todayDate);
 
   return (
     <header className="sticky top-0 z-30 bg-[#08140d]/90 backdrop-blur-md border-b border-emerald-500/15 px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4">
@@ -128,8 +133,23 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
         </button>
       </div>
 
-      {/* Right: Live Connection Indicator & Data Tools */}
+      {/* Right: Daily Streak Count, Live Connection Indicator & Data Tools */}
       <div className="flex items-center gap-2">
+        {/* Daily Streak Count Badge */}
+        <button
+          onClick={() => setActiveTab('routines')}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-orange-500/20 to-amber-500/15 hover:from-amber-500/25 hover:to-orange-500/30 border border-amber-400/40 hover:border-amber-400/70 shadow-[0_0_15px_rgba(245,158,11,0.25)] transition-all cursor-pointer group"
+          title={`${dailyStreak} day streak! Click to view habits and routines.`}
+        >
+          <Flame className="w-4 h-4 text-amber-400 fill-amber-400 animate-pulse group-hover:scale-110 transition-transform" />
+          <span className="font-mono font-black text-xs text-amber-200">
+            {dailyStreak}
+          </span>
+          <span className="text-[11px] font-bold text-amber-300 hidden sm:inline font-serif">
+            {dailyStreak === 1 ? 'Day Streak' : 'Days Streak'}
+          </span>
+        </button>
+
         {/* Real-time Cross-Device Status Indicator */}
         <div
           className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg border transition-all ${
