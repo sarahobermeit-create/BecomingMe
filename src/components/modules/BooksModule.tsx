@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useLife } from '../../context/LifeContext';
 import {
   BookOpen,
@@ -29,10 +29,17 @@ import {
   Search,
   Loader2,
   CheckCircle2,
+  Upload,
+  FileSpreadsheet,
+  ChevronLeft,
+  ChevronRight,
+  FileCheck,
 } from 'lucide-react';
 import { Book, BookStatus, BookFormat } from '../../types';
 import { calculateDailyReadingStreak } from '../../utils/streak';
 import { lookupBookByIsbn, searchBooksOnline, IsbnBookData } from '../../utils/isbnLookup';
+import { parseBookshelfCsv } from '../../utils/bookCsvImporter';
+import confetti from 'canvas-confetti';
 import { RealisticRavenBookend } from '../common/RealisticRavenBookend';
 import { KindleScreen } from '../common/KindleScreen';
 import { HeadphonesOverCorner } from '../common/HeadphonesOverCorner';
@@ -139,8 +146,20 @@ export const BooksModule: React.FC = () => {
   const todayDate = new Date().toISOString().split('T')[0];
   const dailyReadingStreak = calculateDailyReadingStreak(state, todayDate);
 
-  // Physical library search query
+  // Physical library search query & pagination
   const [physicalSearchQuery, setPhysicalSearchQuery] = useState('');
+  const [physicalPage, setPhysicalPage] = useState(1);
+  const BOOKS_PER_PAGE = 30; // 6 shelves of 5 books per page
+
+  // CSV Import State
+  const csvFileInputRef = useRef<HTMLInputElement>(null);
+  const [showCsvModal, setShowCsvModal] = useState(false);
+  const [csvParsedBooks, setCsvParsedBooks] = useState<Book[]>([]);
+  const [csvFileName, setCsvFileName] = useState('');
+  const [csvImportMode, setCsvImportMode] = useState<'merge' | 'replace'>('merge');
+  const [csvNoticeMessage, setCsvNoticeMessage] = useState<string | null>(null);
+  const [csvErrorMessage, setCsvErrorMessage] = useState<string | null>(null);
+  const [isImportingCsv, setIsImportingCsv] = useState(false);
 
   const physicalBooks = state.books.filter((b) => (b.format || 'physical') === 'physical');
   const ebookBooks = state.books.filter((b) => b.format === 'ebook');
@@ -353,7 +372,121 @@ export const BooksModule: React.FC = () => {
     );
   });
 
-  const physicalShelves = chunkShelves(searchedPhysicalBooks, 5);
+  const totalPhysicalPages = Math.max(1, Math.ceil(searchedPhysicalBooks.length / BOOKS_PER_PAGE));
+  const safePhysicalPage = Math.min(physicalPage, totalPhysicalPages);
+  const physicalStartIndex = (safePhysicalPage - 1) * BOOKS_PER_PAGE;
+  const paginatedPhysicalBooks = searchedPhysicalBooks.slice(
+    physicalStartIndex,
+    physicalStartIndex + BOOKS_PER_PAGE
+  );
+  const physicalShelves = chunkShelves(paginatedPhysicalBooks, 5);
+
+  const handleCsvFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setCsvFileName(file.name);
+    setCsvErrorMessage(null);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        if (!text || !text.trim()) {
+          setCsvErrorMessage('The selected CSV file appears to be empty.');
+          return;
+        }
+
+        const parsed = parseBookshelfCsv(text);
+        if (parsed.length === 0) {
+          setCsvErrorMessage(
+            'Could not find any books in the file. Ensure the CSV contains a "Title" column or is an export from the Bookshelf app.'
+          );
+          return;
+        }
+
+        setCsvParsedBooks(parsed);
+        setShowCsvModal(true);
+      } catch (err: any) {
+        setCsvErrorMessage(`Failed to parse CSV: ${err?.message || 'Invalid format'}`);
+      }
+    };
+    reader.onerror = () => {
+      setCsvErrorMessage('Failed to read file from disk.');
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const handleConfirmImport = () => {
+    if (csvParsedBooks.length === 0) return;
+    setIsImportingCsv(true);
+
+    try {
+      if (csvImportMode === 'merge') {
+        const existingTitles = new Set(
+          state.books.map((b) => (b.title || '').trim().toLowerCase())
+        );
+        const existingCoverUrls = new Set(
+          state.books.map((b) => b.coverUrl).filter(Boolean)
+        );
+
+        const newBooksToAdd: Book[] = [];
+        let skippedDuplicates = 0;
+
+        for (const book of csvParsedBooks) {
+          const titleKey = (book.title || '').trim().toLowerCase();
+          const coverKey = book.coverUrl;
+
+          const isDuplicate =
+            existingTitles.has(titleKey) ||
+            (coverKey && existingCoverUrls.has(coverKey));
+
+          if (isDuplicate) {
+            skippedDuplicates++;
+          } else {
+            newBooksToAdd.push(book);
+            existingTitles.add(titleKey);
+            if (coverKey) existingCoverUrls.add(coverKey);
+          }
+        }
+
+        const updatedBooks = [...newBooksToAdd, ...state.books];
+        reorderBooks(updatedBooks);
+        setCsvNoticeMessage(
+          `Imported ${newBooksToAdd.length} new tomes to your Victorian Library!${
+            skippedDuplicates > 0 ? ` (${skippedDuplicates} existing duplicates kept)` : ''
+          }`
+        );
+      } else {
+        // Replace physical books only; keep ebook and audiobook collections intact
+        const nonPhysicalBooks = state.books.filter(
+          (b) => (b.format || 'physical') !== 'physical'
+        );
+        const updatedBooks = [...csvParsedBooks, ...nonPhysicalBooks];
+        reorderBooks(updatedBooks);
+        setCsvNoticeMessage(
+          `Replaced physical collection with ${csvParsedBooks.length} tomes from CSV!`
+        );
+      }
+
+      setShowCsvModal(false);
+      setCsvParsedBooks([]);
+      setPhysicalPage(1);
+
+      // Trigger celebratory confetti
+      confetti({
+        particleCount: 70,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ['#10b981', '#34d399', '#f59e0b', '#fbbf24', '#e2e8f0'],
+      });
+    } catch (err: any) {
+      setCsvErrorMessage(`Failed to complete import: ${err?.message || 'Unknown error'}`);
+    } finally {
+      setIsImportingCsv(false);
+    }
+  };
 
   const getBookPalette = (book: Book) => {
     // Deterministic hash based purely on the book itself so spine colour NEVER changes upon rearrangement
@@ -737,6 +870,24 @@ export const BooksModule: React.FC = () => {
                 <span>DNF</span>
               </span>
 
+              {/* Import CSV Button */}
+              <button
+                type="button"
+                onClick={() => csvFileInputRef.current?.click()}
+                className="px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer bg-[#0a2e1d] hover:bg-[#14472f] text-emerald-200 border border-emerald-400/40 shadow-sm hover:border-emerald-300"
+                title="Import collection from CSV (e.g. Bookshelf app export)"
+              >
+                <Upload className="w-3.5 h-3.5 text-emerald-300" />
+                <span>Import CSV</span>
+              </button>
+              <input
+                ref={csvFileInputRef}
+                type="file"
+                accept=".csv,text/csv"
+                className="hidden"
+                onChange={handleCsvFileSelect}
+              />
+
               {/* Rearrange Shelves Toggle Button */}
               <button
                 type="button"
@@ -774,13 +925,19 @@ export const BooksModule: React.FC = () => {
                 type="text"
                 placeholder="Search physical shelves by title or author..."
                 value={physicalSearchQuery}
-                onChange={(e) => setPhysicalSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setPhysicalSearchQuery(e.target.value);
+                  setPhysicalPage(1);
+                }}
                 className="w-full bg-[#081c10]/80 border border-emerald-500/35 focus:border-emerald-400 text-white placeholder:text-emerald-300/40 text-xs rounded-xl pl-8 pr-7 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-400/50 transition-all font-serif"
               />
               {physicalSearchQuery && (
                 <button
                   type="button"
-                  onClick={() => setPhysicalSearchQuery('')}
+                  onClick={() => {
+                    setPhysicalSearchQuery('');
+                    setPhysicalPage(1);
+                  }}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 text-emerald-400/70 hover:text-white text-xs cursor-pointer p-0.5"
                   title="Clear search"
                 >
@@ -797,7 +954,10 @@ export const BooksModule: React.FC = () => {
                   </span>
                   <button
                     type="button"
-                    onClick={() => setPhysicalSearchQuery('')}
+                    onClick={() => {
+                      setPhysicalSearchQuery('');
+                      setPhysicalPage(1);
+                    }}
                     className="text-amber-300 hover:text-amber-100 underline text-[10px] cursor-pointer font-serif"
                   >
                     Clear Filter
@@ -810,6 +970,77 @@ export const BooksModule: React.FC = () => {
               )}
             </div>
           </div>
+
+          {/* Notice Banner */}
+          {csvNoticeMessage && (
+            <div className="px-4 py-2.5 bg-emerald-950/90 border-b border-emerald-400/50 flex items-center justify-between text-xs text-emerald-200 shadow-md">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span className="font-serif">{csvNoticeMessage}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCsvNoticeMessage(null)}
+                className="text-emerald-400/80 hover:text-white text-xs cursor-pointer px-1"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* Error Banner */}
+          {csvErrorMessage && (
+            <div className="px-4 py-2.5 bg-rose-950/90 border-b border-rose-400/50 flex items-center justify-between text-xs text-rose-200 shadow-md">
+              <div className="flex items-center gap-2">
+                <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <span className="font-serif">{csvErrorMessage}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCsvErrorMessage(null)}
+                className="text-rose-400/80 hover:text-white text-xs cursor-pointer px-1"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* Top Pagination Control (when more than 1 page) */}
+          {totalPhysicalPages > 1 && (
+            <div className="px-4 py-2 bg-[#06170d]/90 border-b border-[#143d27]/60 flex items-center justify-between text-xs text-emerald-200">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={safePhysicalPage <= 1}
+                  onClick={() => setPhysicalPage((p) => Math.max(1, p - 1))}
+                  className="px-2.5 py-1 rounded bg-[#0a2e1d] hover:bg-[#14472f] disabled:opacity-40 disabled:cursor-not-allowed border border-emerald-500/30 flex items-center gap-1 font-serif cursor-pointer transition-all text-[11px]"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                  <span>Previous</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={safePhysicalPage >= totalPhysicalPages}
+                  onClick={() => setPhysicalPage((p) => Math.min(totalPhysicalPages, p + 1))}
+                  className="px-2.5 py-1 rounded bg-[#0a2e1d] hover:bg-[#14472f] disabled:opacity-40 disabled:cursor-not-allowed border border-emerald-500/30 flex items-center gap-1 font-serif cursor-pointer transition-all text-[11px]"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="font-serif text-[11px] text-emerald-300/80 flex items-center gap-2">
+                <span>
+                  Shelf Page <strong className="text-amber-200 font-mono">{safePhysicalPage}</strong> of{' '}
+                  <strong className="text-emerald-100 font-mono">{totalPhysicalPages}</strong>
+                </span>
+                <span className="hidden sm:inline text-emerald-400/50">•</span>
+                <span className="hidden sm:inline text-emerald-300/60">
+                  Showing {physicalStartIndex + 1}–{Math.min(physicalStartIndex + BOOKS_PER_PAGE, searchedPhysicalBooks.length)} of {searchedPhysicalBooks.length} tomes
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Rearrange Mode Active Guidance Bar */}
           {(rearrangeMode || pickedUpBookId) && (
@@ -1176,6 +1407,49 @@ export const BooksModule: React.FC = () => {
                 </div>
               </div>
             ))}
+
+            {/* Bottom Shelf Pagination Bar */}
+            {totalPhysicalPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 bg-[#05140b]/95 border-t border-[#143d27]/70 text-xs text-emerald-200 rounded-b-2xl shadow-xl">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={safePhysicalPage <= 1}
+                    onClick={() => {
+                      setPhysicalPage((p) => Math.max(1, p - 1));
+                      window.scrollTo({ top: 350, behavior: 'smooth' });
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-[#0a2e1d] hover:bg-[#14472f] disabled:opacity-40 disabled:cursor-not-allowed border border-emerald-500/30 flex items-center gap-1.5 font-serif cursor-pointer transition-all shadow"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Previous Shelves</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={safePhysicalPage >= totalPhysicalPages}
+                    onClick={() => {
+                      setPhysicalPage((p) => Math.min(totalPhysicalPages, p + 1));
+                      window.scrollTo({ top: 350, behavior: 'smooth' });
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-[#0a2e1d] hover:bg-[#14472f] disabled:opacity-40 disabled:cursor-not-allowed border border-emerald-500/30 flex items-center gap-1.5 font-serif cursor-pointer transition-all shadow"
+                  >
+                    <span>Next Shelves</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="font-serif text-xs text-emerald-200/90 flex items-center gap-2">
+                  <span>
+                    Shelf Page <strong className="text-amber-300 font-mono text-sm">{safePhysicalPage}</strong> of{' '}
+                    <strong className="text-emerald-100 font-mono text-sm">{totalPhysicalPages}</strong>
+                  </span>
+                  <span className="text-emerald-400/50">•</span>
+                  <span className="text-emerald-300/70 text-[11px]">
+                    Showing {physicalStartIndex + 1}–{Math.min(physicalStartIndex + BOOKS_PER_PAGE, searchedPhysicalBooks.length)} of {searchedPhysicalBooks.length} tomes
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1877,6 +2151,247 @@ export const BooksModule: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* CSV IMPORT PREVIEW & CONFIRMATION MODAL */}
+      {showCsvModal && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-gradient-to-b from-[#0b2417] via-[#07190f] to-[#040e08] border border-emerald-400/40 rounded-3xl p-5 sm:p-7 max-w-2xl w-full shadow-[0_25px_60px_rgba(0,0,0,0.95)] relative text-white space-y-5 my-8">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-3 border-b border-emerald-500/30 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 shadow-[0_0_20px_rgba(52,211,153,0.3)]">
+                  <FileSpreadsheet className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-serif font-bold text-lg sm:text-xl text-amber-100 flex items-center gap-2">
+                    Import Physical Library Collection
+                  </h3>
+                  <p className="font-serif italic text-xs text-emerald-300/80 mt-0.5">
+                    File: <span className="font-mono text-amber-200">{csvFileName}</span> • Found{' '}
+                    <strong className="text-white">{csvParsedBooks.length}</strong> books
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCsvModal(false);
+                  setCsvParsedBooks([]);
+                }}
+                className="p-1.5 rounded-full hover:bg-emerald-500/20 text-emerald-300/70 hover:text-white transition-colors cursor-pointer"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div className="p-3 rounded-2xl bg-[#06170d]/80 border border-emerald-500/30 text-center">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-300/70 block">
+                  Total Books
+                </span>
+                <span className="font-mono text-xl font-black text-amber-200 mt-1 block">
+                  {csvParsedBooks.length}
+                </span>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-[#06170d]/80 border border-emerald-500/30 text-center">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-300/70 block">
+                  With Cover Art
+                </span>
+                <span className="font-mono text-xl font-black text-emerald-300 mt-1 block">
+                  {csvParsedBooks.filter((b) => b.coverUrl).length}
+                </span>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-[#06170d]/80 border border-emerald-500/30 text-center">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-300/70 block">
+                  Want to Read
+                </span>
+                <span className="font-mono text-xl font-black text-amber-300 mt-1 block">
+                  {csvParsedBooks.filter((b) => b.status === 'want_to_read').length}
+                </span>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-[#06170d]/80 border border-emerald-500/30 text-center">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-300/70 block">
+                  Completed
+                </span>
+                <span className="font-mono text-xl font-black text-yellow-300 mt-1 block">
+                  {csvParsedBooks.filter((b) => b.status === 'completed').length}
+                </span>
+              </div>
+            </div>
+
+            {/* Collection Preview (Horizontal Scrollable Carousel) */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-serif font-semibold text-emerald-200">
+                  Sample Tome Previews
+                </span>
+                <span className="text-[11px] text-emerald-300/60 font-serif italic">
+                  Showing first {Math.min(8, csvParsedBooks.length)} books
+                </span>
+              </div>
+
+              <div className="flex gap-3 overflow-x-auto pb-2 pt-1 no-scrollbar">
+                {csvParsedBooks.slice(0, 8).map((book, idx) => (
+                  <div
+                    key={idx}
+                    className="shrink-0 w-28 bg-[#041009] rounded-xl border border-emerald-500/30 p-2 flex flex-col justify-between group shadow-lg"
+                  >
+                    <div className="w-full h-32 rounded-lg overflow-hidden bg-black/60 border border-emerald-400/20 mb-2 relative">
+                      {book.coverUrl ? (
+                        <img
+                          src={book.coverUrl}
+                          alt={book.title}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center bg-gradient-to-br from-[#12281b] to-[#07130d]">
+                          <BookOpen className="w-5 h-5 text-emerald-400/50 mb-1" />
+                          <span className="text-[9px] font-serif line-clamp-2 text-amber-200/80">
+                            {book.title}
+                          </span>
+                        </div>
+                      )}
+                      <div className="absolute top-1 right-1">
+                        <span
+                          className={`text-[8px] font-mono font-bold px-1 py-0.5 rounded shadow ${
+                            book.status === 'completed'
+                              ? 'bg-yellow-500/90 text-black'
+                              : 'bg-emerald-950/90 text-emerald-300 border border-emerald-400/40'
+                          }`}
+                        >
+                          {book.status === 'completed' ? 'Done' : 'Next'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4
+                        className="font-serif text-[11px] font-bold text-amber-100 line-clamp-1 leading-tight"
+                        title={book.title}
+                      >
+                        {book.title}
+                      </h4>
+                      <p
+                        className="font-serif text-[10px] text-emerald-300/70 line-clamp-1 mt-0.5"
+                        title={book.author}
+                      >
+                        {book.author}
+                      </p>
+                      <span className="text-[9px] font-mono text-emerald-400/60 block mt-1">
+                        {book.totalPages ? `${book.totalPages} pages` : 'Physical Tome'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Import Strategy Options */}
+            <div className="space-y-2.5">
+              <span className="font-serif font-semibold text-xs text-emerald-200 block">
+                Choose Import Strategy:
+              </span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Option 1: Merge */}
+                <label
+                  onClick={() => setCsvImportMode('merge')}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                    csvImportMode === 'merge'
+                      ? 'bg-emerald-950/70 border-emerald-400 ring-2 ring-emerald-400/30 shadow-lg'
+                      : 'bg-[#06170d]/60 border-emerald-500/20 hover:border-emerald-500/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-serif font-bold text-xs text-amber-100 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
+                      Merge with Existing
+                    </span>
+                    <input
+                      type="radio"
+                      name="importMode"
+                      checked={csvImportMode === 'merge'}
+                      onChange={() => setCsvImportMode('merge')}
+                      className="accent-emerald-400"
+                    />
+                  </div>
+                  <p className="text-[11px] text-emerald-200/70 font-serif leading-relaxed">
+                    Adds new books without deleting current books. Skips any duplicate books already on your shelves.
+                  </p>
+                </label>
+
+                {/* Option 2: Replace */}
+                <label
+                  onClick={() => setCsvImportMode('replace')}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                    csvImportMode === 'replace'
+                      ? 'bg-emerald-950/70 border-emerald-400 ring-2 ring-emerald-400/30 shadow-lg'
+                      : 'bg-[#06170d]/60 border-emerald-500/20 hover:border-emerald-500/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-serif font-bold text-xs text-amber-100 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
+                      Replace Physical Shelves
+                    </span>
+                    <input
+                      type="radio"
+                      name="importMode"
+                      checked={csvImportMode === 'replace'}
+                      onChange={() => setCsvImportMode('replace')}
+                      className="accent-emerald-400"
+                    />
+                  </div>
+                  <p className="text-[11px] text-emerald-200/70 font-serif leading-relaxed">
+                    Replaces all physical books with this collection ({csvParsedBooks.length} books). Digital Kindle & Audiobooks are untouched.
+                  </p>
+                </label>
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-emerald-500/30">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCsvModal(false);
+                  setCsvParsedBooks([]);
+                }}
+                disabled={isImportingCsv}
+                className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-emerald-200 hover:text-white font-serif text-xs cursor-pointer transition-colors"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmImport}
+                disabled={isImportingCsv}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 hover:from-emerald-500 hover:to-emerald-400 text-white font-serif font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-950/60 border border-emerald-300/40 cursor-pointer transition-all disabled:opacity-50"
+              >
+                {isImportingCsv ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Importing Books...</span>
+                  </>
+                ) : (
+                  <>
+                    <FileCheck className="w-4 h-4 text-emerald-100" />
+                    <span>Confirm & Import {csvParsedBooks.length} Books</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
