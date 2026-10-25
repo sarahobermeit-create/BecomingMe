@@ -555,9 +555,9 @@ export const BooksModule: React.FC = () => {
         {/* DNF */}
         <button
           onClick={() => setActiveTab('dnf')}
-          className={`p-3 rounded-xl text-left bg-[#06140b]/35 backdrop-blur-sm border transition-all shadow-md hover:border-rose-500/40 cursor-pointer ${
+          className={`p-3 rounded-xl text-left bg-[#06140b]/35 backdrop-blur-sm border transition-all shadow-md hover:border-emerald-500/40 cursor-pointer ${
             activeTab === 'dnf'
-              ? 'border-rose-400/60 ring-1 ring-rose-400/30 bg-[#240a10]/50'
+              ? 'border-emerald-400/60 ring-1 ring-emerald-400/30 bg-[#092212]/50'
               : 'border-emerald-500/20'
           }`}
         >
@@ -565,9 +565,9 @@ export const BooksModule: React.FC = () => {
             <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-300">
               DNF
             </span>
-            <XCircle className="w-3 h-3 text-rose-400" />
+            <XCircle className="w-3 h-3 text-emerald-400" />
           </div>
-          <p className="text-lg font-black text-rose-400 font-mono mt-0.5">
+          <p className="text-lg font-black text-emerald-400 font-mono mt-0.5">
             {state.books.filter((b) => b.status === 'dnf').length}
           </p>
         </button>
@@ -668,11 +668,11 @@ export const BooksModule: React.FC = () => {
           onClick={() => setActiveTab('dnf')}
           className={`px-3 py-2 rounded-xl font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
             activeTab === 'dnf'
-              ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
               : 'text-slate-400 hover:text-white bg-[#06140b]/30 border border-emerald-500/10'
           }`}
         >
-          <XCircle className="w-3.5 h-3.5 text-rose-400" /> DNF ({state.books.filter((b) => b.status === 'dnf').length})
+          <XCircle className="w-3.5 h-3.5 text-emerald-400" /> DNF ({state.books.filter((b) => b.status === 'dnf').length})
         </button>
       </div>
 
@@ -1274,7 +1274,7 @@ export const BooksModule: React.FC = () => {
                       onClick={() => handleUpdateStatus(selectedBook, 'dnf')}
                       className={`py-1.5 px-2 rounded-lg font-medium transition-colors cursor-pointer text-center ${
                         selectedBook.status === 'dnf'
-                          ? 'bg-rose-900/80 text-rose-200 border border-rose-500/50 shadow-md'
+                          ? 'bg-emerald-700 text-white shadow-md'
                           : 'bg-white/[0.04] text-slate-300 hover:bg-white/[0.08]'
                       }`}
                     >
