@@ -19,7 +19,7 @@ export const RealisticRavenBookend: React.FC<RealisticRavenBookendProps> = ({ fl
         <img
           src="/raven-woodcut-bookend.png"
           alt="Raven on Branch Bookend"
-          className="h-[215px] sm:h-[242px] w-auto object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,0.95)]"
+          className="h-[165px] sm:h-[188px] w-auto object-contain drop-shadow-[0_12px_22px_rgba(0,0,0,0.95)]"
           loading="eager"
         />
       </div>
