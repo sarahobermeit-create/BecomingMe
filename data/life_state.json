@@ -234,6 +234,7 @@
       "title": "Atomic Habits",
       "author": "James Clear",
       "status": "reading",
+      "format": "physical",
       "totalPages": 320,
       "currentPage": 214,
       "rating": 5,
@@ -250,6 +251,7 @@
       "title": "The Psychology of Money",
       "author": "Morgan Housel",
       "status": "completed",
+      "format": "physical",
       "totalPages": 256,
       "currentPage": 256,
       "rating": 5,
@@ -263,31 +265,12 @@
     },
     {
       "id": "book-3",
-      "title": "Four Thousand Weeks: Time Management for Mortals",
-      "author": "Oliver Burkeman",
-      "status": "want_to_read",
-      "totalPages": 288,
-      "currentPage": 0,
-      "coverUrl": "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=400",
-      "notes": "Recommended by two close friends on embracing human finitude."
-    },
-    {
-      "id": "book-4",
-      "title": "Klara and the Sun",
-      "author": "Kazuo Ishiguro",
-      "status": "want_to_read",
-      "totalPages": 303,
-      "currentPage": 0,
-      "coverUrl": "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&q=80&w=400",
-      "notes": "Next fiction read for relaxing weekends."
-    },
-    {
-      "id": "book-5",
       "title": "The Picture of Dorian Gray",
       "author": "Oscar Wilde",
       "status": "reading",
+      "format": "physical",
       "totalPages": 254,
-      "currentPage": 142,
+      "currentPage": 168,
       "rating": 5,
       "coverUrl": "https://images.unsplash.com/photo-1476275466078-4007374efbbe?auto=format&fit=crop&q=80&w=400",
       "favoriteQuotes": [
@@ -297,10 +280,11 @@
       "notes": "A quintessential Victorian gothic masterpiece for rainy nights by the hearth."
     },
     {
-      "id": "book-6",
+      "id": "book-4",
       "title": "Jane Eyre",
       "author": "Charlotte Brontë",
       "status": "completed",
+      "format": "physical",
       "totalPages": 532,
       "currentPage": 532,
       "rating": 5,
@@ -309,6 +293,83 @@
         "I am no bird; and no net ensnares me; I am a free human being with an independent will."
       ],
       "notes": "Atmospheric, passionate, and classic Victorian literature."
+    },
+    {
+      "id": "book-5",
+      "title": "Wuthering Heights",
+      "author": "Emily Brontë",
+      "status": "want_to_read",
+      "format": "physical",
+      "totalPages": 416,
+      "currentPage": 0,
+      "coverUrl": "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=400",
+      "notes": "Haunting classic set on the Yorkshire moors."
+    },
+    {
+      "id": "book-6",
+      "title": "Four Thousand Weeks: Time Management for Mortals",
+      "author": "Oliver Burkeman",
+      "status": "want_to_read",
+      "format": "ebook",
+      "totalPages": 288,
+      "currentPage": 0,
+      "coverUrl": "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=400",
+      "notes": "Downloaded to e-reader. Recommended by two close friends on embracing human finitude."
+    },
+    {
+      "id": "book-7",
+      "title": "Klara and the Sun",
+      "author": "Kazuo Ishiguro",
+      "status": "reading",
+      "format": "ebook",
+      "totalPages": 303,
+      "currentPage": 124,
+      "rating": 4,
+      "coverUrl": "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&q=80&w=400",
+      "notes": "E-book on bedside tablet for relaxing evening reading."
+    },
+    {
+      "id": "book-8",
+      "title": "The Midnight Library",
+      "author": "Matt Haig",
+      "status": "completed",
+      "format": "ebook",
+      "totalPages": 304,
+      "currentPage": 304,
+      "rating": 5,
+      "coverUrl": "https://images.unsplash.com/photo-1532012164546-f432f2e37257?auto=format&fit=crop&q=80&w=400",
+      "notes": "Between life and death there is a library, and within that library, the shelves go on forever."
+    },
+    {
+      "id": "book-9",
+      "title": "The Hound of the Baskervilles",
+      "author": "Arthur Conan Doyle",
+      "status": "reading",
+      "format": "audiobook",
+      "totalPages": 250,
+      "currentPage": 145,
+      "audioDurationMinutes": 380,
+      "currentAudioMinutes": 220,
+      "rating": 5,
+      "coverUrl": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=400",
+      "favoriteQuotes": [
+        "The world is full of obvious things which nobody by any chance ever observes."
+      ],
+      "notes": "Narrated by Stephen Fry. Perfect for evening walks and rainy nights."
+    },
+    {
+      "id": "book-10",
+      "title": "Educated",
+      "author": "Tara Westover",
+      "status": "completed",
+      "format": "audiobook",
+      "totalPages": 350,
+      "currentPage": 350,
+      "audioDurationMinutes": 730,
+      "currentAudioMinutes": 730,
+      "rating": 5,
+      "coverUrl": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=400",
+      "notes": "Incredible memoir on resilience and the power of knowledge."
     }
   ],
   "moods": [

@@ -76,7 +76,11 @@ export const LifeProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (!parsed.books || parsed.books.length === 0) {
+          parsed.books = initialLifeState.books;
+        }
+        return parsed;
       }
     } catch (e) {
       console.error('Failed to parse saved state:', e);
@@ -100,6 +104,9 @@ export const LifeProvider: React.FC<{ children: React.ReactNode }> = ({ children
       })
       .then((data) => {
         if (data && !data.notFound) {
+          if (!data.books || data.books.length === 0) {
+            data.books = initialLifeState.books;
+          }
           isIncomingSyncRef.current = true;
           setState(data);
           try {

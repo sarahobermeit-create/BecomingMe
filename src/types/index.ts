@@ -61,14 +61,18 @@ export interface Transaction {
 
 // 5. Books Tracker
 export type BookStatus = 'want_to_read' | 'reading' | 'completed' | 'on_hold';
+export type BookFormat = 'physical' | 'ebook' | 'audiobook';
 
 export interface Book {
   id: string;
   title: string;
   author: string;
   status: BookStatus;
+  format?: BookFormat;
   totalPages: number;
   currentPage: number;
+  audioDurationMinutes?: number;
+  currentAudioMinutes?: number;
   rating?: number; // 1-5
   coverUrl?: string;
   startDate?: string;
