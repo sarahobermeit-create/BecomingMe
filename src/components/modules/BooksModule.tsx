@@ -327,7 +327,7 @@ export const BooksModule: React.FC = () => {
     return shelves;
   };
 
-  const physicalShelves = chunkShelves(physicalBooks, 6);
+  const physicalShelves = chunkShelves(physicalBooks, 5);
 
   const getBookPalette = (book: Book) => {
     // Deterministic hash based purely on the book itself so spine colour NEVER changes upon rearrangement
@@ -336,12 +336,13 @@ export const BooksModule: React.FC = () => {
   };
 
   const getBookHeight = (book: Book) => {
-    const hash = (book.id + book.title).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return 210 + (hash % 38);
+    const hash = (book.id + (book.title || '')).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return 195 + (hash % 25);
   };
 
   const getBookWidth = (book: Book) => {
-    return Math.min(54, Math.max(38, Math.round(book.totalPages / 7)));
+    const hash = (book.id + (book.title || '')).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return 122 + (hash % 16);
   };
 
   const formatMinutes = (mins: number = 0) => {
@@ -788,7 +789,7 @@ export const BooksModule: React.FC = () => {
             {physicalShelves.map((shelfBooks, shelfIdx) => (
               <div key={shelfIdx} className="relative">
                 {/* Book Spines Row sitting on the shelf */}
-                <div className="relative flex items-end px-2 sm:px-6 min-h-[255px] overflow-x-auto no-scrollbar gap-3 sm:gap-4.5 pb-0">
+                <div className="relative flex items-end px-2 sm:px-6 min-h-[265px] overflow-x-auto no-scrollbar gap-4 sm:gap-6 pb-2 pt-6">
                   {/* Left Realistic Raven on Branch Bookend */}
                   <RealisticRavenBookend flip={false} />
 
@@ -850,53 +851,134 @@ export const BooksModule: React.FC = () => {
                         style={{
                           height: `${bookHeight}px`,
                           width: `${bookWidth}px`,
+                          perspective: '900px',
                         }}
-                        className={`group relative shrink-0 cursor-pointer rounded-t-md transition-all duration-300 ease-out select-none flex flex-col justify-between p-1.5 border-t border-x border-[${palette.border}] bg-gradient-to-r ${palette.gradient} z-10 ${
-                          isPickedUp
-                            ? '-translate-y-9 scale-105 ring-2 ring-emerald-300 shadow-[0_0_30px_rgba(52,211,153,0.95),0_20px_40px_rgba(0,0,0,0.95)] z-40'
-                            : isDragOver
-                            ? '-translate-y-5 scale-105 ring-2 ring-amber-300 shadow-[0_0_25px_rgba(251,191,36,0.8)] z-30'
-                            : isDragged
-                            ? 'opacity-40 scale-95'
-                            : 'hover:-translate-y-4 hover:scale-[1.03] shadow-[2px_6px_14px_rgba(0,0,0,0.85)] hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_24px_rgba(245,158,11,0.45)] hover:z-30'
-                        }`}
+                        className="group relative shrink-0 cursor-pointer select-none z-10"
                       >
-                        {/* 3D Cylindrical Spine Shading & Leather Texture */}
-                        <div className="absolute inset-0 rounded-t-md pointer-events-none shadow-[inset_3px_0_4px_rgba(255,255,255,0.22),inset_-4px_0_6px_rgba(0,0,0,0.7)] wood-grain opacity-40" />
+                        {/* 3D Angled Tome Chassis */}
+                        <div
+                          style={{
+                            borderColor: palette.border,
+                            transform: isPickedUp
+                              ? 'translateY(-28px) scale(1.05)'
+                              : isDragOver
+                              ? 'translateY(-12px) rotateY(-8deg) scale(1.03)'
+                              : isDragged
+                              ? 'opacity-40 scale-95'
+                              : undefined,
+                            transformOrigin: 'left bottom',
+                          }}
+                          className={`relative w-full h-full rounded-r-lg rounded-l-[3px] p-2 flex flex-col justify-between border-y border-r bg-gradient-to-r ${palette.gradient} transition-all duration-300 ease-out shadow-[3px_10px_24px_rgba(0,0,0,0.85)] group-hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_24px_rgba(245,158,11,0.4)] ${
+                            !isPickedUp && !isDragOver && !isDragged
+                              ? '[transform:perspective(750px)_rotateY(-18deg)_rotateX(1.5deg)] group-hover:[transform:perspective(750px)_rotateY(-6deg)_translateY(-8px)_scale(1.02)]'
+                              : ''
+                          } ${
+                            isPickedUp
+                              ? 'ring-2 ring-emerald-300 shadow-[0_0_30px_rgba(52,211,153,0.95)] z-40'
+                              : isDragOver
+                              ? 'ring-2 ring-amber-300 shadow-[0_0_25px_rgba(251,191,36,0.8)] z-30'
+                              : 'hover:z-30'
+                          }`}
+                        >
+                          {/* 3D Cylindrical Spine Shading on Left Edge */}
+                          <div className="absolute inset-y-0 left-0 w-3.5 bg-gradient-to-r from-black/80 via-white/10 to-black/35 pointer-events-none rounded-l-[3px]" />
+                          <div className="absolute inset-y-0 left-3.5 w-[1px] bg-black/50 pointer-events-none" />
+
+                          {/* 3D Paper Pages Rim (Right edge showing page thickness) */}
+                          <div className="absolute top-1 bottom-1 -right-1.5 w-1.5 rounded-r-xs bg-gradient-to-r from-[#d8ceb9] via-[#f1eadb] to-[#dfd6c5] shadow-[2px_3px_6px_rgba(0,0,0,0.7)] border-y border-r border-[#beaf91] pointer-events-none flex flex-col justify-around py-3">
+                            <div className="w-full h-[0.5px] bg-[#beb196]/60" />
+                            <div className="w-full h-[0.5px] bg-[#beb196]/60" />
+                            <div className="w-full h-[0.5px] bg-[#beb196]/60" />
+                          </div>
+
+                          {/* Top Filigree Band & Status Emblem */}
+                          <div className="relative z-10 flex flex-col items-center">
+                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mb-1" />
+                            <div className="flex items-center justify-between w-full px-0.5">
+                              <span
+                                className={`text-[8px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-full border ${
+                                  book.status === 'reading'
+                                    ? 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50'
+                                    : book.status === 'want_to_read'
+                                    ? 'bg-amber-500/30 text-amber-300 border-amber-400/50'
+                                    : book.status === 'completed'
+                                    ? 'bg-amber-400/30 text-amber-200 border-amber-300/50'
+                                    : book.status === 'dnf'
+                                    ? 'bg-rose-500/30 text-rose-300 border-rose-400/50'
+                                    : 'bg-slate-700/50 text-slate-300 border-slate-500/40'
+                                }`}
+                              >
+                                {book.status === 'reading'
+                                  ? `${progressPct}%`
+                                  : book.status === 'want_to_read'
+                                  ? 'Next'
+                                  : book.status === 'completed'
+                                  ? '★ Done'
+                                  : book.status === 'dnf'
+                                  ? '✕ DNF'
+                                  : 'Tome'}
+                              </span>
+                              <BookOpen className="w-3 h-3 text-amber-300/80" />
+                            </div>
+                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mt-1" />
+                          </div>
+
+                          {/* Center: Front Cover Display */}
+                          <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-1 my-0.5 overflow-hidden">
+                            {book.coverUrl ? (
+                              <div className="w-full max-h-[105px] sm:max-h-[118px] rounded overflow-hidden shadow-md border border-amber-400/50 bg-black shrink-0 mb-1">
+                                <img
+                                  src={book.coverUrl}
+                                  alt={book.title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                  loading="lazy"
+                                />
+                              </div>
+                            ) : null}
+                            <h3 className="font-serif font-black text-xs leading-tight line-clamp-2 text-amber-100 group-hover:text-white transition-colors drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
+                              {book.title}
+                            </h3>
+                            <p className="font-serif italic text-[9.5px] text-amber-300/75 truncate max-w-full mt-0.5 drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
+                              by {book.author}
+                            </p>
+                          </div>
+
+                          {/* Bottom Gilt Band & Edition Note */}
+                          <div className="relative z-10 flex flex-col items-center">
+                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mb-0.5" />
+                            <span className="text-[7.5px] font-mono text-amber-200/60 uppercase tracking-widest truncate max-w-full">
+                              Hardcover Tome
+                            </span>
+                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mt-0.5" />
+                          </div>
+
+                          {/* Silk Bookmark Ribbon dangling over the shelf plank */}
+                          <div
+                            style={{ backgroundColor: palette.ribbon }}
+                            className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3.5 h-4.5 shadow-md pointer-events-none z-20 transition-transform group-hover:translate-y-1"
+                          >
+                            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-[#120703] [clip-path:polygon(0_100%,50%_0,100%_100%)]" />
+                          </div>
+                        </div>
 
                         {/* Picked-up Indicator */}
                         {isPickedUp && (
-                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-emerald-400 text-black font-extrabold text-[9px] px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap animate-bounce flex items-center gap-1 z-50">
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-emerald-400 text-black font-extrabold text-[9px] px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap animate-bounce flex items-center gap-1 z-50">
                             <Hand className="w-2.5 h-2.5" />
                             <span>PICKED UP</span>
                           </div>
                         )}
 
-                        {/* Floating Cover Art Hover Preview */}
-                        {!pickedUpBookId && !rearrangeMode && book.coverUrl && (
-                          <div className="absolute -top-40 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none transition-all duration-200">
-                            <div className="w-22 h-32 rounded-lg overflow-hidden shadow-[0_16px_36px_rgba(0,0,0,0.95)] border-2 border-amber-400/90 bg-black">
-                              <img
-                                src={book.coverUrl}
-                                alt={book.title}
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                              />
-                            </div>
-                            <div className="w-2 h-2 bg-amber-400 rotate-45 -mt-1 shadow" />
-                          </div>
-                        )}
-
                         {/* Target slot indicator when another book is picked up */}
                         {pickedUpBookId && !isPickedUp && (
-                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-amber-400 text-black font-bold text-[9px] px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap transition-opacity pointer-events-none z-50">
+                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-amber-400 text-black font-bold text-[9px] px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap transition-opacity pointer-events-none z-50">
                             Place Here ↓
                           </div>
                         )}
 
                         {/* Quick Nudge Buttons (Left/Right) for effortless moving */}
                         {!pickedUpBookId && (
-                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 hidden group-hover:flex items-center gap-1 z-50 bg-black/90 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-emerald-400/40 shadow-xl">
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:flex items-center gap-1 z-50 bg-black/90 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-emerald-400/40 shadow-xl">
                             <button
                               type="button"
                               title="Move left"
@@ -917,72 +999,6 @@ export const BooksModule: React.FC = () => {
                           </div>
                         )}
 
-                        {/* Top Gilt Filigree Band & Status Emblem */}
-                        <div className="relative z-10 flex flex-col items-center">
-                          <div className="w-full h-1 bg-gradient-to-r from-amber-600/60 via-amber-300 to-amber-600/60 rounded shadow-sm border-y border-amber-950/70 mb-1" />
-
-                          {book.status === 'reading' && (
-                            <div
-                              className="w-2.5 h-2.5 rounded-full bg-emerald-400 ring-1 ring-emerald-300/60 shadow-[0_0_8px_rgba(52,211,153,0.95)] flex items-center justify-center my-0.5"
-                              title={`Currently reading (${progressPct}%)`}
-                            >
-                              <span className="w-1 h-1 rounded-full bg-white" />
-                            </div>
-                          )}
-                          {book.status === 'completed' && (
-                            <div
-                              className="w-2.5 h-2.5 rounded-full bg-amber-400 ring-1 ring-amber-300/80 shadow-[0_0_6px_rgba(245,158,11,0.9)] flex items-center justify-center my-0.5 text-[#2b1807] font-bold text-[7px]"
-                              title="Completed"
-                            >
-                              ★
-                            </div>
-                          )}
-                          {book.status === 'want_to_read' && (
-                            <div
-                              className="w-2.5 h-2.5 rounded-full bg-amber-600/80 ring-1 ring-amber-400/50 shadow-[0_0_5px_rgba(217,119,6,0.8)] flex items-center justify-center my-0.5 text-amber-200 text-[7px]"
-                              title="Next Read"
-                            >
-                              ✦
-                            </div>
-                          )}
-                          {book.status === 'dnf' && (
-                            <div
-                              className="w-2.5 h-2.5 rounded-full bg-rose-500 ring-1 ring-rose-300/80 shadow-[0_0_6px_rgba(244,63,94,0.9)] flex items-center justify-center my-0.5 text-white font-bold text-[7px]"
-                              title="DNF (Did Not Finish)"
-                            >
-                              ✕
-                            </div>
-                          )}
-
-                          <div className="w-full h-1 bg-gradient-to-r from-amber-600/60 via-amber-300 to-amber-600/60 rounded shadow-sm border-y border-amber-950/70 mt-1" />
-                        </div>
-
-                        {/* Gold Foil Embossed Title down the Spine */}
-                        <div className="relative z-10 flex-1 flex items-center justify-center overflow-hidden my-1">
-                          <span className="writing-mode-vertical font-serif font-bold text-amber-100/90 tracking-wide text-xs drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)] max-h-[140px] truncate leading-tight">
-                            {book.title}
-                          </span>
-                        </div>
-
-                        {/* Lower Bands & Author */}
-                        <div className="relative z-10 flex flex-col items-center">
-                          <div className="w-full h-1 bg-gradient-to-r from-amber-600/60 via-amber-300 to-amber-600/60 rounded shadow-sm border-y border-amber-950/70 mb-1" />
-
-                          <span className="writing-mode-vertical font-serif text-[9px] text-amber-300/75 tracking-wider truncate max-h-[45px] drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
-                            {book.author}
-                          </span>
-
-                          <div className="w-full h-1 bg-gradient-to-r from-amber-600/60 via-amber-300 to-amber-600/60 rounded shadow-sm border-y border-amber-950/70 mt-1" />
-                        </div>
-
-                        {/* Silk Bookmark Ribbon dangling over the shelf plank */}
-                        <div
-                          style={{ backgroundColor: palette.ribbon }}
-                          className="absolute -bottom-5 left-1/2 -translate-x-1/2 w-3.5 h-5 shadow-md z-20 pointer-events-none transition-transform group-hover:translate-y-1"
-                        >
-                          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-[#120703] [clip-path:polygon(0_100%,50%_0,100%_100%)]" />
-                        </div>
-
                         {/* Hover Tooltip / Floating Card Preview (only shown when not in pick-up mode) */}
                         {!pickedUpBookId && !rearrangeMode && (
                           <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap bg-[#0b1c11]/95 text-white text-[11px] px-3 py-1.5 rounded-lg border border-emerald-400/50 shadow-2xl backdrop-blur-md flex items-center gap-2">
@@ -1002,19 +1018,37 @@ export const BooksModule: React.FC = () => {
 
                   {/* Add New Tome Button Slot (shown on the last shelf) */}
                   {shelfIdx === physicalShelves.length - 1 && (
-                    <button
-                      onClick={() => {
-                        setFormat('physical');
-                        setShowAddModal(true);
+                    <div
+                      style={{
+                        height: '200px',
+                        width: '120px',
+                        perspective: '900px',
                       }}
-                      className="shrink-0 h-[220px] w-12 sm:w-14 rounded-t-md border-2 border-dashed border-emerald-500/40 hover:border-emerald-400/80 bg-emerald-950/20 hover:bg-emerald-900/40 transition-all flex flex-col items-center justify-center gap-2 p-1.5 text-emerald-300/70 hover:text-emerald-100 group cursor-pointer shadow-inner"
-                      title="Add a new physical book to this shelf"
+                      className="shrink-0 relative group"
                     >
-                      <Plus className="w-3.5 h-3.5 group-hover:scale-110 transition-transform text-emerald-400" />
-                      <span className="writing-mode-vertical font-serif text-[10px] tracking-wider uppercase font-semibold">
-                        + New Tome
-                      </span>
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormat('physical');
+                          setShowAddModal(true);
+                        }}
+                        style={{
+                          transformOrigin: 'left bottom',
+                        }}
+                        className="w-full h-full rounded-r-lg rounded-l-[3px] border-2 border-dashed border-emerald-500/40 hover:border-emerald-400/80 bg-emerald-950/20 hover:bg-emerald-900/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 p-3 text-emerald-300/70 hover:text-emerald-100 cursor-pointer shadow-inner [transform:perspective(750px)_rotateY(-18deg)_rotateX(1.5deg)] hover:[transform:perspective(750px)_rotateY(-6deg)_translateY(-8px)_scale(1.02)]"
+                        title="Add a new physical book to this shelf"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-emerald-700/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner group-hover:scale-110 transition-transform">
+                          <Plus className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="font-serif font-bold text-xs uppercase tracking-wider text-emerald-200 text-center">
+                          + New Tome
+                        </span>
+                        <span className="text-[9px] font-serif italic opacity-75 text-emerald-300/70 text-center">
+                          Place on Shelf
+                        </span>
+                      </button>
+                    </div>
                   )}
 
                   {/* Right Realistic Raven on Branch Bookend */}
