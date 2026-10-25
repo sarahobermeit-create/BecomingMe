@@ -76,67 +76,67 @@ export const BooksModule: React.FC = () => {
 
   return (
     <div className="relative space-y-6">
-      {/* Atmospheric Victorian Hero Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-emerald-500/25 p-6 lg:p-8 bg-[#08150e]/50 backdrop-blur-md shadow-2xl">
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+      {/* Compact Atmospheric Victorian Header */}
+      <div className="relative overflow-hidden rounded-2xl border border-emerald-500/20 p-4 sm:p-5 bg-[#06140b]/30 backdrop-blur-sm shadow-xl">
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-xs font-medium text-emerald-300 mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Victorian Reading Sanctuary</span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/25 text-[11px] font-medium text-emerald-300 mb-1.5">
+              <Sparkles className="w-3 h-3 text-emerald-400" />
+              <span>Victorian Sanctuary</span>
             </div>
-            <h2 className="text-2xl lg:text-3xl font-extrabold text-white flex items-center gap-2.5 tracking-tight">
-              <BookOpen className="w-7 h-7 text-emerald-400" />
+            <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2 tracking-tight">
+              <BookOpen className="w-6 h-6 text-emerald-400" />
               <span>Welcome To Your Library</span>
             </h2>
-            <p className="text-xs text-emerald-100/75 mt-1.5 max-w-lg leading-relaxed flex items-center gap-2">
-              <span>Warm hearth fire crackling, rain pouring against the arched windows, and floor-to-ceiling shelves of timeless knowledge.</span>
+            <p className="text-[11px] text-emerald-100/70 mt-1 max-w-lg leading-relaxed">
+              Warm hearth fire crackling, rain pouring against the arched glass, and floor-to-ceiling shelves of timeless stories.
             </p>
           </div>
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-4 py-2.5 rounded-xl bg-emerald-700/90 hover:bg-emerald-600 text-white font-medium text-xs flex items-center justify-center gap-2 shadow-xl shadow-emerald-950/60 transition-all shrink-0 self-start sm:self-auto border border-emerald-400/25"
+            className="px-3.5 py-2 rounded-xl bg-emerald-700/85 hover:bg-emerald-600 text-white font-medium text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/50 transition-all shrink-0 self-start sm:self-auto border border-emerald-400/25"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             <span>Add New Book</span>
           </button>
         </div>
       </div>
 
-      {/* Stats bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="glass-panel p-4 rounded-xl border border-white/[0.06]">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+      {/* Translucent Stats bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+        <div className="p-3.5 rounded-xl bg-[#06140b]/35 backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-500/35 transition-all shadow-lg">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-300">
             Currently Reading
           </span>
-          <p className="text-2xl font-black text-white font-mono mt-1">
+          <p className="text-xl font-black text-white font-mono mt-0.5">
             {state.books.filter((b) => b.status === 'reading').length}
           </p>
         </div>
 
-        <div className="glass-panel p-4 rounded-xl border border-white/[0.06]">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+        <div className="p-3.5 rounded-xl bg-[#06140b]/35 backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-500/35 transition-all shadow-lg">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-300">
             Want to Read
           </span>
-          <p className="text-2xl font-black text-white font-mono mt-1">
+          <p className="text-xl font-black text-white font-mono mt-0.5">
             {state.books.filter((b) => b.status === 'want_to_read').length}
           </p>
         </div>
 
-        <div className="glass-panel p-4 rounded-xl border border-white/[0.06]">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+        <div className="p-3.5 rounded-xl bg-[#06140b]/35 backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-500/35 transition-all shadow-lg">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-300">
             Completed
           </span>
-          <p className="text-2xl font-black text-emerald-400 font-mono mt-1">
+          <p className="text-xl font-black text-emerald-400 font-mono mt-0.5">
             {state.books.filter((b) => b.status === 'completed').length}
           </p>
         </div>
 
-        <div className="glass-panel p-4 rounded-xl border border-white/[0.06]">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+        <div className="p-3.5 rounded-xl bg-[#06140b]/35 backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-500/35 transition-all shadow-lg">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-300">
             Total Library
           </span>
-          <p className="text-2xl font-black text-emerald-400 font-mono mt-1">
+          <p className="text-xl font-black text-emerald-400 font-mono mt-0.5">
             {state.books.length}
           </p>
         </div>
@@ -194,7 +194,7 @@ export const BooksModule: React.FC = () => {
           return (
             <div
               key={book.id}
-              className="p-5 rounded-2xl bg-[#09170f]/75 backdrop-blur-md border border-emerald-500/20 hover:border-emerald-500/40 transition-all flex flex-col justify-between group shadow-xl"
+              className="p-5 rounded-2xl bg-[#06140b]/35 backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-500/40 transition-all flex flex-col justify-between group shadow-xl"
             >
               <div className="flex gap-4">
                 {/* Book Cover */}
@@ -280,7 +280,7 @@ export const BooksModule: React.FC = () => {
               {(book.favoriteQuotes?.length || book.notes) && (
                 <div className="mt-4 pt-3 border-t border-white/[0.05] space-y-2">
                   {book.favoriteQuotes && book.favoriteQuotes.length > 0 && (
-                    <div className="flex items-start gap-2 text-xs text-slate-300 italic bg-white/[0.02] p-2 rounded-lg border border-white/[0.04]">
+                    <div className="flex items-start gap-2 text-xs text-slate-300 italic bg-black/30 p-2.5 rounded-lg border border-emerald-500/15">
                       <Quote className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
                       <span>"{book.favoriteQuotes[0]}"</span>
                     </div>

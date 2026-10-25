@@ -60,8 +60,8 @@ const MainLayout: React.FC = () => {
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: `url('./victorian-library.jpg')` }}
           />
-          {/* Atmospheric vignette so the entire room, rain, and fire are visible across the screen */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#070e0a]/65 via-[#070e0a]/70 to-[#070e0a]/80" />
+          {/* Atmospheric subtle vignette letting the Victorian library shine through vividly */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#070e0a]/35 via-[#070e0a]/45 to-[#070e0a]/60" />
           {/* Active burning fireplace embers & rain streaming down the glass */}
           <VictorianAtmosphere />
         </div>
