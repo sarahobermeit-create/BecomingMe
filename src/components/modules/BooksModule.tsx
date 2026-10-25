@@ -79,7 +79,7 @@ export const BooksModule: React.FC = () => {
         <div>
           <h2 className="text-xl lg:text-2xl font-bold text-white flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-emerald-400" />
-            <span>Library</span>
+            <span>Welcome To Your Library</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1">
             Build your personal library, track page progress, and save meaningful quotes.
