@@ -104,23 +104,23 @@ export const BookFormatVisual: React.FC<BookFormatVisualProps> = ({
       >
         {/* Dark Green Kindle Outer Chassis */}
         <div className="w-full h-full rounded-[14px] bg-gradient-to-b from-[#082213] via-[#0d331c] to-[#05180d] p-1.5 shadow-[0_6px_16px_rgba(0,0,0,0.85)] border-2 border-[#154627] flex flex-col justify-between">
-          {/* E-Ink Matte Paper Screen */}
-          <div className="flex-1 rounded-[8px] bg-[#f4efe4] border border-[#d6cfbe] p-1 flex flex-col justify-between overflow-hidden shadow-inner text-[#1b1916]">
+          {/* E-Ink Translucent Dark Green Screen */}
+          <div className="flex-1 rounded-[8px] bg-gradient-to-b from-[#061d11]/85 via-[#092a18]/80 to-[#04140b]/90 border border-[#144226]/60 p-1 flex flex-col justify-between overflow-hidden shadow-inner text-emerald-100">
             {/* Kindle Mini Status Bar */}
-            <div className="flex items-center justify-between text-[7px] font-mono text-[#57534c] pb-0.5 border-b border-[#ded7c8]">
-              <span className="font-bold tracking-tight">KINDLE</span>
+            <div className="flex items-center justify-between text-[7px] font-mono text-emerald-300/80 pb-0.5 border-b border-emerald-950/60">
+              <span className="font-bold tracking-tight text-emerald-200">KINDLE</span>
               <div className="flex items-center gap-0.5">
-                <Wifi className="w-2 h-2 text-[#57534c]" />
+                <Wifi className="w-2 h-2 text-emerald-400" />
                 <span>{progressPct}%</span>
               </div>
             </div>
 
             {/* E-Ink Screen Content: Title & Author */}
             <div className="flex-1 flex flex-col items-center justify-center text-center px-0.5 my-1 overflow-hidden">
-              <span className="font-serif font-black text-[#14120f] text-[10px] leading-tight line-clamp-3">
+              <span className="font-serif font-black text-white text-[10px] leading-tight line-clamp-3">
                 {book.title}
               </span>
-              <span className="font-serif italic text-[#5c5445] text-[7.5px] truncate max-w-full mt-1">
+              <span className="font-serif italic text-emerald-200/80 text-[7.5px] truncate max-w-full mt-1">
                 {book.author}
               </span>
             </div>

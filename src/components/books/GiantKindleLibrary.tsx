@@ -1,19 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Wifi,
   Battery,
   Plus,
   BookOpen,
-  CheckCircle,
-  Bookmark,
-  BookMarked,
-  Sparkles,
-  Sun,
-  Moon,
-  Library,
-  ChevronRight,
-  Clock,
-  Layers,
 } from 'lucide-react';
 import { Book } from '../../types';
 
@@ -38,9 +28,6 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
   onSelectBook,
   onAddBook,
 }) => {
-  // Option to switch between warm e-ink paper and dark-mode e-ink
-  const [eInkMode, setEInkMode] = useState<'paper' | 'dark'>('paper');
-
   // Helper to chunk ebooks onto shelves (up to 4 per shelf on Kindle screen)
   const chunkShelves = (items: Book[], size: number = 4) => {
     const shelves: Book[][] = [];
@@ -55,24 +42,16 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
 
   return (
     <div className="w-full max-w-5xl mx-auto py-2 px-1 sm:px-4">
-      {/* GIANT DARK GREEN KINDLE CHASSIS */}
-      <div className="relative rounded-[36px] sm:rounded-[48px] bg-gradient-to-b from-[#0a2615] via-[#0e361e] to-[#061a0e] p-4 sm:p-7 sm:pb-8 shadow-[0_28px_70px_rgba(0,0,0,0.92),0_10px_25px_rgba(0,0,0,0.7),inset_0_2px_4px_rgba(255,255,255,0.18),inset_0_-4px_8px_rgba(0,0,0,0.85)] border-4 sm:border-[6px] border-[#144226] select-none">
+      {/* GIANT TRANSLUCENT DARK GREEN KINDLE CHASSIS */}
+      <div className="relative rounded-[36px] sm:rounded-[48px] bg-gradient-to-b from-[#072415]/85 via-[#0b331f]/80 to-[#04150b]/85 backdrop-blur-md p-4 sm:p-7 sm:pb-8 shadow-[0_28px_70px_rgba(0,0,0,0.88),inset_0_2px_4px_rgba(255,255,255,0.15),inset_0_-4px_8px_rgba(0,0,0,0.85)] border-4 sm:border-[6px] border-[#103d24]/75 select-none">
         {/* Subtle Kindle Top Sensor dot */}
         <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-[#05140b] shadow-inner" />
 
-        {/* E-INK DISPLAY SCREEN */}
-        <div
-          className={`relative rounded-[22px] sm:rounded-[28px] overflow-hidden transition-colors duration-300 shadow-[inset_0_4px_12px_rgba(0,0,0,0.65),0_1px_2px_rgba(255,255,255,0.1)] border-2 ${
-            eInkMode === 'paper'
-              ? 'bg-[#f4efe4] border-[#d8d0be] text-[#181818]'
-              : 'bg-[#101914] border-[#1c3024] text-[#e3ece5]'
-          }`}
-        >
+        {/* TRANSLUCENT DARK GREEN E-INK DISPLAY SCREEN */}
+        <div className="relative rounded-[22px] sm:rounded-[28px] overflow-hidden shadow-[inset_0_4px_16px_rgba(0,0,0,0.85),0_1px_2px_rgba(255,255,255,0.1)] border-2 border-[#144226]/60 bg-gradient-to-b from-[#061d11]/75 via-[#082917]/70 to-[#03130a]/80 backdrop-blur-md text-emerald-100">
           {/* Paper Grain Overlay for authentic E-Ink look */}
           <div
-            className={`absolute inset-0 pointer-events-none opacity-[0.06] ${
-              eInkMode === 'paper' ? 'bg-black' : 'bg-white'
-            }`}
+            className="absolute inset-0 pointer-events-none opacity-[0.05] bg-white"
             style={{
               backgroundImage: `radial-gradient(circle, currentColor 1px, transparent 1px)`,
               backgroundSize: '8px 8px',
@@ -80,120 +59,74 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
           />
 
           {/* KINDLE STATUS BAR */}
-          <div
-            className={`relative px-4 sm:px-6 py-2.5 flex items-center justify-between text-[11px] font-mono border-b ${
-              eInkMode === 'paper'
-                ? 'bg-[#eae3d2] border-[#d6cdb9] text-[#423d33]'
-                : 'bg-[#0d1611] border-[#18291f] text-[#8ea896]'
-            }`}
-          >
+          <div className="relative px-4 sm:px-6 py-2.5 flex items-center justify-between text-[11px] font-mono border-b border-emerald-500/20 bg-[#072113]/70 backdrop-blur-sm text-emerald-300">
             {/* Left: Device & Wi-Fi */}
             <div className="flex items-center gap-2 font-serif font-bold tracking-wide">
-              <span className="text-xs">Kindle Oasis</span>
+              <span className="text-xs text-white">Kindle Oasis</span>
               <span className="opacity-40">•</span>
-              <div className="flex items-center gap-1 font-mono text-[10px] font-normal">
-                <Wifi className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" />
+              <div className="flex items-center gap-1 font-mono text-[10px] font-normal text-emerald-300">
+                <Wifi className="w-2.5 h-2.5 text-emerald-400" />
                 <span>Wi-Fi</span>
               </div>
             </div>
 
             {/* Center: Device Library Title */}
             <div className="hidden sm:flex items-center gap-2">
-              <BookOpen className="w-3 h-3 opacity-70" />
-              <span className="font-serif font-bold tracking-wider text-xs uppercase">
+              <BookOpen className="w-3 h-3 text-emerald-400 opacity-80" />
+              <span className="font-serif font-bold tracking-wider text-xs uppercase text-emerald-200">
                 Sarah's E-Book Folio
               </span>
-              <span className="text-[10px] opacity-60">({books.length} tomes)</span>
+              <span className="text-[10px] text-emerald-300/70">({books.length} tomes)</span>
             </div>
 
             {/* Right: Controls & Battery */}
             <div className="flex items-center gap-3">
-              {/* E-Ink Tone Switcher */}
-              <button
-                type="button"
-                onClick={() => setEInkMode(eInkMode === 'paper' ? 'dark' : 'paper')}
-                className={`p-1 rounded flex items-center gap-1 text-[10px] font-sans font-medium transition-colors cursor-pointer border ${
-                  eInkMode === 'paper'
-                    ? 'hover:bg-[#dad0bc] border-[#c7bea8] text-[#332f27]'
-                    : 'hover:bg-[#1a2c21] border-[#254230] text-[#a0c2ab]'
-                }`}
-                title="Toggle E-Ink day/night illumination"
-              >
-                {eInkMode === 'paper' ? (
-                  <>
-                    <Moon className="w-2.5 h-2.5 text-slate-700" />
-                    <span className="hidden md:inline">Night Mode</span>
-                  </>
-                ) : (
-                  <>
-                    <Sun className="w-2.5 h-2.5 text-amber-400" />
-                    <span className="hidden md:inline">Day Paper</span>
-                  </>
-                )}
-              </button>
-
               <button
                 type="button"
                 onClick={onAddBook}
-                className="px-2.5 py-0.5 rounded bg-emerald-700 hover:bg-emerald-600 text-white font-sans text-[10px] font-semibold flex items-center gap-1 cursor-pointer shadow-sm transition-colors"
+                className="px-2.5 py-0.5 rounded-lg bg-emerald-700/90 hover:bg-emerald-600 text-white font-sans text-[10px] font-semibold flex items-center gap-1 cursor-pointer shadow-sm transition-colors border border-emerald-500/40"
               >
                 <Plus className="w-2.5 h-2.5" />
                 <span>+ Add Tome</span>
               </button>
 
-              <div className="flex items-center gap-1 font-mono text-[10px]">
+              <div className="flex items-center gap-1 font-mono text-[10px] text-emerald-300">
                 <span>98%</span>
-                <Battery className="w-3 h-3 fill-current opacity-80" />
+                <Battery className="w-3 h-3 fill-current text-emerald-400 opacity-90" />
               </div>
             </div>
           </div>
 
           {/* KINDLE SCREEN HEADER BANNER */}
-          <div
-            className={`px-4 sm:px-6 py-3 border-b flex items-center justify-between ${
-              eInkMode === 'paper'
-                ? 'bg-[#eee7d8] border-[#ded4bf]'
-                : 'bg-[#0f1b14] border-[#1c3224]'
-            }`}
-          >
+          <div className="px-4 sm:px-6 py-3 border-b border-emerald-500/20 bg-[#092b19]/60 backdrop-blur-sm flex items-center justify-between">
             <div>
-              <h2 className="font-serif font-bold text-lg sm:text-xl tracking-wide flex items-center gap-2">
+              <h2 className="font-serif font-bold text-lg sm:text-xl tracking-wide flex items-center gap-2 text-white">
                 <span>Digital E-Reader Shelves</span>
-                <span
-                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
-                    eInkMode === 'paper'
-                      ? 'bg-[#ded4bf] text-[#423d33] border-[#cdc2a8]'
-                      : 'bg-[#1c3224] text-[#a3c9b0] border-[#284a34]'
-                  }`}
-                >
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border bg-[#1c3224]/80 text-[#a3c9b0] border-[#284a34]">
                   Glare-Free E-Ink
                 </span>
               </h2>
-              <p
-                className={`text-xs font-serif italic mt-0.5 ${
-                  eInkMode === 'paper' ? 'text-[#6b6252]' : 'text-[#8ea896]'
-                }`}
-              >
+              <p className="text-xs font-serif italic mt-0.5 text-[#8ea896]">
                 Tap any digital edition to open reader folio and annotations
               </p>
             </div>
 
             <div className="hidden sm:flex items-center gap-4 text-xs font-serif">
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block shadow-sm" />
-                <span>Reading</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block shadow-sm" />
+                <span className="text-emerald-200">Reading</span>
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-600 inline-block shadow-sm" />
-                <span>Next Read</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block shadow-sm" />
+                <span className="text-amber-200">Next Read</span>
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-slate-500 inline-block shadow-sm" />
-                <span>Finished</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block shadow-sm" />
+                <span className="text-slate-300">Finished</span>
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-600 inline-block shadow-sm" />
-                <span>DNF</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block shadow-sm" />
+                <span className="text-rose-300">DNF</span>
               </span>
             </div>
           </div>
@@ -295,19 +228,15 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
                       <button
                         type="button"
                         onClick={onAddBook}
-                        className={`w-[112px] sm:w-[130px] h-[170px] sm:h-[195px] rounded-r-lg rounded-l-[3px] border-2 border-dashed flex flex-col items-center justify-center gap-2 p-3 text-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] ${
-                          eInkMode === 'paper'
-                            ? 'border-[#c7bea8] hover:border-emerald-600 bg-[#eae3d4]/50 hover:bg-[#f1ebe0] text-[#544d41]'
-                            : 'border-[#284834] hover:border-emerald-400 bg-[#0d1812]/50 hover:bg-[#12231a] text-[#8ea896]'
-                        }`}
+                        className="w-[112px] sm:w-[130px] h-[170px] sm:h-[195px] rounded-r-lg rounded-l-[3px] border-2 border-dashed border-[#284834] hover:border-emerald-400 bg-[#0d2215]/50 hover:bg-[#122e1d]/70 text-[#8ea896] flex flex-col items-center justify-center gap-2 p-3 text-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02]"
                       >
-                        <div className="w-7 h-7 rounded-full bg-emerald-700/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-inner">
+                        <div className="w-7 h-7 rounded-full bg-emerald-700/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner">
                           <Plus className="w-3.5 h-3.5" />
                         </div>
-                        <span className="font-serif font-bold text-xs uppercase tracking-wider">
+                        <span className="font-serif font-bold text-xs uppercase tracking-wider text-emerald-200">
                           + Add Tome
                         </span>
-                        <span className="text-[9px] font-serif italic opacity-75">
+                        <span className="text-[9px] font-serif italic opacity-75 text-emerald-300/70">
                           Download to Kindle
                         </span>
                       </button>
@@ -317,22 +246,10 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
 
                 {/* THE KINDLE SHELF PLANK BASE */}
                 <div className="relative mt-2 z-10">
-                  {/* Top shelf wood/e-ink lip */}
-                  <div
-                    className={`h-2 rounded-t-sm shadow-sm ${
-                      eInkMode === 'paper'
-                        ? 'bg-gradient-to-r from-[#8a684b] via-[#a88260] to-[#8a684b] border-t border-[#6b5037]'
-                        : 'bg-gradient-to-r from-[#173021] via-[#244933] to-[#173021] border-t border-[#316144]'
-                    }`}
-                  />
+                  {/* Top shelf dark green wood lip */}
+                  <div className="h-2 rounded-t-sm shadow-sm bg-gradient-to-r from-[#173021] via-[#244933] to-[#173021] border-t border-[#316144]" />
                   {/* Shelf front face */}
-                  <div
-                    className={`h-4.5 sm:h-5 rounded-b-md px-4 flex items-center justify-between shadow-md ${
-                      eInkMode === 'paper'
-                        ? 'bg-gradient-to-b from-[#6b5037] to-[#4d3824] text-[#e8dfcf]'
-                        : 'bg-gradient-to-b from-[#112419] to-[#0a1710] text-[#7fa38a]'
-                    }`}
-                  >
+                  <div className="h-4.5 sm:h-5 rounded-b-md px-4 flex items-center justify-between shadow-md bg-gradient-to-b from-[#112419] to-[#0a1710] text-[#7fa38a]">
                     <span className="text-[9px] font-serif font-bold tracking-widest uppercase opacity-85">
                       Shelf Tier {shelfIdx + 1}
                     </span>
@@ -345,13 +262,7 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
             ))}
 
             {books.length === 0 && (
-              <div
-                className={`p-10 text-center rounded-2xl border-2 border-dashed space-y-3 ${
-                  eInkMode === 'paper'
-                    ? 'border-[#cfc6b2] bg-[#eae3d4]/50 text-[#544d41]'
-                    : 'border-[#233d2c] bg-[#0c1611]/50 text-[#8aa593]'
-                }`}
-              >
+              <div className="p-10 text-center rounded-2xl border-2 border-dashed border-[#234832]/60 bg-[#071d11]/50 backdrop-blur-sm text-emerald-200/80 space-y-3">
                 <BookOpen className="w-7 h-7 mx-auto text-emerald-600 opacity-60" />
                 <h4 className="font-serif font-bold text-base">Your Kindle Shelves are Empty</h4>
                 <p className="text-xs font-serif italic max-w-sm mx-auto">
