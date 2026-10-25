@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { Book, BookStatus, BookFormat } from '../../types';
 import { RealisticRavenBookend } from '../common/RealisticRavenBookend';
+import { KindleScreen } from '../common/KindleScreen';
+import { HeadphonesOverCorner } from '../common/HeadphonesOverCorner';
 
 type LibraryTab =
   | 'bookshelf_physical'
@@ -522,11 +524,11 @@ export const BooksModule: React.FC = () => {
         </button>
       </div>
 
-      {/* VIEW 1: VICTORIAN PHYSICAL BOOKSHELVES VIEW (WITH RAVEN BOOKENDS) */}
+      {/* VIEW 1: VICTORIAN PHYSICAL BOOKSHELVES VIEW (WITH RAVEN BOOKENDS & DARK DARK WOOD) */}
       {activeTab === 'bookshelf_physical' && (
-        <div className="relative rounded-2xl border-2 border-[#5a3219]/60 shadow-2xl overflow-hidden bg-gradient-to-b from-[#180d07] via-[#100703] to-[#0a0402]">
+        <div className="relative rounded-2xl border-2 border-[#1c0d06]/80 shadow-2xl overflow-hidden bg-gradient-to-b from-[#0a0503] via-[#050302] to-[#020101]">
           {/* Top Arch Bookcase Header with Brass Plaque */}
-          <div className="relative px-4 py-3 bg-gradient-to-r from-[#2a1308] via-[#4a2412] to-[#2a1308] border-b border-[#734020]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-inner">
+          <div className="relative px-4 py-3 bg-gradient-to-r from-[#0d0502] via-[#1a0a04] to-[#0d0502] border-b border-[#240e06] flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-inner">
             <div className="flex items-center gap-3">
               {/* Antique Engraved Brass Plaque */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded bg-gradient-to-r from-[#b8860b] via-[#f5d77f] to-[#aa771c] text-[#241305] shadow-md border border-[#7a5410]">
@@ -681,22 +683,22 @@ export const BooksModule: React.FC = () => {
                   <RealisticRavenBookend flip={true} />
                 </div>
 
-                {/* The Heavy Wooden Shelf Base (Plank) */}
+                {/* The Heavy Dark Dark Obsidian Mahogany Wooden Shelf Base */}
                 <div className="relative z-20">
-                  <div className="h-3.5 bg-gradient-to-r from-[#381c0e] via-[#5e3118] to-[#381c0e] border-t border-[#8e4d25]/60 shadow-inner" />
-                  <div className="h-6 sm:h-7 bg-gradient-to-b from-[#2e1509] via-[#1f0e05] to-[#120703] border-b-2 border-black flex items-center justify-between px-4 sm:px-6 shadow-md">
+                  <div className="h-3.5 bg-gradient-to-r from-[#0c0603] via-[#160a05] to-[#0c0603] border-t border-[#261207] shadow-inner" />
+                  <div className="h-6 sm:h-7 bg-gradient-to-b from-[#0a0502] via-[#050201] to-[#010100] border-b-2 border-black flex items-center justify-between px-4 sm:px-6 shadow-md">
                     <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500/60 shadow-sm" />
-                      <span className="text-[10px] font-serif font-bold text-amber-200/60 tracking-widest uppercase">
-                        Tier {shelfIdx + 1} • Mahogany Section
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-600/70 shadow-sm" />
+                      <span className="text-[10px] font-serif font-bold text-amber-200/50 tracking-widest uppercase">
+                        Tier {shelfIdx + 1} • Dark Obsidian Mahogany
                       </span>
                     </div>
 
-                    <span className="text-[10px] font-serif text-amber-300/40 hidden sm:inline">
-                      Raven Guardians On Gnarled Branches • Hand-Carved Oak
+                    <span className="text-[10px] font-serif text-amber-300/30 hidden sm:inline">
+                      Raven Guardians On Gnarled Branches • Dark Ancient Oak
                     </span>
                   </div>
-                  <div className="h-5 bg-gradient-to-b from-black/85 via-black/40 to-transparent pointer-events-none" />
+                  <div className="h-5 bg-gradient-to-b from-black/95 via-black/60 to-transparent pointer-events-none" />
                 </div>
               </div>
             ))}
@@ -704,7 +706,7 @@ export const BooksModule: React.FC = () => {
         </div>
       )}
 
-      {/* VIEW 2: TOTAL EBOOK LIBRARY (DIGITAL FOLIO & E-READER PARLOR) */}
+      {/* VIEW 2: TOTAL EBOOK LIBRARY (KINDLE E-READER SCREENS) */}
       {activeTab === 'bookshelf_ebook' && (
         <div className="space-y-4">
           <div className="p-4 rounded-2xl bg-gradient-to-r from-[#072418]/90 via-[#0a3322]/80 to-[#072418]/90 border border-emerald-500/30 flex items-center justify-between shadow-xl">
@@ -720,7 +722,7 @@ export const BooksModule: React.FC = () => {
                   </span>
                 </h3>
                 <p className="text-[11px] text-emerald-200/70">
-                  Illuminated digital manuscripts & e-reader editions synced across your devices.
+                  Titles displayed directly on glare-free Kindle Paperwhite e-ink screens. Tap any Kindle to read or inspect.
                 </p>
               </div>
             </div>
@@ -737,85 +739,21 @@ export const BooksModule: React.FC = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {ebookBooks.map((book) => {
-              const progressPct = Math.min(100, Math.round((book.currentPage / book.totalPages) * 100));
-
-              return (
-                <div
-                  key={book.id}
-                  onClick={() => setSelectedBook(book)}
-                  className="p-4 rounded-2xl bg-[#061a10]/50 backdrop-blur-md border border-emerald-500/25 hover:border-emerald-400/60 transition-all shadow-xl hover:shadow-emerald-950/60 group cursor-pointer flex flex-col justify-between space-y-3"
-                >
-                  <div className="flex gap-3.5">
-                    {/* E-Reader Bevel Frame with Cover */}
-                    <div className="w-20 h-28 rounded-lg overflow-hidden shrink-0 border-2 border-emerald-400/30 shadow-lg bg-slate-900 group-hover:scale-105 transition-transform relative">
-                      <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover" />
-                      <div className="absolute top-1 right-1 px-1 py-0.5 rounded bg-black/80 text-[8px] font-mono text-emerald-300 border border-emerald-500/40">
-                        EPUB
-                      </div>
-                    </div>
-
-                    <div className="flex-1 overflow-hidden flex flex-col justify-between">
-                      <div>
-                        <span
-                          className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                            book.status === 'reading'
-                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                              : book.status === 'want_to_read'
-                              ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                              : 'bg-slate-500/20 text-slate-300 border-slate-500/30'
-                          }`}
-                        >
-                          {book.status === 'want_to_read' ? 'Next Read' : book.status.replace('_', ' ')}
-                        </span>
-                        <h4 className="text-sm font-bold text-white mt-1.5 truncate group-hover:text-emerald-300 transition-colors">
-                          {book.title}
-                        </h4>
-                        <p className="text-xs text-slate-400 truncate">{book.author}</p>
-                      </div>
-
-                      {book.rating && (
-                        <div className="flex items-center gap-0.5 text-amber-400 mt-1">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-3 h-3 ${
-                                i < (book.rating || 0) ? 'fill-amber-400 text-amber-400' : 'text-slate-600'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* E-Reader Progress Bar */}
-                  <div className="pt-2 border-t border-emerald-500/15">
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
-                      <span>E-Reader Position</span>
-                      <span className="font-mono text-emerald-300 font-bold">{progressPct}%</span>
-                    </div>
-                    <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
-                      <div
-                        className="bg-gradient-to-r from-emerald-600 to-emerald-400 h-full rounded-full transition-all"
-                        style={{ width: `${progressPct}%` }}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between text-[10px] text-slate-400 mt-1.5">
-                      <span>Page {book.currentPage} of {book.totalPages}</span>
-                      <span className="text-emerald-400 hover:underline">Inspect E-Book →</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          {/* Kindle Screens Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 justify-items-center pt-2">
+            {ebookBooks.map((book) => (
+              <KindleScreen
+                key={book.id}
+                book={book}
+                onSelect={() => setSelectedBook(book)}
+              />
+            ))}
 
             {ebookBooks.length === 0 && (
               <div className="col-span-full p-8 text-center rounded-2xl bg-[#061a10]/30 border border-dashed border-emerald-500/30 text-slate-400 space-y-2">
                 <Tablet className="w-8 h-8 text-emerald-400 mx-auto opacity-60" />
                 <p className="text-sm font-medium text-white">Your E-Book Folio is currently empty</p>
-                <p className="text-xs text-slate-400">Add digital epubs or articles to read anywhere.</p>
+                <p className="text-xs text-slate-400">Add digital epubs to display on your Kindles.</p>
                 <button
                   onClick={() => {
                     setFormat('ebook');
@@ -832,7 +770,7 @@ export const BooksModule: React.FC = () => {
         </div>
       )}
 
-      {/* VIEW 3: TOTAL AUDIO BOOK LIBRARY (VICTORIAN ACOUSTIC PARLOR) */}
+      {/* VIEW 3: TOTAL AUDIO BOOK LIBRARY (HEADPHONES DRAPED OVER BOOK CORNERS) */}
       {activeTab === 'bookshelf_audiobook' && (
         <div className="space-y-4">
           <div className="p-4 rounded-2xl bg-gradient-to-r from-[#170e2b]/90 via-[#231540]/80 to-[#170e2b]/90 border border-purple-500/30 flex items-center justify-between shadow-xl">
@@ -848,7 +786,7 @@ export const BooksModule: React.FC = () => {
                   </span>
                 </h3>
                 <p className="text-[11px] text-purple-200/70">
-                  Rich audio narrations and Victorian parlor recordings for stormy evenings.
+                  Audiobook editions with studio headphones draped over book corners for immersive listening.
                 </p>
               </div>
             </div>
@@ -878,14 +816,23 @@ export const BooksModule: React.FC = () => {
                   className="p-5 rounded-2xl bg-[#110c22]/55 backdrop-blur-md border border-purple-500/25 hover:border-purple-400/50 transition-all shadow-xl group flex flex-col justify-between space-y-4"
                 >
                   <div className="flex gap-4">
-                    {/* Vinyl / Audio Cover Disc Aesthetic */}
+                    {/* Book Cover with Headphones Draped Over Corner */}
                     <div
                       onClick={() => setSelectedBook(book)}
-                      className="w-22 h-24 rounded-xl overflow-hidden shrink-0 border-2 border-purple-400/40 shadow-xl bg-black relative cursor-pointer group-hover:scale-105 transition-transform"
+                      className="w-24 sm:w-28 h-28 sm:h-32 rounded-xl overflow-visible shrink-0 relative cursor-pointer group-hover:scale-105 transition-transform"
                     >
-                      <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center pb-1">
-                        <Volume2 className="w-3.5 h-3.5 text-purple-300" />
+                      {/* Headphones Over Corner */}
+                      <HeadphonesOverCorner />
+
+                      {/* Cover Artwork */}
+                      <div className="w-full h-full rounded-xl overflow-hidden shadow-2xl border-2 border-purple-400/40 bg-slate-900 relative">
+                        <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end justify-center pb-1.5">
+                          <span className="text-[9px] font-sans font-bold text-purple-200 tracking-wider flex items-center gap-1">
+                            <Volume2 className="w-3 h-3 text-purple-400" />
+                            AUDIO
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -903,9 +850,11 @@ export const BooksModule: React.FC = () => {
                           >
                             {book.status === 'want_to_read' ? 'Next Listen' : book.status === 'reading' ? 'Listening' : 'Completed'}
                           </span>
+
+                          {/* Book Title with Audiobook */}
                           <h4
                             onClick={() => setSelectedBook(book)}
-                            className="text-sm font-bold text-white mt-1 truncate hover:text-purple-300 transition-colors cursor-pointer"
+                            className="text-base font-bold text-white font-serif mt-1.5 truncate hover:text-purple-300 transition-colors cursor-pointer"
                           >
                             {book.title}
                           </h4>
@@ -924,16 +873,16 @@ export const BooksModule: React.FC = () => {
                       <div className="flex items-center gap-2 mt-3">
                         <button
                           onClick={() => setPlayingAudioId(isPlaying ? null : book.id)}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${
+                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md shrink-0 ${
                             isPlaying
                               ? 'bg-purple-500 text-white shadow-purple-500/50 scale-105'
-                              : 'bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-400/30'
+                              : 'bg-purple-900/70 hover:bg-purple-800 text-purple-200 border border-purple-400/40'
                           }`}
                         >
-                          {isPlaying ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current ml-0.5" />}
+                          {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
                         </button>
 
-                        <div className="flex-1">
+                        <div className="flex-1 overflow-hidden">
                           <div className="flex items-center justify-between text-[11px] text-purple-200/80 mb-1">
                             <span className="flex items-center gap-1 font-mono">
                               <Clock className="w-3 h-3 text-purple-400" />
@@ -970,9 +919,9 @@ export const BooksModule: React.FC = () => {
                       </button>
                       <button
                         onClick={() => setSelectedBook(book)}
-                        className="px-2 py-0.5 rounded bg-purple-500/20 hover:bg-purple-500/30 text-[10px] text-purple-300 border border-purple-400/30 cursor-pointer ml-1"
+                        className="px-2.5 py-0.5 rounded bg-purple-500/20 hover:bg-purple-500/30 text-[10px] text-purple-300 border border-purple-400/30 cursor-pointer ml-1"
                       >
-                        Details
+                        Inspect Tome →
                       </button>
                     </div>
                   </div>

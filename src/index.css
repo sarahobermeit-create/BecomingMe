@@ -78,10 +78,10 @@ body {
 }
 
 .victorian-wood-panel {
-  background-color: #0b150e;
+  background-color: #040505;
   background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.35) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(45, 26, 14, 0.25) 1px, transparent 1px);
+    linear-gradient(rgba(0, 0, 0, 0.65) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 8, 4, 0.4) 1px, transparent 1px);
   background-size: 100% 48px, 72px 100%;
 }
 
