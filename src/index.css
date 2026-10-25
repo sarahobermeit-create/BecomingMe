@@ -59,3 +59,29 @@ body {
   border-color: #52b788;
   box-shadow: 0 0 0 2px rgba(82, 183, 136, 0.25);
 }
+
+/* Victorian Bookshelf & Book Spine Styles */
+.writing-mode-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
+
+.wood-grain {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.02) 0px,
+    rgba(255, 255, 255, 0.02) 2px,
+    transparent 2px,
+    transparent 12px
+  );
+}
+
+.victorian-wood-panel {
+  background-color: #0b150e;
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 26, 14, 0.25) 1px, transparent 1px);
+  background-size: 100% 48px, 72px 100%;
+}
+
