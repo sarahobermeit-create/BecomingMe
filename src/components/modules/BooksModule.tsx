@@ -388,8 +388,8 @@ export const BooksModule: React.FC = () => {
           onClick={() => setActiveTab('bookshelf_audiobook')}
           className={`p-4 rounded-2xl text-left transition-all shadow-xl group relative overflow-hidden border cursor-pointer ${
             activeTab === 'bookshelf_audiobook'
-              ? 'bg-gradient-to-br from-[#092b1a]/95 via-[#061e12]/95 to-[#031109] border-emerald-400 ring-2 ring-emerald-400/40 shadow-emerald-950/60'
-              : 'bg-[#06140b]/50 backdrop-blur-md border-emerald-500/30 hover:border-emerald-400 hover:bg-[#072416]/60 hover:shadow-emerald-900/30'
+              ? 'bg-gradient-to-br from-[#0c2618]/95 via-[#071a10]/95 to-[#040e09] border-emerald-400 ring-2 ring-emerald-400/40 shadow-emerald-950/60'
+              : 'bg-[#06140b]/50 backdrop-blur-md border-emerald-500/30 hover:border-emerald-400/70 hover:bg-[#0a2214]/60 hover:shadow-emerald-950/40'
           }`}
           title="Click to view all audiobooks displayed on phone shelves with studio headphones"
         >
@@ -497,13 +497,13 @@ export const BooksModule: React.FC = () => {
           onClick={() => setActiveTab('bookshelf_ebook')}
           className={`px-3.5 py-2 rounded-xl font-semibold flex items-center gap-2 transition-all cursor-pointer ${
             activeTab === 'bookshelf_ebook'
-              ? 'bg-gradient-to-r from-emerald-800 to-emerald-700 text-white border border-emerald-400/50 shadow-lg shadow-emerald-950/50'
+              ? 'bg-gradient-to-r from-[#0e3b24] via-[#1b5536] to-[#0e3b24] text-emerald-100 border border-emerald-400/50 shadow-lg shadow-emerald-950/60'
               : 'text-emerald-200/80 hover:text-white bg-[#06140b]/40 border border-emerald-500/20 hover:border-emerald-500/40'
           }`}
         >
           <Tablet className="w-3.5 h-3.5 text-emerald-300" />
           <span>Total Ebook Library</span>
-          <span className="px-1.5 py-0.2 rounded-full bg-black/40 text-[10px] font-mono text-emerald-200">
+          <span className="px-1.5 py-0.2 rounded-full bg-black/40 text-[10px] font-mono text-emerald-300">
             {ebookBooks.length}
           </span>
         </button>
@@ -512,13 +512,13 @@ export const BooksModule: React.FC = () => {
           onClick={() => setActiveTab('bookshelf_audiobook')}
           className={`px-3.5 py-2 rounded-xl font-semibold flex items-center gap-2 transition-all cursor-pointer ${
             activeTab === 'bookshelf_audiobook'
-              ? 'bg-gradient-to-r from-[#0d3820] to-[#124d2c] text-emerald-100 border border-emerald-400/50 shadow-lg shadow-emerald-950/60'
+              ? 'bg-gradient-to-r from-[#0e3b24] via-[#1b5536] to-[#0e3b24] text-emerald-100 border border-emerald-400/50 shadow-lg shadow-emerald-950/60'
               : 'text-emerald-200/80 hover:text-white bg-[#06140b]/40 border border-emerald-500/20 hover:border-emerald-500/40'
           }`}
         >
           <Headphones className="w-3.5 h-3.5 text-emerald-300" />
           <span>Total Audio Book Library</span>
-          <span className="px-1.5 py-0.2 rounded-full bg-black/40 text-[10px] font-mono text-emerald-200">
+          <span className="px-1.5 py-0.2 rounded-full bg-black/40 text-[10px] font-mono text-emerald-300">
             {audiobookBooks.length}
           </span>
         </button>
@@ -1224,10 +1224,10 @@ export const BooksModule: React.FC = () => {
 
                 {/* Progress Controls (Pages vs Audio Duration) */}
                 {selectedBook.format === 'audiobook' ? (
-                  <div className="bg-[#08120a] p-3.5 rounded-xl border border-purple-500/30 space-y-2">
+                  <div className="bg-[#08120a] p-3.5 rounded-xl border border-emerald-500/30 space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-300 font-medium">Listening Duration</span>
-                      <span className="font-mono text-purple-300 font-bold">
+                      <span className="font-mono text-emerald-300 font-bold">
                         {formatMinutes(selectedBook.currentAudioMinutes)} / {formatMinutes(selectedBook.audioDurationMinutes)} (
                         {Math.min(
                           100,
@@ -1244,7 +1244,7 @@ export const BooksModule: React.FC = () => {
                       max={selectedBook.audioDurationMinutes || 300}
                       value={selectedBook.currentAudioMinutes || 0}
                       onChange={(e) => handleUpdateAudioTime(selectedBook, parseInt(e.target.value, 10) || 0)}
-                      className="w-full accent-purple-500 cursor-pointer"
+                      className="w-full accent-emerald-500 cursor-pointer"
                     />
 
                     <div className="flex items-center justify-between pt-1">
@@ -1459,7 +1459,7 @@ export const BooksModule: React.FC = () => {
                     onClick={() => setFormat('audiobook')}
                     className={`py-2 px-2 rounded-xl border text-center transition-all cursor-pointer font-medium ${
                       format === 'audiobook'
-                        ? 'bg-purple-900/50 border-purple-400 text-purple-200 shadow'
+                        ? 'bg-emerald-900/50 border-emerald-400 text-emerald-200 shadow'
                         : 'bg-white/[0.03] border-white/10 text-slate-400 hover:text-white'
                     }`}
                   >
