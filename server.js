@@ -2,16 +2,22 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { initDatabase, getState, saveState, migrateFromJsonIfNeeded } from './server/db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 5173;
 const DIST_DIR = path.resolve(__dirname, 'dist');
 const DATA_FILE = path.resolve(__dirname, 'data', 'life_state.json');
+const DB_FILE = path.resolve(__dirname, 'data', 'life.db');
 
 // Ensure data directory exists
 if (!fs.existsSync(path.resolve(__dirname, 'data'))) {
   fs.mkdirSync(path.resolve(__dirname, 'data'), { recursive: true });
 }
+
+// Initialize SQLite backend database
+const db = initDatabase(DB_FILE);
+migrateFromJsonIfNeeded(db, DATA_FILE);
 
 const sseClients = new Set();
 
@@ -50,7 +56,11 @@ const server = http.createServer((req, res) => {
   if (url === '/api/state' && req.method === 'GET') {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    if (fs.existsSync(DATA_FILE)) {
+    res.setHeader('X-Storage-Engine', 'SQLite');
+    const state = getState(db);
+    if (state) {
+      res.end(JSON.stringify(state));
+    } else if (fs.existsSync(DATA_FILE)) {
       const data = fs.readFileSync(DATA_FILE, 'utf-8');
       res.end(data);
     } else {
@@ -68,7 +78,11 @@ const server = http.createServer((req, res) => {
     req.on('end', () => {
       try {
         if (body) {
+          const parsed = JSON.parse(body);
+          saveState(db, parsed);
+          // Sync backup JSON file
           fs.writeFileSync(DATA_FILE, body, 'utf-8');
+
           // Broadcast to all connected devices in real time
           const sseMsg = `data: ${body}\n\n`;
           for (const client of sseClients) {
@@ -81,7 +95,8 @@ const server = http.createServer((req, res) => {
         }
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Access-Control-Allow-Origin', '*');
-        res.end(JSON.stringify({ ok: true }));
+        res.setHeader('X-Storage-Engine', 'SQLite');
+        res.end(JSON.stringify({ ok: true, storage: 'sqlite' }));
       } catch (err) {
         res.statusCode = 500;
         res.end(JSON.stringify({ error: err.message }));

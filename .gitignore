@@ -35,5 +35,13 @@ lerna-debug.log*
 *.sln
 *.sw?
 
+# SQLite databases
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+data/*.db
+data/*.db-journal
+
 # Agent scratch / internal
 .gemini/

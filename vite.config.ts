@@ -3,11 +3,19 @@ import { defineConfig, type Plugin } from 'vite'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+// @ts-ignore
+import { initDatabase, getState, saveState, migrateFromJsonIfNeeded } from './server/db.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 function localSyncPlugin(): Plugin {
   const dataFilePath = path.resolve(__dirname, 'data', 'life_state.json')
+  const dbFilePath = path.resolve(__dirname, 'data', 'life.db')
+
+  // Initialize SQLite database and perform automatic initial migration if needed
+  const db = initDatabase(dbFilePath)
+  migrateFromJsonIfNeeded(db, dataFilePath)
+
   const sseClients = new Set<any>()
 
   return {
@@ -31,11 +39,43 @@ function localSyncPlugin(): Plugin {
           return
         }
 
+        // Database status endpoint
+        if (req.url === '/api/database-status' && req.method === 'GET') {
+          res.setHeader('Content-Type', 'application/json')
+          res.setHeader('Access-Control-Allow-Origin', '*')
+          res.end(
+            JSON.stringify({
+              status: 'connected',
+              engine: 'SQLite (node:sqlite)',
+              database: 'data/life.db',
+              tables: [
+                'settings',
+                'books',
+                'routines',
+                'meals',
+                'transactions',
+                'water_logs',
+                'moods',
+                'journal_cards',
+                'hobbies',
+                'workouts',
+                'ideas',
+                'events',
+              ],
+            })
+          )
+          return
+        }
+
         // GET /api/state
         if (req.url === '/api/state' && req.method === 'GET') {
           res.setHeader('Content-Type', 'application/json')
           res.setHeader('Access-Control-Allow-Origin', '*')
-          if (fs.existsSync(dataFilePath)) {
+          res.setHeader('X-Storage-Engine', 'SQLite')
+          const state = getState(db)
+          if (state) {
+            res.end(JSON.stringify(state))
+          } else if (fs.existsSync(dataFilePath)) {
             const content = fs.readFileSync(dataFilePath, 'utf-8')
             res.end(content)
           } else {
@@ -309,6 +349,9 @@ function localSyncPlugin(): Plugin {
           req.on('end', () => {
             try {
               if (body) {
+                const parsed = JSON.parse(body)
+                saveState(db, parsed)
+                // Sync backup JSON file
                 fs.writeFileSync(dataFilePath, body, 'utf-8')
                 // Broadcast to all connected clients (PC & Phone)
                 const sseMessage = `data: ${body}\n\n`
@@ -322,7 +365,8 @@ function localSyncPlugin(): Plugin {
               }
               res.setHeader('Content-Type', 'application/json')
               res.setHeader('Access-Control-Allow-Origin', '*')
-              res.end(JSON.stringify({ ok: true }))
+              res.setHeader('X-Storage-Engine', 'SQLite')
+              res.end(JSON.stringify({ ok: true, storage: 'sqlite' }))
             } catch (err: any) {
               res.statusCode = 500
               res.end(JSON.stringify({ error: err.message }))
