@@ -21,6 +21,7 @@ import {
   Volume2,
 } from 'lucide-react';
 import { Book, BookStatus, BookFormat } from '../../types';
+import { RealisticRavenBookend } from '../common/RealisticRavenBookend';
 
 type LibraryTab =
   | 'bookshelf_physical'
@@ -76,126 +77,6 @@ const SPINE_PALETTES = [
     name: 'Victorian Slate',
   },
 ];
-
-// Perched Victorian Gothic Raven Bookend Component
-const RavenBookend: React.FC<{ flip?: boolean }> = ({ flip }) => (
-  <div
-    className={`shrink-0 flex flex-col items-center justify-end select-none pointer-events-none pb-0 z-20 ${
-      flip ? 'ml-1 sm:ml-2' : 'mr-1 sm:mr-2'
-    }`}
-  >
-    <div
-      className={`relative w-12 sm:w-16 h-36 sm:h-44 flex flex-col items-center justify-end ${
-        flip ? '-scale-x-100' : ''
-      }`}
-    >
-      <svg
-        viewBox="0 0 100 160"
-        className="w-full h-auto drop-shadow-[0_12px_16px_rgba(0,0,0,0.95)]"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <linearGradient id={`ravenFeathers-${flip ? 'r' : 'l'}`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#2e383d" />
-            <stop offset="35%" stopColor="#1b2226" />
-            <stop offset="70%" stopColor="#0f1417" />
-            <stop offset="100%" stopColor="#07090a" />
-          </linearGradient>
-          <linearGradient id={`bronzePlinth-${flip ? 'r' : 'l'}`} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#2b1a0d" />
-            <stop offset="50%" stopColor="#634123" />
-            <stop offset="100%" stopColor="#1f1207" />
-          </linearGradient>
-          <linearGradient id={`goldGlint-${flip ? 'r' : 'l'}`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f5d061" />
-            <stop offset="100%" stopColor="#966a18" />
-          </linearGradient>
-        </defs>
-
-        {/* Stone / Bronze Plinth Pedestal */}
-        <path
-          d="M14 130 L86 130 L92 156 L8 156 Z"
-          fill={`url(#bronzePlinth-${flip ? 'r' : 'l'})`}
-          stroke="#875629"
-          strokeWidth="1.5"
-        />
-        <rect x="20" y="122" width="60" height="9" rx="2" fill="#3a2211" stroke="#a36e37" strokeWidth="1" />
-        <circle cx="50" cy="142" r="4" fill={`url(#goldGlint-${flip ? 'r' : 'l'})`} opacity="0.85" />
-        <line x1="24" y1="142" x2="42" y2="142" stroke="#a36e37" strokeWidth="1" />
-        <line x1="58" y1="142" x2="76" y2="142" stroke="#a36e37" strokeWidth="1" />
-
-        {/* Claws gripping the plinth */}
-        <path
-          d="M38 122 C36 116 32 116 30 122 M43 122 C41 114 37 114 35 122 M58 122 C56 116 52 116 50 122 M63 122 C61 114 57 114 55 122"
-          stroke="#4a5559"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-
-        {/* Tail Feathers extending down */}
-        <path d="M28 105 L18 136 L29 133 L33 112 Z" fill="#0c1012" stroke="#222b2e" strokeWidth="1" />
-        <path d="M31 108 L24 142 L35 137 L38 114 Z" fill="#141a1d" stroke="#2c373b" strokeWidth="1" />
-
-        {/* Raven Body / Back */}
-        <path
-          d="M32 64 C29 84 35 112 48 118 C58 122 66 116 68 104 C72 88 66 68 55 58 C45 52 35 54 32 64 Z"
-          fill={`url(#ravenFeathers-${flip ? 'r' : 'l'})`}
-          stroke="#3d494e"
-          strokeWidth="1.2"
-        />
-
-        {/* Wing Layers & Primary Quill Feather Shapes */}
-        <path
-          d="M36 68 C34 82 40 108 52 120 C54 112 56 95 52 82 C48 70 42 66 36 68 Z"
-          fill="#111619"
-          stroke="#2f3b40"
-          strokeWidth="1"
-        />
-        <path
-          d="M40 74 C38 86 44 104 56 116 C58 108 59 96 56 86 C53 76 46 72 40 74 Z"
-          fill="#182125"
-          stroke="#3a484e"
-          strokeWidth="1"
-        />
-        <path d="M42 88 C44 98 48 108 52 115" stroke="#4b5d65" strokeWidth="1" strokeLinecap="round" opacity="0.6" />
-        <path d="M46 84 C48 94 52 102 55 108" stroke="#4b5d65" strokeWidth="1" strokeLinecap="round" opacity="0.6" />
-
-        {/* Throat & Chest curve */}
-        <path
-          d="M48 42 C44 48 42 54 44 64 C48 74 58 78 65 72 C66 64 64 50 56 42 Z"
-          fill={`url(#ravenFeathers-${flip ? 'r' : 'l'})`}
-        />
-
-        {/* Head */}
-        <path
-          d="M52 28 C45 28 42 34 44 42 C46 48 54 50 62 46 C68 42 66 32 58 28 C56 27 54 27 52 28 Z"
-          fill="#192226"
-          stroke="#38454a"
-          strokeWidth="1.2"
-        />
-
-        {/* Powerful Raven Beak */}
-        <path d="M62 34 L82 40 C76 44 68 46 62 44 Z" fill="#0b0e10" stroke="#2f3b40" strokeWidth="1" />
-        <path d="M63 38 L80 40.5" stroke="#4a5960" strokeWidth="0.8" />
-
-        {/* Amber Eye with glint */}
-        <circle cx="56" cy="35" r="2.8" fill="#d97706" />
-        <circle cx="56" cy="35" r="1.6" fill="#000000" />
-        <circle cx="55.2" cy="34.2" r="0.8" fill="#ffffff" />
-
-        {/* Crown Feathers */}
-        <path d="M46 29 C44 26 42 27 41 30" stroke="#3d4c52" strokeWidth="1.2" strokeLinecap="round" />
-        <path d="M49 27 C48 24 46 24 45 27" stroke="#3d4c52" strokeWidth="1.2" strokeLinecap="round" />
-      </svg>
-
-      {/* Carved Plaque */}
-      <div className="w-10 sm:w-13 h-3 rounded bg-gradient-to-r from-[#946927] via-[#e8c365] to-[#7a521a] text-[#1b0f05] text-[7px] font-serif font-black tracking-widest flex items-center justify-center shadow -mt-2.5 z-10 border border-[#52350f]">
-        RAVEN
-      </div>
-    </div>
-  </div>
-);
 
 export const BooksModule: React.FC = () => {
   const { state, addBook, updateBook, deleteBook } = useLife();
@@ -654,7 +535,7 @@ export const BooksModule: React.FC = () => {
                 </span>
               </div>
               <span className="text-[11px] text-amber-200/70 font-serif italic hidden md:inline">
-                Guarded by carved obsidian ravens • Click any tome to pull it from the shelf
+                Guarded by realistic ravens perched on gnarled oak branches • Click any tome to pull it from the shelf
               </span>
             </div>
 
@@ -683,8 +564,8 @@ export const BooksModule: React.FC = () => {
               <div key={shelfIdx} className="relative">
                 {/* Book Spines Row sitting on the shelf */}
                 <div className="relative flex items-end px-2 sm:px-6 min-h-[255px] overflow-x-auto no-scrollbar gap-3 sm:gap-4.5 pb-0">
-                  {/* Left Carved Raven Bookend */}
-                  <RavenBookend flip={false} />
+                  {/* Left Realistic Raven on Branch Bookend */}
+                  <RealisticRavenBookend flip={false} />
 
                   {/* Books on this shelf */}
                   {shelfBooks.map((book, bookIdx) => {
@@ -796,8 +677,8 @@ export const BooksModule: React.FC = () => {
                     </button>
                   )}
 
-                  {/* Right Carved Raven Bookend */}
-                  <RavenBookend flip={true} />
+                  {/* Right Realistic Raven on Branch Bookend */}
+                  <RealisticRavenBookend flip={true} />
                 </div>
 
                 {/* The Heavy Wooden Shelf Base (Plank) */}
@@ -812,7 +693,7 @@ export const BooksModule: React.FC = () => {
                     </div>
 
                     <span className="text-[10px] font-serif text-amber-300/40 hidden sm:inline">
-                      Raven Guardians • Hand-Carved Oak
+                      Raven Guardians On Gnarled Branches • Hand-Carved Oak
                     </span>
                   </div>
                   <div className="h-5 bg-gradient-to-b from-black/85 via-black/40 to-transparent pointer-events-none" />
