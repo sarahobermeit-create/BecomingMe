@@ -1,0 +1,159 @@
+import React, { useRef } from 'react';
+import { useLife } from '../../context/LifeContext';
+import {
+  Download,
+  Upload,
+  RotateCcw,
+  Sparkles,
+  Calendar as CalendarIcon,
+  CheckCircle2,
+  Droplets,
+  Heart,
+} from 'lucide-react';
+import { TabType } from '../../types';
+
+interface NavbarProps {
+  activeTab: TabType;
+  setActiveTab: (tab: TabType) => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
+  const { state, todayDate, exportBackupJson, importBackupJson, resetToDemoData } = useLife();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const formattedDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const ok = await importBackupJson(file);
+      if (ok) {
+        alert('Data imported successfully!');
+      } else {
+        alert('Failed to import backup file. Please verify file format.');
+      }
+    }
+  };
+
+  // Quick stats
+  const todayWater = state.waterLogs[todayDate]?.amountMl || 0;
+  const targetWater = state.waterDailyTargetMl || 2500;
+  const waterPct = Math.min(100, Math.round((todayWater / targetWater) * 100));
+
+  const completedRoutines = state.routines.filter((r) => r.completedDates.includes(todayDate)).length;
+  const totalRoutines = state.routines.length;
+
+  const todayMood = state.moods.find((m) => m.date === todayDate);
+
+  return (
+    <header className="sticky top-0 z-30 bg-[#0c0e17]/85 backdrop-blur-md border-b border-white/[0.08] px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+      {/* Left: Branding & Date */}
+      <div className="flex items-center gap-4">
+        <div 
+          onClick={() => setActiveTab('overview')}
+          className="flex items-center gap-2.5 cursor-pointer group"
+        >
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-cyan-400 p-[1px] shadow-lg shadow-violet-500/20 group-hover:scale-105 transition-transform">
+            <div className="w-full h-full bg-[#0c0e17] rounded-[11px] flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-violet-400 animate-pulse" />
+            </div>
+          </div>
+          <div>
+            <h1 className="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
+              Life<span className="text-violet-400 font-extrabold">OS</span>
+            </h1>
+            <p className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
+              <CalendarIcon className="w-3 h-3 text-slate-500" />
+              {formattedDate}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Center: Live Today Quick Glance Indicators */}
+      <div className="hidden md:flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-full px-3 py-1 text-xs">
+        {/* Routines Badge */}
+        <button
+          onClick={() => setActiveTab('routines')}
+          className="flex items-center gap-1.5 hover:text-emerald-400 transition-colors"
+          title="Today's routines"
+        >
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="text-slate-300 font-medium">
+            {completedRoutines}/{totalRoutines}
+          </span>
+          <span className="text-slate-500 text-[11px]">Routines</span>
+        </button>
+
+        <span className="text-white/10">•</span>
+
+        {/* Water Badge */}
+        <button
+          onClick={() => setActiveTab('water')}
+          className="flex items-center gap-1.5 hover:text-cyan-400 transition-colors"
+          title="Today's water"
+        >
+          <Droplets className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="text-slate-300 font-medium">{waterPct}%</span>
+          <span className="text-slate-500 text-[11px]">Water</span>
+        </button>
+
+        <span className="text-white/10">•</span>
+
+        {/* Mood Badge */}
+        <button
+          onClick={() => setActiveTab('mood')}
+          className="flex items-center gap-1.5 hover:text-rose-400 transition-colors"
+          title="Today's mood"
+        >
+          <Heart className="w-3.5 h-3.5 text-rose-400" />
+          <span className="text-slate-300 font-medium">
+            {todayMood ? todayMood.label : 'Log mood'}
+          </span>
+        </button>
+      </div>
+
+      {/* Right: Data Backup & Sync Tools */}
+      <div className="flex items-center gap-2">
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileUpload}
+          accept=".json"
+          className="hidden"
+        />
+
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          title="Import JSON backup"
+          className="flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] px-2.5 py-1.5 rounded-lg transition-all"
+        >
+          <Upload className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Import</span>
+        </button>
+
+        <button
+          onClick={exportBackupJson}
+          title="Export JSON backup"
+          className="flex items-center gap-1.5 text-xs font-medium text-violet-300 hover:text-white bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/25 px-2.5 py-1.5 rounded-lg transition-all shadow-sm shadow-violet-500/10"
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Backup</span>
+        </button>
+
+        <button
+          onClick={resetToDemoData}
+          title="Reset to starter sample data"
+          className="flex items-center gap-1 text-xs text-slate-500 hover:text-amber-400 p-1.5 hover:bg-white/[0.04] rounded-lg transition-colors"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </header>
+  );
+};
