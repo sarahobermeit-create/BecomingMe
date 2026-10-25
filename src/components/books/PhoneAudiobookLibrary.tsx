@@ -27,6 +27,16 @@ interface PhoneAudiobookLibraryProps {
   onDeleteBook: (bookId: string) => void;
 }
 
+// Deterministic palettes for Audiobook tomes
+const AUDIO_TOME_PALETTES = [
+  { gradient: 'from-[#0b2b19] via-[#124227] to-[#071c10]', border: '#1e633c', ribbon: '#34d399', accent: '#6ee7b7' },
+  { gradient: 'from-[#1e1338] via-[#2f1f54] to-[#120a24]', border: '#513491', ribbon: '#a78bfa', accent: '#c4b5fd' },
+  { gradient: 'from-[#2b160b] via-[#452414] to-[#1a0c06]', border: '#6e3c23', ribbon: '#f59e0b', accent: '#fde68a' },
+  { gradient: 'from-[#330f1b] via-[#4d192a] to-[#210811]', border: '#7a2b45', ribbon: '#f43f5e', accent: '#fda4af' },
+  { gradient: 'from-[#0b2133] via-[#143652] to-[#071521]', border: '#235987', ribbon: '#38bdf8', accent: '#7dd3fc' },
+  { gradient: 'from-[#1b2124] via-[#2b3338] to-[#101416]', border: '#46535a', ribbon: '#94a3b8', accent: '#cbd5e1' },
+];
+
 export const PhoneAudiobookLibrary: React.FC<PhoneAudiobookLibraryProps> = ({
   books,
   onSelectBook,
@@ -35,8 +45,8 @@ export const PhoneAudiobookLibrary: React.FC<PhoneAudiobookLibraryProps> = ({
   onTogglePlay,
   onDeleteBook,
 }) => {
-  // Helper to chunk audiobooks onto shelves (up to 2 per shelf on phone screen for prominence)
-  const chunkShelves = (items: Book[], size: number = 2) => {
+  // Helper to chunk audiobooks onto shelves (up to 3 per shelf on phone screen)
+  const chunkShelves = (items: Book[], size: number = 3) => {
     const shelves: Book[][] = [];
     for (let i = 0; i < items.length; i += size) {
       shelves.push(items.slice(i, i + size));
@@ -45,7 +55,7 @@ export const PhoneAudiobookLibrary: React.FC<PhoneAudiobookLibraryProps> = ({
     return shelves;
   };
 
-  const shelves = chunkShelves(books, 2);
+  const shelves = chunkShelves(books, 3);
 
   // Active book playing or the first book for the bottom player dock
   const activePlayingBook =
@@ -225,134 +235,122 @@ export const PhoneAudiobookLibrary: React.FC<PhoneAudiobookLibraryProps> = ({
           <div className="flex-1 p-3 sm:p-6 space-y-10 sm:space-y-12 overflow-y-auto">
             {shelves.map((shelfBooks, shelfIdx) => (
               <div key={shelfIdx} className="relative">
-                {/* Audiobook Cases Sitting on the Phone Shelf */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-end pb-1 px-1 sm:px-2">
+                {/* Audiobook Tomes Sitting Directly on the Phone Shelf */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-6 items-end pb-0 px-2 sm:px-4">
                   {shelfBooks.map((book) => {
                     const isPlaying = playingAudioId === book.id;
-                    const totalMins = book.audioDurationMinutes || 360;
-                    const currentMins = book.currentAudioMinutes || 0;
-                    const progressPct = Math.min(100, Math.round((currentMins / totalMins) * 100));
+                    const hash = (book.id + (book.title || '')).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                    const palette = AUDIO_TOME_PALETTES[Math.abs(hash) % AUDIO_TOME_PALETTES.length];
 
                     return (
                       <div
                         key={book.id}
-                        className={`group relative rounded-2xl p-3.5 sm:p-4 bg-gradient-to-b from-[#0b2416]/90 via-[#0e2c1c]/90 to-[#07190f]/95 border transition-all duration-200 shadow-xl flex flex-col justify-between space-y-3 cursor-pointer select-none ${
-                          isPlaying
-                            ? 'border-emerald-400 ring-2 ring-emerald-400/50 shadow-[0_0_25px_rgba(52,211,153,0.35)] -translate-y-1.5'
-                            : 'border-emerald-500/30 hover:border-emerald-400/60 hover:-translate-y-1 hover:shadow-2xl'
-                        }`}
                         onClick={() => onSelectBook(book)}
+                        className={`group relative cursor-pointer select-none transition-all duration-300 transform hover:-translate-y-3.5 hover:scale-[1.03] z-10 hover:z-30 flex justify-center ${
+                          isPlaying ? 'z-20' : ''
+                        }`}
                       >
-                        {/* Audio Header Row: Status Badge & Delete */}
-                        <div className="flex items-center justify-between gap-2">
-                          <span
-                            className={`text-[9px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full border ${
-                              book.status === 'reading'
-                                ? 'bg-emerald-500/25 text-emerald-300 border-emerald-400/40'
-                                : book.status === 'want_to_read'
-                                ? 'bg-amber-500/25 text-amber-300 border-amber-400/40'
-                                : 'bg-slate-700/40 text-slate-300 border-slate-600/40'
-                            }`}
-                          >
-                            {book.status === 'want_to_read'
-                              ? 'Next Listen'
-                              : book.status === 'reading'
-                              ? 'Now Listening'
-                              : 'Finished'}
-                          </span>
+                        {/* Book Body: Upright Audiobook Tome Sitting on Shelf */}
+                        <div
+                          style={{ borderColor: palette.border }}
+                          className={`relative w-[108px] sm:w-[124px] h-[170px] sm:h-[190px] rounded-r-lg rounded-l-[3px] p-2 flex flex-col justify-between shadow-[2px_8px_20px_rgba(0,0,0,0.85)] border-y border-r bg-gradient-to-r ${palette.gradient} transition-all duration-300 ${
+                            isPlaying
+                              ? 'ring-2 ring-emerald-400 shadow-[0_0_25px_rgba(52,211,153,0.5)] -translate-y-2'
+                              : 'group-hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_20px_rgba(52,211,153,0.3)]'
+                          }`}
+                        >
+                          {/* 3D Cylindrical Spine Shading on Left */}
+                          <div className="absolute inset-y-0 left-0 w-3 bg-gradient-to-r from-black/70 via-transparent to-black/25 pointer-events-none rounded-l-[3px]" />
+                          <div className="absolute inset-y-0 left-3 w-[1px] bg-black/40 pointer-events-none" />
 
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDeleteBook(book.id);
-                            }}
-                            className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-rose-400 transition-opacity cursor-pointer rounded hover:bg-black/40"
-                            title="Remove from phone shelves"
-                          >
-                            <Trash2 className="w-2.5 h-2.5" />
-                          </button>
-                        </div>
+                          {/* Top Filigree Band & Studio Headphones Icon */}
+                          <div className="relative z-10 flex flex-col items-center">
+                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mb-1" />
+                            <div className="flex items-center justify-between w-full px-0.5">
+                              <span
+                                className={`text-[8px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-full border ${
+                                  book.status === 'reading'
+                                    ? 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50'
+                                    : book.status === 'want_to_read'
+                                    ? 'bg-amber-500/30 text-amber-300 border-amber-400/50'
+                                    : 'bg-slate-700/50 text-slate-300 border-slate-500/40'
+                                }`}
+                              >
+                                {book.status === 'reading' ? 'Listening' : book.status === 'want_to_read' ? 'Next' : 'Done'}
+                              </span>
 
-                        {/* Middle Content: Artwork with Headphone Badge + PROMINENT TITLE */}
-                        <div className="flex gap-3 sm:gap-4 items-center">
-                          {/* Mini Album Cover with Studio Headphones Icon */}
-                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden shadow-lg border border-emerald-400/40 bg-black">
-                            <img
-                              src={book.coverUrl}
-                              alt={book.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                            />
-                            {/* Headphones overlay badge */}
-                            <div className="absolute top-1 left-1 p-0.5 rounded bg-black/70 backdrop-blur-sm border border-emerald-400/40 text-emerald-300">
-                              <Headphones className="w-2 h-2" />
+                              {/* Studio Headphone Emblem */}
+                              <div className="p-0.5 rounded bg-black/50 border border-emerald-400/40 text-emerald-300">
+                                <Headphones className="w-2.5 h-2.5" />
+                              </div>
+                            </div>
+                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mt-1" />
+                          </div>
+
+                          {/* Center: Framed Cover Bookplate with Play/Pause button */}
+                          <div className="relative z-10 flex flex-col items-center my-0.5">
+                            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-md overflow-hidden border border-emerald-400/40 shadow-md bg-black">
+                              <img
+                                src={book.coverUrl}
+                                alt={book.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                              />
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onTogglePlay(book.id);
+                                }}
+                                className={`absolute inset-0 m-auto w-6 h-6 rounded-full flex items-center justify-center transition-transform shadow-lg cursor-pointer ${
+                                  isPlaying
+                                    ? 'bg-emerald-500 text-black scale-110'
+                                    : 'bg-black/60 hover:bg-emerald-600 text-white hover:scale-110'
+                                }`}
+                                title={isPlaying ? 'Pause narration' : 'Play narration'}
+                              >
+                                {isPlaying ? (
+                                  <Pause className="w-3 h-3 fill-current" />
+                                ) : (
+                                  <Play className="w-3 h-3 fill-current ml-0.5" />
+                                )}
+                              </button>
                             </div>
 
-                            {/* Center Play Button on artwork */}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onTogglePlay(book.id);
-                              }}
-                              className={`absolute inset-0 m-auto w-6 h-6 rounded-full flex items-center justify-center transition-transform shadow-lg cursor-pointer ${
-                                isPlaying
-                                  ? 'bg-emerald-500 text-black scale-110'
-                                  : 'bg-black/60 hover:bg-emerald-600 text-white hover:scale-110'
-                              }`}
-                            >
-                              {isPlaying ? (
-                                <Pause className="w-3 h-3 fill-current" />
-                              ) : (
-                                <Play className="w-3 h-3 fill-current ml-0.5" />
-                              )}
-                            </button>
-                          </div>
-
-                          {/* PROMINENT AUDIO BOOK TITLE */}
-                          <div className="flex-1 overflow-hidden">
-                            <h3 className="font-serif font-black text-white text-base sm:text-lg leading-snug line-clamp-2 group-hover:text-emerald-300 transition-colors">
+                            <h3 className="font-serif font-black text-xs leading-snug line-clamp-2 text-white group-hover:text-emerald-300 transition-colors drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)] text-center mt-1.5 px-0.5">
                               {book.title}
                             </h3>
-                            <p className="text-xs text-emerald-200/70 font-serif italic truncate mt-0.5">
+                            <p className="font-serif italic text-[9.5px] text-emerald-200/80 truncate max-w-full text-center mt-0.5">
                               by {book.author}
                             </p>
+                          </div>
 
-                            {/* Animated Equalizer Wave if playing */}
-                            {isPlaying ? (
-                              <div className="flex items-center gap-1 mt-2 text-emerald-400">
-                                <span className="w-1 h-3 bg-emerald-400 animate-pulse rounded-full" />
-                                <span className="w-1 h-5 bg-emerald-300 animate-pulse delay-75 rounded-full" />
-                                <span className="w-1 h-2 bg-emerald-500 animate-pulse delay-150 rounded-full" />
-                                <span className="w-1 h-4 bg-emerald-400 animate-pulse rounded-full" />
-                                <span className="text-[10px] font-mono text-emerald-300 ml-1">
-                                  Streaming to Headphones...
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-1 mt-2 text-[10px] font-mono text-emerald-300/80">
-                                <Clock className="w-2.5 h-2.5 text-emerald-400/70" />
-                                <span>{formatAudioTime(totalMins)}</span>
-                              </div>
-                            )}
+                          {/* Bottom Audio Info Band */}
+                          <div className="relative z-10 flex flex-col items-center">
+                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mb-0.5" />
+                            <div className="flex items-center justify-between w-full px-1 text-[7.5px] font-mono text-emerald-300/70">
+                              <span>Audio Tome</span>
+                              <span className="flex items-center gap-0.5">
+                                <Volume2 className="w-2 h-2 text-emerald-400" />
+                                {formatAudioTime(book.audioDurationMinutes || 360)}
+                              </span>
+                            </div>
+                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mt-0.5" />
+                          </div>
+
+                          {/* Silk Bookmark Ribbon dangling over the shelf plank */}
+                          <div
+                            style={{ backgroundColor: palette.ribbon }}
+                            className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3.5 h-4 shadow-md pointer-events-none z-20 transition-transform group-hover:translate-y-1"
+                          >
+                            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black [clip-path:polygon(0_100%,50%_0,100%_100%)]" />
                           </div>
                         </div>
 
-                        {/* Audio Progress Bar */}
-                        <div className="space-y-1 pt-1 border-t border-emerald-500/20">
-                          <div className="w-full h-1.5 rounded-full bg-black/60 overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-300 ${
-                                isPlaying ? 'bg-emerald-400' : 'bg-emerald-600'
-                              }`}
-                              style={{ width: `${progressPct}%` }}
-                            />
-                          </div>
-
-                          <div className="flex items-center justify-between text-[10px] font-mono text-emerald-300/70">
-                            <span>{formatAudioTime(currentMins)} listened</span>
-                            <span>{progressPct}%</span>
-                          </div>
+                        {/* Realistic Book Pages Rim (Right edge) */}
+                        <div className="absolute top-1 bottom-1 -right-1 w-1.5 rounded-r-xs bg-gradient-to-r from-[#dfd6c5] to-[#f4eee1] shadow-[1px_2px_4px_rgba(0,0,0,0.6)] border-y border-r border-[#c2b79e] pointer-events-none flex flex-col justify-around py-2">
+                          <div className="w-full h-[0.5px] bg-[#beb196]/60" />
+                          <div className="w-full h-[0.5px] bg-[#beb196]/60" />
+                          <div className="w-full h-[0.5px] bg-[#beb196]/60" />
                         </div>
                       </div>
                     );
@@ -360,21 +358,23 @@ export const PhoneAudiobookLibrary: React.FC<PhoneAudiobookLibraryProps> = ({
 
                   {/* Add New Audio Book Slot on the Last Shelf */}
                   {shelfIdx === shelves.length - 1 && (
-                    <button
-                      type="button"
-                      onClick={onAddBook}
-                      className="h-[155px] rounded-2xl border-2 border-dashed border-emerald-500/40 hover:border-emerald-400 bg-emerald-950/20 hover:bg-emerald-900/40 p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] text-emerald-200"
-                    >
-                      <div className="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300">
-                        <Plus className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="font-serif font-bold text-xs uppercase tracking-wider text-white">
-                        + Add Audio Book
-                      </span>
-                      <span className="text-[10px] font-serif italic text-emerald-300/70">
-                        Slot into phone shelves
-                      </span>
-                    </button>
+                    <div className="flex justify-center pb-0">
+                      <button
+                        type="button"
+                        onClick={onAddBook}
+                        className="w-[108px] sm:w-[124px] h-[170px] sm:h-[190px] rounded-r-lg rounded-l-[3px] border-2 border-dashed border-emerald-500/40 hover:border-emerald-400 bg-emerald-950/20 hover:bg-emerald-900/40 p-3 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] text-emerald-200 text-center"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shadow-inner">
+                          <Plus className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="font-serif font-bold text-xs uppercase tracking-wider text-white">
+                          + Add Audio
+                        </span>
+                        <span className="text-[9px] font-serif italic text-emerald-300/70">
+                          Slot into phone
+                        </span>
+                      </button>
+                    </div>
                   )}
                 </div>
 

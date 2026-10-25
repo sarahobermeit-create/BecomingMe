@@ -959,149 +959,41 @@ export const BooksModule: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5">
-              {filteredBooks.map((book) => {
-                const isAudio = book.format === 'audiobook';
-                const progressPct = isAudio
-                  ? Math.min(100, Math.round(((book.currentAudioMinutes || 0) / (book.audioDurationMinutes || 300)) * 100))
-                  : Math.min(100, Math.round((book.currentPage / book.totalPages) * 100));
-
-                return (
-                  <div
-                    key={book.id}
-                    className="p-3 sm:p-3.5 rounded-xl bg-[#06140b]/40 backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-400/50 transition-all flex flex-col justify-between group shadow-lg"
-                  >
-                    <div className="flex gap-3">
-                      {/* Format Visual Representation: Physical Book, Kindle Screen, or Phone with Headphones */}
-                      <div onClick={() => setSelectedBook(book)} className="shrink-0">
+            {/* Format Icons Gallery (Pure Book Icons, No Progress Bars, No Stars) */}
+            <div className="p-4 sm:p-6 rounded-2xl bg-[#06140b]/40 backdrop-blur-sm border border-emerald-500/20 shadow-xl min-h-[220px]">
+              {filteredBooks.length === 0 ? (
+                <div className="py-12 text-center text-slate-400 space-y-2">
+                  <p className="font-serif italic text-sm">No books found in this section.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 sm:gap-8 justify-items-center">
+                  {filteredBooks.map((book) => (
+                    <div
+                      key={book.id}
+                      onClick={() => setSelectedBook(book)}
+                      className="group flex flex-col items-center text-center cursor-pointer select-none transition-transform duration-200 hover:-translate-y-1.5 focus:outline-none"
+                    >
+                      {/* Book Format Visual (Physical Book, Kindle Screen, or Phone with Headphones) */}
+                      <div className="relative">
                         <BookFormatVisual book={book} size="sm" />
                       </div>
 
-                      {/* Book Info */}
-                      <div className="flex-1 min-w-0 flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-center justify-between gap-1">
-                            <span
-                              className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                                book.status === 'reading'
-                                  ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-                                  : book.status === 'want_to_read'
-                                  ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
-                                  : 'bg-slate-500/15 text-slate-300 border-slate-500/30'
-                              }`}
-                            >
-                              {book.status === 'want_to_read' ? 'Next Read' : book.status === 'reading' ? 'Reading' : 'Completed'}
-                            </span>
-
-                            <button
-                              onClick={() => deleteBook(book.id)}
-                              className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-500 hover:text-rose-400 transition-opacity cursor-pointer"
-                              title="Delete book"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-
-                          <h3
-                            onClick={() => setSelectedBook(book)}
-                            className="text-xs sm:text-sm font-bold text-white mt-1 truncate cursor-pointer hover:text-emerald-300 transition-colors font-serif"
-                            title={book.title}
-                          >
-                            {book.title}
-                          </h3>
-                          <p className="text-[11px] text-slate-400 truncate font-serif italic">{book.author}</p>
-                        </div>
-
-                        {/* Rating */}
-                        {book.rating && (
-                          <div className="flex items-center gap-0.5 mt-1 text-amber-400">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-3 h-3 ${
-                                  i < (book.rating || 0) ? 'fill-amber-400 text-amber-400' : 'text-slate-700'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Progress Bar & Compact Adjuster */}
-                        <div className="mt-2">
-                          <div className="flex items-center justify-between text-[10px] text-slate-400 mb-0.5">
-                            <span className="capitalize">{book.format || 'physical'}</span>
-                            <span className="font-mono text-emerald-300 font-bold">{progressPct}%</span>
-                          </div>
-                          <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden mb-1.5">
-                            <div
-                              className="bg-emerald-500 h-full rounded-full transition-all"
-                              style={{ width: `${progressPct}%` }}
-                            />
-                          </div>
-
-                          <div className="flex items-center justify-between text-[10px] text-slate-400">
-                            <span className="truncate max-w-[85px] font-mono">
-                              {isAudio
-                                ? `${formatMinutes(book.currentAudioMinutes)} / ${formatMinutes(book.audioDurationMinutes)}`
-                                : `p. ${book.currentPage}/${book.totalPages}`}
-                            </span>
-                            <div className="flex items-center gap-1">
-                              {isAudio ? (
-                                <>
-                                  <button
-                                    onClick={() => handleUpdateAudioTime(book, (book.currentAudioMinutes || 0) - 15)}
-                                    className="px-1.5 py-0.2 bg-white/[0.05] hover:bg-white/[0.1] rounded text-[9px] text-slate-300 cursor-pointer"
-                                  >
-                                    -15m
-                                  </button>
-                                  <button
-                                    onClick={() => handleUpdateAudioTime(book, (book.currentAudioMinutes || 0) + 15)}
-                                    className="px-1.5 py-0.2 bg-white/[0.05] hover:bg-white/[0.1] rounded text-[9px] text-slate-300 cursor-pointer"
-                                  >
-                                    +15m
-                                  </button>
-                                </>
-                              ) : (
-                                <>
-                                  <button
-                                    onClick={() => handleUpdatePage(book, book.currentPage - 10)}
-                                    className="px-1.5 py-0.2 bg-white/[0.05] hover:bg-white/[0.1] rounded text-[9px] text-slate-300 cursor-pointer"
-                                  >
-                                    -10
-                                  </button>
-                                  <button
-                                    onClick={() => handleUpdatePage(book, book.currentPage + 10)}
-                                    className="px-1.5 py-0.2 bg-white/[0.05] hover:bg-white/[0.1] rounded text-[9px] text-slate-300 cursor-pointer"
-                                  >
-                                    +10
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
+                      {/* Clean Book Title & Author beneath icon */}
+                      <div className="mt-2.5 w-20 sm:w-24">
+                        <h4
+                          className="font-serif font-bold text-xs text-white group-hover:text-emerald-300 transition-colors line-clamp-2 leading-tight"
+                          title={book.title}
+                        >
+                          {book.title}
+                        </h4>
+                        <p className="font-serif italic text-[10px] text-slate-400 truncate mt-0.5">
+                          {book.author}
+                        </p>
                       </div>
                     </div>
-
-                    {/* Quotes & Notes */}
-                    {(book.favoriteQuotes?.length || book.notes) && (
-                      <div className="mt-4 pt-3 border-t border-white/[0.05] space-y-2">
-                        {book.favoriteQuotes && book.favoriteQuotes.length > 0 && (
-                          <div className="flex items-start gap-2 text-xs text-slate-300 italic bg-black/30 p-2.5 rounded-lg border border-emerald-500/15">
-                            <Quote className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                            <span>"{book.favoriteQuotes[0]}"</span>
-                          </div>
-                        )}
-                        {book.notes && (
-                          <p className="text-[11px] text-slate-400 line-clamp-2">
-                            <span className="text-slate-500 font-semibold">Notes:</span> {book.notes}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

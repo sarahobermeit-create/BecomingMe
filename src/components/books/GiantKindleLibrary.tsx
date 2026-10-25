@@ -23,6 +23,16 @@ interface GiantKindleLibraryProps {
   onAddBook: () => void;
 }
 
+// Deterministic leather tome palettes for Kindle e-books
+const EBOOK_TOME_PALETTES = [
+  { gradient: 'from-[#0e2f1e] via-[#164a2f] to-[#092114]', border: '#236e45', ribbon: '#34d399' },
+  { gradient: 'from-[#381119] via-[#521b27] to-[#26080e]', border: '#7e2b3c', ribbon: '#f87171' },
+  { gradient: 'from-[#10233e] via-[#1a3861] to-[#0a172a]', border: '#2b5691', ribbon: '#60a5fa' },
+  { gradient: 'from-[#3a2010] via-[#54301a] to-[#261408]', border: '#784627', ribbon: '#fbbf24' },
+  { gradient: 'from-[#2b1035] via-[#451c54] to-[#1c0824]', border: '#6c2e82', ribbon: '#c084fc' },
+  { gradient: 'from-[#1f2427] via-[#2f383c] to-[#131719]', border: '#4a595e', ribbon: '#94a3b8' },
+];
+
 export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
   books,
   onSelectBook,
@@ -31,8 +41,8 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
   // Option to switch between warm e-ink paper and dark-mode e-ink
   const [eInkMode, setEInkMode] = useState<'paper' | 'dark'>('paper');
 
-  // Helper to chunk ebooks onto shelves (up to 4 per shelf on large screens)
-  const chunkShelves = (items: Book[], size: number = 3) => {
+  // Helper to chunk ebooks onto shelves (up to 4 per shelf on Kindle screen)
+  const chunkShelves = (items: Book[], size: number = 4) => {
     const shelves: Book[][] = [];
     for (let i = 0; i < items.length; i += size) {
       shelves.push(items.slice(i, i + size));
@@ -41,7 +51,7 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
     return shelves;
   };
 
-  const shelves = chunkShelves(books, 3);
+  const shelves = chunkShelves(books, 4);
 
   return (
     <div className="w-full max-w-5xl mx-auto py-2 px-1 sm:px-4">
@@ -188,106 +198,80 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
           <div className="p-4 sm:p-8 space-y-10 sm:space-y-12 min-h-[420px]">
             {shelves.map((shelfBooks, shelfIdx) => (
               <div key={shelfIdx} className="relative">
-                {/* Book Editions Sitting on this Shelf */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6 items-end pb-1 px-2">
+                {/* Book Editions Sitting Directly on this Shelf */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 items-end pb-0 px-2 sm:px-6">
                   {shelfBooks.map((book) => {
-                    const progressPct = Math.min(
-                      100,
-                      Math.round((book.currentPage / book.totalPages) * 100)
-                    );
+                    const hash = (book.id + (book.title || '')).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                    const palette = EBOOK_TOME_PALETTES[Math.abs(hash) % EBOOK_TOME_PALETTES.length];
 
                     return (
                       <div
                         key={book.id}
                         onClick={() => onSelectBook(book)}
-                        className={`group relative rounded-xl p-3 sm:p-4 border cursor-pointer transition-all duration-200 transform hover:-translate-y-2 hover:shadow-xl flex flex-col justify-between min-h-[190px] select-none ${
-                          eInkMode === 'paper'
-                            ? 'bg-[#faf6ee] hover:bg-[#ffffff] border-[#d8d0be] shadow-[0_4px_12px_rgba(0,0,0,0.08)]'
-                            : 'bg-[#132019] hover:bg-[#182a20] border-[#223d2d] shadow-[0_4px_16px_rgba(0,0,0,0.6)]'
-                        }`}
+                        className="group relative cursor-pointer select-none transition-all duration-300 transform hover:-translate-y-3.5 hover:scale-[1.03] z-10 hover:z-30 flex justify-center"
                       >
-                        {/* Status Stamp & Page Progress */}
-                        <div className="flex items-center justify-between gap-2">
-                          <span
-                            className={`text-[9px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded border ${
-                              book.status === 'reading'
-                                ? eInkMode === 'paper'
-                                  ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
-                                  : 'bg-emerald-950 text-emerald-300 border-emerald-700'
-                                : book.status === 'want_to_read'
-                                ? eInkMode === 'paper'
-                                  ? 'bg-amber-100 text-amber-900 border-amber-300'
-                                  : 'bg-amber-950 text-amber-300 border-amber-700'
-                                : eInkMode === 'paper'
-                                ? 'bg-slate-200 text-slate-800 border-slate-300'
-                                : 'bg-slate-800 text-slate-300 border-slate-700'
-                            }`}
-                          >
-                            {book.status === 'reading'
-                              ? 'Reading'
-                              : book.status === 'want_to_read'
-                              ? 'Next Read'
-                              : 'Completed'}
-                          </span>
+                        {/* Book Body: Upright Hardcover Sitting on Shelf Plank */}
+                        <div
+                          style={{ borderColor: palette.border }}
+                          className={`relative w-[112px] sm:w-[130px] h-[170px] sm:h-[195px] rounded-r-lg rounded-l-[3px] p-2 flex flex-col justify-between shadow-[2px_8px_20px_rgba(0,0,0,0.85)] border-y border-r bg-gradient-to-r ${palette.gradient} transition-shadow duration-300 group-hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_20px_rgba(52,211,153,0.35)]`}
+                        >
+                          {/* 3D Cylindrical Spine Shading on Left */}
+                          <div className="absolute inset-y-0 left-0 w-3 bg-gradient-to-r from-black/70 via-transparent to-black/25 pointer-events-none rounded-l-[3px]" />
+                          <div className="absolute inset-y-0 left-3 w-[1px] bg-black/40 pointer-events-none" />
 
-                          <span
-                            className={`text-[10px] font-mono ${
-                              eInkMode === 'paper' ? 'text-[#706657]' : 'text-[#85a38f]'
-                            }`}
-                          >
-                            {progressPct}% Read
-                          </span>
-                        </div>
-
-                        {/* PROMINENT EBOOK TITLE */}
-                        <div className="my-3 space-y-1">
-                          <h3
-                            className={`font-serif font-black text-base sm:text-lg leading-snug tracking-tight line-clamp-2 group-hover:underline decoration-emerald-600 ${
-                              eInkMode === 'paper' ? 'text-[#14120e]' : 'text-[#f0f6f2]'
-                            }`}
-                          >
-                            {book.title}
-                          </h3>
-                          <p
-                            className={`font-serif italic text-xs truncate ${
-                              eInkMode === 'paper' ? 'text-[#5c5445]' : 'text-[#9ab7a4]'
-                            }`}
-                          >
-                            by {book.author}
-                          </p>
-                        </div>
-
-                        {/* Progress Dots Bar / Page Counter */}
-                        <div className="space-y-1.5 pt-2 border-t border-current/10">
-                          <div
-                            className={`w-full h-1.5 rounded-full overflow-hidden ${
-                              eInkMode === 'paper' ? 'bg-[#dfd7c5]' : 'bg-[#1d3527]'
-                            }`}
-                          >
-                            <div
-                              className={`h-full rounded-full transition-all duration-300 ${
-                                book.status === 'completed'
-                                  ? 'bg-emerald-600'
-                                  : eInkMode === 'paper'
-                                  ? 'bg-[#3d382f]'
-                                  : 'bg-emerald-400'
-                              }`}
-                              style={{ width: `${progressPct}%` }}
-                            />
+                          {/* Top Filigree Band & Status Emblem */}
+                          <div className="relative z-10 flex flex-col items-center">
+                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mb-1" />
+                            <div className="flex items-center justify-between w-full px-0.5">
+                              <span
+                                className={`text-[8px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-full border ${
+                                  book.status === 'reading'
+                                    ? 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50'
+                                    : book.status === 'want_to_read'
+                                    ? 'bg-amber-500/30 text-amber-300 border-amber-400/50'
+                                    : 'bg-slate-700/50 text-slate-300 border-slate-500/40'
+                                }`}
+                              >
+                                {book.status === 'reading' ? 'Reading' : book.status === 'want_to_read' ? 'Next' : 'Done'}
+                              </span>
+                              <BookOpen className="w-3 h-3 text-amber-300/80" />
+                            </div>
+                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mt-1" />
                           </div>
 
-                          <div
-                            className={`flex items-center justify-between text-[10px] font-mono ${
-                              eInkMode === 'paper' ? 'text-[#756c5c]' : 'text-[#7f9e8a]'
-                            }`}
-                          >
-                            <span>
-                              Pg {book.currentPage} of {book.totalPages}
-                            </span>
-                            <span className="font-sans font-medium flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform text-emerald-700 dark:text-emerald-400">
-                              Open <ChevronRight className="w-2.5 h-2.5" />
-                            </span>
+                          {/* Center Embossed Title & Author */}
+                          <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-1 my-1 overflow-hidden">
+                            <h3 className="font-serif font-black text-xs sm:text-[13px] leading-snug line-clamp-3 text-amber-100 group-hover:text-white transition-colors drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
+                              {book.title}
+                            </h3>
+                            <p className="font-serif italic text-[10px] text-amber-300/75 truncate max-w-full mt-1.5 drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
+                              by {book.author}
+                            </p>
                           </div>
+
+                          {/* Bottom Filigree Band */}
+                          <div className="relative z-10 flex flex-col items-center">
+                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mb-0.5" />
+                            <span className="text-[8px] font-mono text-amber-200/60 uppercase tracking-widest">
+                              E-Reader Edition
+                            </span>
+                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mt-0.5" />
+                          </div>
+
+                          {/* Silk Bookmark Ribbon dangling over the shelf plank */}
+                          <div
+                            style={{ backgroundColor: palette.ribbon }}
+                            className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3.5 h-4 shadow-md pointer-events-none z-20 transition-transform group-hover:translate-y-1"
+                          >
+                            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black [clip-path:polygon(0_100%,50%_0,100%_100%)]" />
+                          </div>
+                        </div>
+
+                        {/* Realistic Book Pages Rim (Right edge) */}
+                        <div className="absolute top-1 bottom-1 -right-1 w-1.5 rounded-r-xs bg-gradient-to-r from-[#dfd6c5] to-[#f4eee1] shadow-[1px_2px_4px_rgba(0,0,0,0.6)] border-y border-r border-[#c2b79e] pointer-events-none flex flex-col justify-around py-2">
+                          <div className="w-full h-[0.5px] bg-[#beb196]/60" />
+                          <div className="w-full h-[0.5px] bg-[#beb196]/60" />
+                          <div className="w-full h-[0.5px] bg-[#beb196]/60" />
                         </div>
                       </div>
                     );
@@ -295,25 +279,27 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
 
                   {/* Add E-Book Tome Button on Last Shelf */}
                   {shelfIdx === shelves.length - 1 && (
-                    <button
-                      type="button"
-                      onClick={onAddBook}
-                      className={`h-[190px] rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 p-4 cursor-pointer transition-all hover:scale-[1.02] ${
-                        eInkMode === 'paper'
-                          ? 'border-[#c7bea8] hover:border-emerald-600 bg-[#eae3d4]/40 hover:bg-[#efe8da] text-[#544d41]'
-                          : 'border-[#284834] hover:border-emerald-400 bg-[#0d1812]/50 hover:bg-[#12231a] text-[#8ea896]'
-                      }`}
-                    >
-                      <div className="w-7 h-7 rounded-full bg-emerald-700/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                        <Plus className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="font-serif font-bold text-xs uppercase tracking-wider">
-                        + Add E-Book Tome
-                      </span>
-                      <span className="text-[10px] font-serif italic opacity-75">
-                        Download to Kindle
-                      </span>
-                    </button>
+                    <div className="flex justify-center pb-0">
+                      <button
+                        type="button"
+                        onClick={onAddBook}
+                        className={`w-[112px] sm:w-[130px] h-[170px] sm:h-[195px] rounded-r-lg rounded-l-[3px] border-2 border-dashed flex flex-col items-center justify-center gap-2 p-3 text-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] ${
+                          eInkMode === 'paper'
+                            ? 'border-[#c7bea8] hover:border-emerald-600 bg-[#eae3d4]/50 hover:bg-[#f1ebe0] text-[#544d41]'
+                            : 'border-[#284834] hover:border-emerald-400 bg-[#0d1812]/50 hover:bg-[#12231a] text-[#8ea896]'
+                        }`}
+                      >
+                        <div className="w-7 h-7 rounded-full bg-emerald-700/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-inner">
+                          <Plus className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="font-serif font-bold text-xs uppercase tracking-wider">
+                          + Add Tome
+                        </span>
+                        <span className="text-[9px] font-serif italic opacity-75">
+                          Download to Kindle
+                        </span>
+                      </button>
+                    </div>
                   )}
                 </div>
 

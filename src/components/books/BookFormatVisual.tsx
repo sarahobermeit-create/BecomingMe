@@ -116,21 +116,13 @@ export const BookFormatVisual: React.FC<BookFormatVisualProps> = ({
             </div>
 
             {/* E-Ink Screen Content: Title & Author */}
-            <div className="flex-1 flex flex-col items-center justify-center text-center px-0.5 my-0.5 overflow-hidden">
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-0.5 my-1 overflow-hidden">
               <span className="font-serif font-black text-[#14120f] text-[10px] leading-tight line-clamp-3">
                 {book.title}
               </span>
-              <span className="font-serif italic text-[#5c5445] text-[7.5px] truncate max-w-full mt-0.5">
+              <span className="font-serif italic text-[#5c5445] text-[7.5px] truncate max-w-full mt-1">
                 {book.author}
               </span>
-            </div>
-
-            {/* Progress Dots Bar on Kindle */}
-            <div className="w-full bg-[#ded6c3] h-1 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-[#2a261f] rounded-full"
-                style={{ width: `${progressPct}%` }}
-              />
             </div>
           </div>
 
@@ -202,22 +194,14 @@ export const BookFormatVisual: React.FC<BookFormatVisualProps> = ({
           </div>
 
           {/* Artwork & Prominent Title */}
-          <div className="flex-1 flex flex-col items-center justify-center text-center px-0.5 my-0.5 overflow-hidden">
-            <Volume2 className="w-3 h-3 text-emerald-400 mb-0.5 shrink-0 animate-pulse" />
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-0.5 my-1 overflow-hidden">
+            <Volume2 className="w-3 h-3 text-emerald-400 mb-0.5 shrink-0" />
             <span className="font-serif font-black text-white text-[9.5px] leading-tight line-clamp-3">
               {book.title}
             </span>
-            <span className="font-serif italic text-emerald-200/70 text-[7.5px] truncate max-w-full mt-0.5">
+            <span className="font-serif italic text-emerald-200/70 text-[7.5px] truncate max-w-full mt-1">
               {book.author}
             </span>
-          </div>
-
-          {/* Sound Wave Indicator Bar */}
-          <div className="w-full bg-emerald-950 h-1 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full"
-              style={{ width: `${progressPct}%` }}
-            />
           </div>
         </div>
 
