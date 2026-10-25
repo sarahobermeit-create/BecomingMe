@@ -79,7 +79,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     },
     {
       id: 'books',
-      label: 'Books Tracker',
+      label: 'Library',
       icon: BookOpen,
       accentColor: 'text-teal-400 group-hover:text-teal-300',
       badge: (s) => {

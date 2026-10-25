@@ -19,7 +19,7 @@ Repository: [https://github.com/sarahobermeit-create/BecomingMe](https://github.
 3. **Daily Meal Logs**: Track Breakfast, Lunch, Dinner, and Snacks with calories, nutritional tags (High Protein, Plant Power, Homemade), and preparation notes.
 4. **Water Consumption Tracker**: Interactive hydration visualizer with quick preset buttons (+150ml, +250ml, +500ml, +750ml), customizable daily targets, and 7-day consistency chart.
 5. **Budget & Spendings**: Net cashflow tracker with income inflows, categorized expenses (Groceries, Dining, Rent, Utilities, Fitness, etc.), and savings rate calculations.
-6. **Books Tracker**: Personal reading library with page progression bars, star ratings, categorized statuses (*Currently Reading*, *Want to Read*, *Finished*), and quote notes.
+6. **Library**: Personal reading library with page progression bars, star ratings, categorized statuses (*Currently Reading*, *Want to Read*, *Finished*), and quote notes.
 7. **Daily Mood & Energy**: Emotional check-in tracking 5 mood states, energy level slider (1 to 5), influencing factor tags, and daily mindfulness reflections.
 8. **Digital Junk Journal & Scrapbook**: Aesthetic scrapbook canvas with pastel color palettes, stickers (✨, ☕, 🌿, 🌙, 🕯️), songs on repeat, polaroid photo attachments, and pin-to-top memories.
 9. **Hobbies & Craft Mastery**: Dedicated hobby logs tracking hours invested, skill levels, weekly goals, and milestone completion checklists.
