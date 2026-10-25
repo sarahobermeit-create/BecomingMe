@@ -270,7 +270,7 @@ export function getState(db) {
       journalNote: m.journal_note || undefined,
     }));
 
-    const journalCards = journalRows.map((j) => ({
+    const journalEntries = journalRows.map((j) => ({
       id: j.id,
       date: j.date,
       title: j.title || '',
@@ -338,7 +338,7 @@ export function getState(db) {
       transactions,
       books,
       moods,
-      journalCards,
+      journalEntries,
       hobbies,
       workouts,
       ideas,
@@ -490,14 +490,15 @@ export function saveState(db, state) {
       }
     }
 
-    // 8. Journal cards
+    // 8. Journal cards / entries
     db.exec('DELETE FROM journal_cards;');
-    if (Array.isArray(state.journalCards)) {
+    const journalList = state.journalEntries || state.journalCards;
+    if (Array.isArray(journalList)) {
       const insertCard = db.prepare(`
         INSERT INTO journal_cards (id, date, title, content, color_scheme, tags, image_url, is_pinned, sticker, song)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
-      for (const j of state.journalCards) {
+      for (const j of journalList) {
         insertCard.run(
           toSql(j.id),
           toSql(j.date),

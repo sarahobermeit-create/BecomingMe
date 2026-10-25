@@ -72,16 +72,35 @@ const STORAGE_KEY = 'becoming_me_state_v1';
 
 const LifeContext = createContext<LifeContextType | undefined>(undefined);
 
+const sanitizeLifeState = (data: any): LifeState => {
+  if (!data || typeof data !== 'object') return initialLifeState;
+  return {
+    ...initialLifeState,
+    ...data,
+    books: Array.isArray(data.books) && data.books.length > 0 ? data.books : initialLifeState.books,
+    journalEntries: Array.isArray(data.journalEntries)
+      ? data.journalEntries
+      : (Array.isArray(data.journalCards) ? data.journalCards : initialLifeState.journalEntries),
+    routines: Array.isArray(data.routines) ? data.routines : initialLifeState.routines,
+    meals: Array.isArray(data.meals) ? data.meals : initialLifeState.meals,
+    transactions: Array.isArray(data.transactions) ? data.transactions : initialLifeState.transactions,
+    moods: Array.isArray(data.moods) ? data.moods : initialLifeState.moods,
+    hobbies: Array.isArray(data.hobbies) ? data.hobbies : initialLifeState.hobbies,
+    workouts: Array.isArray(data.workouts) ? data.workouts : initialLifeState.workouts,
+    ideas: Array.isArray(data.ideas) ? data.ideas : initialLifeState.ideas,
+    events: Array.isArray(data.events) ? data.events : initialLifeState.events,
+    waterLogs: data.waterLogs && typeof data.waterLogs === 'object' ? data.waterLogs : initialLifeState.waterLogs,
+    waterDailyTargetMl: Number(data.waterDailyTargetMl) || initialLifeState.waterDailyTargetMl,
+  };
+};
+
 export const LifeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<LifeState>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (!parsed.books || parsed.books.length === 0) {
-          parsed.books = initialLifeState.books;
-        }
-        return parsed;
+        return sanitizeLifeState(parsed);
       }
     } catch (e) {
       console.error('Failed to parse saved state:', e);
@@ -105,13 +124,11 @@ export const LifeProvider: React.FC<{ children: React.ReactNode }> = ({ children
       })
       .then((data) => {
         if (data && !data.notFound) {
-          if (!data.books || data.books.length === 0) {
-            data.books = initialLifeState.books;
-          }
+          const sanitized = sanitizeLifeState(data);
           isIncomingSyncRef.current = true;
-          setState(data);
+          setState(sanitized);
           try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
           } catch (e) {}
         }
       })
@@ -133,9 +150,10 @@ export const LifeProvider: React.FC<{ children: React.ReactNode }> = ({ children
           try {
             const incomingState = JSON.parse(event.data);
             if (incomingState && typeof incomingState === 'object') {
+              const sanitized = sanitizeLifeState(incomingState);
               isIncomingSyncRef.current = true;
-              setState(incomingState);
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(incomingState));
+              setState(sanitized);
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
             }
           } catch (err) {
             console.error('Error parsing live update:', err);
