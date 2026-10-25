@@ -882,7 +882,7 @@ export const BooksModule: React.FC = () => {
                               : undefined,
                             transformOrigin: 'center bottom',
                           }}
-                          className={`relative w-full h-full rounded-r-lg rounded-l-[3px] p-2 flex flex-col justify-between border-y border-r bg-gradient-to-r ${palette.gradient} transition-all duration-300 ease-out shadow-[-3px_10px_24px_rgba(0,0,0,0.85)] group-hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_24px_rgba(245,158,11,0.4)] ${
+                          className={`relative w-full h-full rounded-r-lg rounded-l-[3px] transition-all duration-300 ease-out shadow-[-3px_10px_24px_rgba(0,0,0,0.85)] group-hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_24px_rgba(245,158,11,0.4)] ${
                             !isPickedUp && !isDragOver && !isDragged
                               ? '[transform:perspective(750px)_rotateY(18deg)_rotateX(1.5deg)] group-hover:[transform:perspective(750px)_rotateY(6deg)_translateY(-8px)_scale(1.02)]'
                               : ''
@@ -894,76 +894,87 @@ export const BooksModule: React.FC = () => {
                               : 'hover:z-30'
                           }`}
                         >
-                          {/* 3D Cylindrical Spine Shading on Left Edge */}
-                          <div className="absolute inset-y-0 left-0 w-3.5 bg-gradient-to-r from-black/80 via-white/10 to-black/35 pointer-events-none rounded-l-[3px]" />
-                          <div className="absolute inset-y-0 left-3.5 w-[1px] bg-black/50 pointer-events-none" />
+                          {/* Book Face: Uses Whole Cover Art as the Book */}
+                          <div className="relative w-full h-full rounded-r-lg rounded-l-[3px] overflow-hidden bg-[#0c0603] border border-amber-950/70">
+                            {book.coverUrl ? (
+                              <>
+                                {/* Whole Cover Art filling the entire book face */}
+                                <img
+                                  src={book.coverUrl}
+                                  alt={book.title}
+                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                                  loading="lazy"
+                                />
+
+                                {/* Realistic Hardcover Light Sheen Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-tr from-black/45 via-transparent to-white/10 pointer-events-none" />
+
+                                {/* Hardcover Crease Line near Spine */}
+                                <div className="absolute inset-y-0 left-3 w-[1px] bg-black/45 shadow-[1px_0_1px_rgba(255,255,255,0.15)] pointer-events-none" />
+
+                                {/* Reading Status Badge in Top Corner */}
+                                <div className="absolute top-2 right-2 z-20 pointer-events-none">
+                                  <span
+                                    className={`text-[8px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow-lg backdrop-blur-md border ${
+                                      book.status === 'reading'
+                                        ? 'bg-emerald-950/90 text-emerald-300 border-emerald-400/60 shadow-emerald-950/50'
+                                        : book.status === 'want_to_read'
+                                        ? 'bg-amber-950/90 text-amber-300 border-amber-400/60 shadow-amber-950/50'
+                                        : book.status === 'completed'
+                                        ? 'bg-[#181105]/90 text-amber-200 border-amber-300/60 shadow-amber-950/50'
+                                        : book.status === 'dnf'
+                                        ? 'bg-rose-950/90 text-rose-300 border-rose-400/60 shadow-rose-950/50'
+                                        : 'bg-black/85 text-slate-300 border-slate-500/40'
+                                    }`}
+                                  >
+                                    {book.status === 'reading'
+                                      ? `${progressPct}%`
+                                      : book.status === 'want_to_read'
+                                      ? 'Next'
+                                      : book.status === 'completed'
+                                      ? '★ Done'
+                                      : book.status === 'dnf'
+                                      ? '✕ DNF'
+                                      : 'Tome'}
+                                  </span>
+                                </div>
+                              </>
+                            ) : (
+                              /* Fallback Embossed Leather Face for books without cover image */
+                              <div
+                                className={`w-full h-full p-2.5 flex flex-col justify-between bg-gradient-to-r ${palette.gradient}`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[8px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border border-amber-400/40 text-amber-200">
+                                    {book.status === 'reading' ? `${progressPct}%` : 'Tome'}
+                                  </span>
+                                  <BookOpen className="w-3 h-3 text-amber-300/80" />
+                                </div>
+                                <div className="text-center px-1">
+                                  <h3 className="font-serif font-black text-xs leading-tight line-clamp-3 text-amber-100">
+                                    {book.title}
+                                  </h3>
+                                  <p className="font-serif italic text-[9.5px] text-amber-300/75 truncate mt-1">
+                                    by {book.author}
+                                  </p>
+                                </div>
+                                <div className="text-center">
+                                  <span className="text-[7.5px] font-mono text-amber-200/60 uppercase tracking-widest">
+                                    Hardcover Edition
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* 3D Cylindrical Spine Shading on Left Edge */}
+                            <div className="absolute inset-y-0 left-0 w-3 bg-gradient-to-r from-black/80 via-white/10 to-transparent pointer-events-none rounded-l-[3px]" />
+                          </div>
 
                           {/* 3D Paper Pages Rim (Right edge showing page thickness) */}
                           <div className="absolute top-1 bottom-1 -right-1.5 w-1.5 rounded-r-xs bg-gradient-to-r from-[#d8ceb9] via-[#f1eadb] to-[#dfd6c5] shadow-[2px_3px_6px_rgba(0,0,0,0.7)] border-y border-r border-[#beaf91] pointer-events-none flex flex-col justify-around py-3">
                             <div className="w-full h-[0.5px] bg-[#beb196]/60" />
                             <div className="w-full h-[0.5px] bg-[#beb196]/60" />
                             <div className="w-full h-[0.5px] bg-[#beb196]/60" />
-                          </div>
-
-                          {/* Top Filigree Band & Status Emblem */}
-                          <div className="relative z-10 flex flex-col items-center">
-                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mb-1" />
-                            <div className="flex items-center justify-between w-full px-0.5">
-                              <span
-                                className={`text-[8px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-full border ${
-                                  book.status === 'reading'
-                                    ? 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50'
-                                    : book.status === 'want_to_read'
-                                    ? 'bg-amber-500/30 text-amber-300 border-amber-400/50'
-                                    : book.status === 'completed'
-                                    ? 'bg-amber-400/30 text-amber-200 border-amber-300/50'
-                                    : book.status === 'dnf'
-                                    ? 'bg-rose-500/30 text-rose-300 border-rose-400/50'
-                                    : 'bg-slate-700/50 text-slate-300 border-slate-500/40'
-                                }`}
-                              >
-                                {book.status === 'reading'
-                                  ? `${progressPct}%`
-                                  : book.status === 'want_to_read'
-                                  ? 'Next'
-                                  : book.status === 'completed'
-                                  ? '★ Done'
-                                  : book.status === 'dnf'
-                                  ? '✕ DNF'
-                                  : 'Tome'}
-                              </span>
-                              <BookOpen className="w-3 h-3 text-amber-300/80" />
-                            </div>
-                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mt-1" />
-                          </div>
-
-                          {/* Center: Front Cover Display */}
-                          <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-1 my-0.5 overflow-hidden">
-                            {book.coverUrl ? (
-                              <div className="w-full max-h-[105px] sm:max-h-[118px] rounded overflow-hidden shadow-md border border-amber-400/50 bg-black shrink-0 mb-1">
-                                <img
-                                  src={book.coverUrl}
-                                  alt={book.title}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                  loading="lazy"
-                                />
-                              </div>
-                            ) : null}
-                            <h3 className="font-serif font-black text-xs leading-tight line-clamp-2 text-amber-100 group-hover:text-white transition-colors drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
-                              {book.title}
-                            </h3>
-                            <p className="font-serif italic text-[9.5px] text-amber-300/75 truncate max-w-full mt-0.5 drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
-                              by {book.author}
-                            </p>
-                          </div>
-
-                          {/* Bottom Gilt Band & Edition Note */}
-                          <div className="relative z-10 flex flex-col items-center">
-                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mb-0.5" />
-                            <span className="text-[7.5px] font-mono text-amber-200/60 uppercase tracking-widest truncate max-w-full">
-                              Hardcover Tome
-                            </span>
-                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mt-0.5" />
                           </div>
 
                           {/* Silk Bookmark Ribbon dangling over the shelf plank */}

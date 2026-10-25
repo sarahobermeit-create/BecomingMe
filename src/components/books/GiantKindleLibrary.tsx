@@ -150,67 +150,75 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
                         {/* Book Body: Upright Hardcover Sitting on Shelf Plank */}
                         <div
                           style={{ borderColor: palette.border }}
-                          className={`relative w-[112px] sm:w-[130px] h-[170px] sm:h-[195px] rounded-r-lg rounded-l-[3px] p-2 flex flex-col justify-between shadow-[2px_8px_20px_rgba(0,0,0,0.85)] border-y border-r bg-gradient-to-r ${palette.gradient} transition-shadow duration-300 group-hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_20px_rgba(52,211,153,0.35)]`}
+                          className={`relative w-[112px] sm:w-[130px] h-[170px] sm:h-[195px] rounded-r-lg rounded-l-[3px] shadow-[2px_8px_20px_rgba(0,0,0,0.85)] border-y border-r transition-all duration-300 group-hover:shadow-[0_20px_35px_rgba(0,0,0,0.95),0_0_20px_rgba(52,211,153,0.35)] overflow-visible`}
                         >
-                          {/* 3D Cylindrical Spine Shading on Left */}
-                          <div className="absolute inset-y-0 left-0 w-3 bg-gradient-to-r from-black/70 via-transparent to-black/25 pointer-events-none rounded-l-[3px]" />
-                          <div className="absolute inset-y-0 left-3 w-[1px] bg-black/40 pointer-events-none" />
-
-                          {/* Top Filigree Band & Status Emblem */}
-                          <div className="relative z-10 flex flex-col items-center">
-                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mb-1" />
-                            <div className="flex items-center justify-between w-full px-0.5">
-                              <span
-                                className={`text-[8px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-full border ${
-                                  book.status === 'reading'
-                                    ? 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50'
-                                    : book.status === 'want_to_read'
-                                    ? 'bg-amber-500/30 text-amber-300 border-amber-400/50'
-                                    : book.status === 'dnf'
-                                    ? 'bg-rose-500/30 text-rose-300 border-rose-400/50'
-                                    : 'bg-slate-700/50 text-slate-300 border-slate-500/40'
-                                }`}
-                              >
-                                {book.status === 'reading'
-                                  ? 'Reading'
-                                  : book.status === 'want_to_read'
-                                  ? 'Next'
-                                  : book.status === 'dnf'
-                                  ? 'DNF'
-                                  : 'Done'}
-                              </span>
-                              <BookOpen className="w-3 h-3 text-amber-300/80" />
-                            </div>
-                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mt-1" />
-                          </div>
-
-                          {/* Center Embossed Title & Author or Cover Art */}
-                          <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-1 my-0.5 overflow-hidden">
+                          {/* Book Face: Whole Cover Art or Embossed Leather Face */}
+                          <div className="relative w-full h-full rounded-r-lg rounded-l-[3px] overflow-hidden bg-[#0a180f] border border-emerald-950/70">
                             {book.coverUrl ? (
-                              <div className="w-14 h-20 sm:w-16 sm:h-24 rounded overflow-hidden shadow-md border border-amber-400/40 bg-black shrink-0 mb-1">
+                              <>
+                                {/* Whole Cover Art filling the entire book face */}
                                 <img
                                   src={book.coverUrl}
                                   alt={book.title}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                                   loading="lazy"
                                 />
-                              </div>
-                            ) : null}
-                            <h3 className="font-serif font-black text-xs leading-tight line-clamp-2 text-amber-100 group-hover:text-white transition-colors drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
-                              {book.title}
-                            </h3>
-                            <p className="font-serif italic text-[9.5px] text-amber-300/75 truncate max-w-full mt-0.5 drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
-                              by {book.author}
-                            </p>
-                          </div>
 
-                          {/* Bottom Filigree Band */}
-                          <div className="relative z-10 flex flex-col items-center">
-                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mb-0.5" />
-                            <span className="text-[8px] font-mono text-amber-200/60 uppercase tracking-widest">
-                              E-Reader Edition
-                            </span>
-                            <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mt-0.5" />
+                                {/* Subtle Lighting Sheen */}
+                                <div className="absolute inset-0 bg-gradient-to-tr from-black/45 via-transparent to-white/10 pointer-events-none" />
+
+                                {/* Reading Status Badge Overlay in Top Corner */}
+                                <div className="absolute top-2 right-2 z-20 pointer-events-none">
+                                  <span
+                                    className={`text-[8px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow-lg backdrop-blur-md border ${
+                                      book.status === 'reading'
+                                        ? 'bg-emerald-950/90 text-emerald-300 border-emerald-400/60 shadow-emerald-950/50'
+                                        : book.status === 'want_to_read'
+                                        ? 'bg-amber-950/90 text-amber-300 border-amber-400/60 shadow-amber-950/50'
+                                        : book.status === 'dnf'
+                                        ? 'bg-rose-950/90 text-rose-300 border-rose-400/60 shadow-rose-950/50'
+                                        : 'bg-black/85 text-slate-300 border-slate-500/40'
+                                    }`}
+                                  >
+                                    {book.status === 'reading'
+                                      ? 'Reading'
+                                      : book.status === 'want_to_read'
+                                      ? 'Next'
+                                      : book.status === 'dnf'
+                                      ? 'DNF'
+                                      : 'Done'}
+                                  </span>
+                                </div>
+                              </>
+                            ) : (
+                              /* Fallback Leather Face */
+                              <div
+                                className={`w-full h-full p-2 flex flex-col justify-between bg-gradient-to-r ${palette.gradient}`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[8px] font-mono font-bold uppercase px-1.5 py-0.2 rounded-full border border-emerald-400/50 text-emerald-300">
+                                    {book.status === 'reading' ? 'Reading' : 'Done'}
+                                  </span>
+                                  <BookOpen className="w-3 h-3 text-amber-300/80" />
+                                </div>
+                                <div className="text-center px-1">
+                                  <h3 className="font-serif font-black text-xs leading-tight line-clamp-3 text-amber-100">
+                                    {book.title}
+                                  </h3>
+                                  <p className="font-serif italic text-[9.5px] text-amber-300/75 truncate mt-1">
+                                    by {book.author}
+                                  </p>
+                                </div>
+                                <div className="text-center">
+                                  <span className="text-[8px] font-mono text-amber-200/60 uppercase tracking-widest">
+                                    E-Reader Edition
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* 3D Cylindrical Spine Shading on Left */}
+                            <div className="absolute inset-y-0 left-0 w-3 bg-gradient-to-r from-black/80 via-white/10 to-transparent pointer-events-none rounded-l-[3px]" />
                           </div>
 
                           {/* Silk Bookmark Ribbon dangling over the shelf plank */}
