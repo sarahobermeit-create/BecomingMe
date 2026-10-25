@@ -44,6 +44,116 @@ function localSyncPlugin(): Plugin {
           return
         }
 
+        // GET /api/isbn?isbn=...
+        if (req.url?.startsWith('/api/isbn') && req.method === 'GET') {
+          const urlObj = new URL(req.url, 'http://localhost')
+          const isbn = urlObj.searchParams.get('isbn')?.trim() || ''
+          res.setHeader('Content-Type', 'application/json')
+          res.setHeader('Access-Control-Allow-Origin', '*')
+
+          if (!isbn) {
+            res.statusCode = 400
+            res.end(JSON.stringify({ error: 'Missing isbn parameter' }))
+            return
+          }
+
+          ;(async () => {
+            try {
+              // 1. Try Open Library jscmd=data (rich metadata & cover)
+              const olRes = await fetch(
+                `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`
+              )
+              if (olRes.ok) {
+                const olData = (await olRes.json()) as any
+                const b = olData?.[`ISBN:${isbn}`]
+                if (b && b.title) {
+                  const author = b.authors?.map((a: any) => a.name).join(', ') || ''
+                  const coverUrl =
+                    b.cover?.large ||
+                    b.cover?.medium ||
+                    `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`
+                  const quote = b.excerpts?.[0]?.text || ''
+                  const description =
+                    typeof b.description === 'string'
+                      ? b.description
+                      : b.description?.value || ''
+
+                  res.end(
+                    JSON.stringify({
+                      title: b.title,
+                      author,
+                      totalPages: Number(b.number_of_pages) || 300,
+                      coverUrl,
+                      quote,
+                      description,
+                      publishYear: b.publish_date || '',
+                    })
+                  )
+                  return
+                }
+              }
+
+              // 2. Try Open Library search.json
+              const searchRes = await fetch(`https://openlibrary.org/search.json?isbn=${isbn}`)
+              if (searchRes.ok) {
+                const searchData = (await searchRes.json()) as any
+                if (searchData?.docs && searchData.docs.length > 0) {
+                  const doc = searchData.docs[0]
+                  const author = doc.author_name?.join(', ') || ''
+                  const coverUrl = doc.cover_i
+                    ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`
+                    : `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`
+
+                  res.end(
+                    JSON.stringify({
+                      title: doc.title,
+                      author,
+                      totalPages: Number(doc.number_of_pages_median) || 300,
+                      coverUrl,
+                      publishYear: doc.first_publish_year?.toString() || '',
+                    })
+                  )
+                  return
+                }
+              }
+
+              // 3. Try direct ISBN endpoint
+              const directRes = await fetch(`https://openlibrary.org/isbn/${isbn}.json`)
+              if (directRes.ok) {
+                const directData = (await directRes.json()) as any
+                if (directData && directData.title) {
+                  let author = ''
+                  if (directData.authors?.[0]?.key) {
+                    try {
+                      const aRes = await fetch(`https://openlibrary.org${directData.authors[0].key}.json`)
+                      if (aRes.ok) {
+                        const aData = (await aRes.json()) as any
+                        author = aData?.name || ''
+                      }
+                    } catch {}
+                  }
+                  res.end(
+                    JSON.stringify({
+                      title: directData.title,
+                      author,
+                      totalPages: Number(directData.number_of_pages) || 300,
+                      coverUrl: `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`,
+                    })
+                  )
+                  return
+                }
+              }
+
+              res.statusCode = 404
+              res.end(JSON.stringify({ error: `No book found for ISBN ${isbn}` }))
+            } catch (err: any) {
+              res.statusCode = 500
+              res.end(JSON.stringify({ error: err.message || 'Lookup failed' }))
+            }
+          })()
+          return
+        }
+
         // POST /api/state
         if (req.url === '/api/state' && req.method === 'POST') {
           let body = ''

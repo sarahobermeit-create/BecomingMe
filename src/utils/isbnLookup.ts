@@ -10,63 +10,125 @@ export interface IsbnBookData {
 
 /**
  * Normalizes an ISBN string to pure alphanumeric digits (handles ISBN-10 with 'X').
+ * Strips common prefixes like 'ISBN:', 'ISBN-13:', 'ISBN 10:', dashes, and spaces.
  */
 export const normalizeIsbn = (isbn: string): string => {
-  return isbn.replace(/[^0-9X]/gi, '').trim().toUpperCase();
+  let cleaned = isbn.trim().replace(/^isbn(?:[\s-]*1[03])?:?\s*/i, '');
+  cleaned = cleaned.replace(/[^0-9X]/gi, '').toUpperCase();
+  return cleaned;
+};
+
+/**
+ * Performs a browser JSONP request (immune to browser CORS restrictions).
+ */
+const fetchJsonp = (url: string, callbackParam: string = 'callback'): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    if (typeof document === 'undefined') {
+      return reject(new Error('JSONP only supported in browser environment'));
+    }
+
+    const callbackName = 'ol_cb_' + Math.round(1000000 * Math.random());
+    const script = document.createElement('script');
+    const separator = url.includes('?') ? '&' : '?';
+    script.src = `${url}${separator}${callbackParam}=${callbackName}`;
+
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error('ISBN lookup timed out'));
+    }, 7000);
+
+    const cleanup = () => {
+      clearTimeout(timeout);
+      delete (window as any)[callbackName];
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+
+    (window as any)[callbackName] = (data: any) => {
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('JSONP request failed'));
+    };
+
+    document.head.appendChild(script);
+  });
 };
 
 /**
  * Fetches book metadata and high-resolution cover art by ISBN.
- * Queries Open Library as primary (free, reliable, CORS-enabled, no key needed)
- * with direct Open Library endpoints and Google Books as fallback.
+ * Tries local Vite proxy first, then JSONP (CORS-free), then direct Open Library endpoints.
  */
 export const lookupBookByIsbn = async (isbnRaw: string): Promise<IsbnBookData> => {
   const cleanIsbn = normalizeIsbn(isbnRaw);
 
   if (cleanIsbn.length !== 10 && cleanIsbn.length !== 13) {
-    throw new Error('Please enter a valid 10 or 13-digit ISBN.');
+    throw new Error('Please enter a valid 10 or 13-digit ISBN (e.g. 9780141439518).');
   }
 
-  // 1. Try Open Library Data API (jscmd=data provides rich excerpts, author, and cover)
+  // 1. Try local server endpoint (/api/isbn proxy in Vite - 100% reliable, no browser CORS)
   try {
-    const res = await fetch(
-      `https://openlibrary.org/api/books?bibkeys=ISBN:${cleanIsbn}&format=json&jscmd=data`
-    );
+    const res = await fetch(`/api/isbn?isbn=${cleanIsbn}`);
     if (res.ok) {
       const data = await res.json();
-      const bookData = data[`ISBN:${cleanIsbn}`];
-      if (bookData && bookData.title) {
-        const title = bookData.title || '';
-        const author =
-          bookData.authors?.map((a: { name: string }) => a.name).join(', ') || '';
-        const totalPages = bookData.number_of_pages || 0;
-        const coverUrl =
-          bookData.cover?.large ||
-          bookData.cover?.medium ||
-          `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg`;
-
-        const quote = bookData.excerpts?.[0]?.text || '';
-        const description =
-          typeof bookData.description === 'string'
-            ? bookData.description
-            : bookData.description?.value || '';
-
+      if (data && data.title) {
         return {
-          title,
-          author,
-          totalPages: Number(totalPages) || 300,
-          coverUrl,
-          quote,
-          description,
-          publishYear: bookData.publish_date || '',
+          title: data.title,
+          author: data.author || '',
+          totalPages: Number(data.totalPages) || 300,
+          coverUrl: data.coverUrl || `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg`,
+          quote: data.quote || '',
+          description: data.description || '',
+          publishYear: data.publishYear || '',
         };
       }
     }
   } catch (err) {
-    console.warn('Open Library jscmd=data failed, trying fallback endpoints...', err);
+    console.warn('Local /api/isbn proxy failed, falling back to browser methods...', err);
   }
 
-  // 2. Try Open Library direct ISBN endpoint
+  // 2. Try Open Library JSONP (completely exempt from browser CORS policy)
+  try {
+    const data = await fetchJsonp(
+      `https://openlibrary.org/api/books?bibkeys=ISBN:${cleanIsbn}&format=json&jscmd=data`,
+      'callback'
+    );
+    const bookData = data?.[`ISBN:${cleanIsbn}`];
+    if (bookData && bookData.title) {
+      const title = bookData.title || '';
+      const author =
+        bookData.authors?.map((a: { name: string }) => a.name).join(', ') || '';
+      const totalPages = bookData.number_of_pages || 0;
+      const coverUrl =
+        bookData.cover?.large ||
+        bookData.cover?.medium ||
+        `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg`;
+
+      const quote = bookData.excerpts?.[0]?.text || '';
+      const description =
+        typeof bookData.description === 'string'
+          ? bookData.description
+          : bookData.description?.value || '';
+
+      return {
+        title,
+        author,
+        totalPages: Number(totalPages) || 300,
+        coverUrl,
+        quote,
+        description,
+        publishYear: bookData.publish_date || '',
+      };
+    }
+  } catch (err) {
+    console.warn('Open Library JSONP failed, trying direct endpoint...', err);
+  }
+
+  // 3. Try direct Open Library ISBN endpoint (has CORS: * header)
   try {
     const res = await fetch(`https://openlibrary.org/isbn/${cleanIsbn}.json`);
     if (res.ok) {
@@ -101,33 +163,6 @@ export const lookupBookByIsbn = async (isbnRaw: string): Promise<IsbnBookData> =
     }
   } catch (err) {
     console.warn('Open Library direct ISBN endpoint failed...', err);
-  }
-
-  // 3. Fallback to Google Books API (works in browser clients)
-  try {
-    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanIsbn}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.items && data.items.length > 0) {
-        const vol = data.items[0].volumeInfo;
-        const cover =
-          vol.imageLinks?.thumbnail ||
-          vol.imageLinks?.small ||
-          vol.imageLinks?.medium ||
-          vol.imageLinks?.large ||
-          `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg`;
-
-        return {
-          title: vol.title || '',
-          author: vol.authors?.join(', ') || '',
-          totalPages: Number(vol.pageCount) || 300,
-          coverUrl: cover.replace('http://', 'https://'),
-          description: vol.description || '',
-        };
-      }
-    }
-  } catch (err) {
-    console.warn('Google Books fallback failed...', err);
   }
 
   throw new Error(`No book found for ISBN "${isbnRaw}". Check the number or enter details manually.`);
