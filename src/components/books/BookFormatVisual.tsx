@@ -60,16 +60,27 @@ export const BookFormatVisual: React.FC<BookFormatVisualProps> = ({
             <div className="w-4 h-[1px] bg-amber-400/80" />
           </div>
 
-          {/* Center Book Title & Embossed Emblem */}
-          <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-0.5 overflow-hidden my-0.5">
-            <BookOpen className="w-3 h-3 text-amber-300/80 mb-0.5 shrink-0" />
-            <span className="font-serif font-black text-amber-100 text-[10px] leading-tight line-clamp-3 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-              {book.title}
-            </span>
-            <span className="font-serif italic text-amber-300/70 text-[8px] truncate max-w-full mt-0.5">
-              {book.author}
-            </span>
-          </div>
+          {/* Center Book Cover Artwork or Title & Embossed Emblem */}
+          {book.coverUrl ? (
+            <div className="relative z-10 flex-1 my-0.5 rounded overflow-hidden shadow-md border border-amber-400/40 bg-black">
+              <img
+                src={book.coverUrl}
+                alt={book.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                loading="lazy"
+              />
+            </div>
+          ) : (
+            <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-0.5 overflow-hidden my-0.5">
+              <BookOpen className="w-3 h-3 text-amber-300/80 mb-0.5 shrink-0" />
+              <span className="font-serif font-black text-amber-100 text-[10px] leading-tight line-clamp-3 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                {book.title}
+              </span>
+              <span className="font-serif italic text-amber-300/70 text-[8px] truncate max-w-full mt-0.5">
+                {book.author}
+              </span>
+            </div>
+          )}
 
           {/* Bottom Gold Gilt Band */}
           <div className="w-full flex flex-col items-center gap-0.5 relative z-10">
@@ -115,15 +126,26 @@ export const BookFormatVisual: React.FC<BookFormatVisualProps> = ({
               </div>
             </div>
 
-            {/* E-Ink Screen Content: Title & Author */}
-            <div className="flex-1 flex flex-col items-center justify-center text-center px-0.5 my-1 overflow-hidden">
-              <span className="font-serif font-black text-white text-[10px] leading-tight line-clamp-3">
-                {book.title}
-              </span>
-              <span className="font-serif italic text-emerald-200/80 text-[7.5px] truncate max-w-full mt-1">
-                {book.author}
-              </span>
-            </div>
+            {/* E-Ink Screen Content: Cover Art or Title & Author */}
+            {book.coverUrl ? (
+              <div className="flex-1 my-0.5 rounded overflow-hidden shadow-inner border border-emerald-500/30 bg-black flex items-center justify-center">
+                <img
+                  src={book.coverUrl}
+                  alt={book.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                  loading="lazy"
+                />
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center px-0.5 my-1 overflow-hidden">
+                <span className="font-serif font-black text-white text-[10px] leading-tight line-clamp-3">
+                  {book.title}
+                </span>
+                <span className="font-serif italic text-emerald-200/80 text-[7.5px] truncate max-w-full mt-1">
+                  {book.author}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Bottom Kindle Bezel Logo */}

@@ -184,12 +184,22 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
                             <div className="w-full h-1 bg-gradient-to-r from-amber-600/70 via-amber-300 to-amber-600/70 rounded shadow-sm border-y border-amber-950/70 mt-1" />
                           </div>
 
-                          {/* Center Embossed Title & Author */}
-                          <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-1 my-1 overflow-hidden">
-                            <h3 className="font-serif font-black text-xs sm:text-[13px] leading-snug line-clamp-3 text-amber-100 group-hover:text-white transition-colors drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
+                          {/* Center Embossed Title & Author or Cover Art */}
+                          <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-1 my-0.5 overflow-hidden">
+                            {book.coverUrl ? (
+                              <div className="w-14 h-20 sm:w-16 sm:h-24 rounded overflow-hidden shadow-md border border-amber-400/40 bg-black shrink-0 mb-1">
+                                <img
+                                  src={book.coverUrl}
+                                  alt={book.title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                  loading="lazy"
+                                />
+                              </div>
+                            ) : null}
+                            <h3 className="font-serif font-black text-xs leading-tight line-clamp-2 text-amber-100 group-hover:text-white transition-colors drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
                               {book.title}
                             </h3>
-                            <p className="font-serif italic text-[10px] text-amber-300/75 truncate max-w-full mt-1.5 drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
+                            <p className="font-serif italic text-[9.5px] text-amber-300/75 truncate max-w-full mt-0.5 drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
                               by {book.author}
                             </p>
                           </div>

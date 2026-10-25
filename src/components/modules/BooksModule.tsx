@@ -26,9 +26,13 @@ import {
   Hand,
   Check,
   Flame,
+  Search,
+  Loader2,
+  CheckCircle2,
 } from 'lucide-react';
 import { Book, BookStatus, BookFormat } from '../../types';
 import { calculateDailyReadingStreak } from '../../utils/streak';
+import { lookupBookByIsbn } from '../../utils/isbnLookup';
 import { RealisticRavenBookend } from '../common/RealisticRavenBookend';
 import { KindleScreen } from '../common/KindleScreen';
 import { HeadphonesOverCorner } from '../common/HeadphonesOverCorner';
@@ -118,6 +122,12 @@ export const BooksModule: React.FC = () => {
   const [notes, setNotes] = useState('');
   const [quoteInput, setQuoteInput] = useState('');
 
+  // ISBN Auto-Fill lookup state
+  const [isbnInput, setIsbnInput] = useState('');
+  const [isSearchingIsbn, setIsSearchingIsbn] = useState(false);
+  const [isbnError, setIsbnError] = useState<string | null>(null);
+  const [isbnSuccessMessage, setIsbnSuccessMessage] = useState<string | null>(null);
+
   // Audio player playback simulation state
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
 
@@ -204,7 +214,43 @@ export const BooksModule: React.FC = () => {
     setCoverUrl('');
     setNotes('');
     setQuoteInput('');
+    setIsbnInput('');
+    setIsbnError(null);
+    setIsbnSuccessMessage(null);
     setShowAddModal(false);
+  };
+
+  const handleIsbnLookup = async () => {
+    if (!isbnInput.trim()) {
+      setIsbnError('Please enter a 10 or 13-digit ISBN number.');
+      return;
+    }
+
+    setIsSearchingIsbn(true);
+    setIsbnError(null);
+    setIsbnSuccessMessage(null);
+
+    try {
+      const data = await lookupBookByIsbn(isbnInput);
+      setTitle(data.title);
+      setAuthor(data.author);
+      if (data.totalPages > 0) {
+        setTotalPages(data.totalPages.toString());
+      }
+      if (data.coverUrl) {
+        setCoverUrl(data.coverUrl);
+      }
+      if (data.quote) {
+        setQuoteInput(data.quote);
+      } else if (data.description) {
+        setNotes(data.description.slice(0, 300));
+      }
+      setIsbnSuccessMessage(`Found "${data.title}" by ${data.author || 'Author'}! Book details & cover art populated.`);
+    } catch (err: any) {
+      setIsbnError(err.message || 'Book not found for this ISBN.');
+    } finally {
+      setIsSearchingIsbn(false);
+    }
   };
 
   const handleUpdatePage = (book: Book, newPage: number) => {
@@ -826,6 +872,21 @@ export const BooksModule: React.FC = () => {
                           </div>
                         )}
 
+                        {/* Floating Cover Art Hover Preview */}
+                        {!pickedUpBookId && !rearrangeMode && book.coverUrl && (
+                          <div className="absolute -top-40 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none transition-all duration-200">
+                            <div className="w-22 h-32 rounded-lg overflow-hidden shadow-[0_16px_36px_rgba(0,0,0,0.95)] border-2 border-amber-400/90 bg-black">
+                              <img
+                                src={book.coverUrl}
+                                alt={book.title}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                            </div>
+                            <div className="w-2 h-2 bg-amber-400 rotate-45 -mt-1 shadow" />
+                          </div>
+                        )}
+
                         {/* Target slot indicator when another book is picked up */}
                         {pickedUpBookId && !isPickedUp && (
                           <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-amber-400 text-black font-bold text-[9px] px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap transition-opacity pointer-events-none z-50">
@@ -1386,7 +1447,12 @@ export const BooksModule: React.FC = () => {
                 <span>Add Tome to Library</span>
               </h3>
               <button
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setIsbnInput('');
+                  setIsbnError(null);
+                  setIsbnSuccessMessage(null);
+                  setShowAddModal(false);
+                }}
                 className="text-slate-400 hover:text-white text-xs px-2 py-1 rounded cursor-pointer"
               >
                 ✕
@@ -1432,6 +1498,69 @@ export const BooksModule: React.FC = () => {
                     🎧 Audiobook
                   </button>
                 </div>
+              </div>
+
+              {/* ISBN Auto-Fill Section */}
+              <div className="bg-gradient-to-r from-emerald-950/60 via-[#0a2014] to-emerald-950/60 border border-emerald-500/35 rounded-xl p-3 shadow-inner">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-emerald-300 font-semibold flex items-center gap-1.5 text-xs">
+                    <Search className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Auto-Fill from ISBN</span>
+                  </label>
+                  <span className="text-[10px] text-emerald-400/70 font-mono">10 or 13 digits</span>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="e.g. 9780141439518 or 0451524934"
+                    value={isbnInput}
+                    onChange={(e) => {
+                      setIsbnInput(e.target.value);
+                      if (isbnError) setIsbnError(null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleIsbnLookup();
+                      }
+                    }}
+                    className="flex-1 glass-input px-3 py-2 rounded-xl text-xs font-mono placeholder:text-slate-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleIsbnLookup}
+                    disabled={isSearchingIsbn || !isbnInput.trim()}
+                    className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium text-xs flex items-center gap-1.5 transition-all shadow cursor-pointer shrink-0"
+                  >
+                    {isSearchingIsbn ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Finding...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Search className="w-3.5 h-3.5" />
+                        <span>Find Book</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Success Message Banner */}
+                {isbnSuccessMessage && (
+                  <div className="mt-2.5 p-2 rounded-lg bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 text-[11px] flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{isbnSuccessMessage}</span>
+                  </div>
+                )}
+
+                {/* Error Message Banner */}
+                {isbnError && (
+                  <div className="mt-2.5 p-2 rounded-lg bg-rose-500/15 border border-rose-400/40 text-rose-200 text-[11px] flex items-center gap-2">
+                    <span className="shrink-0 text-rose-400 font-bold">✕</span>
+                    <span>{isbnError}</span>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -1523,13 +1652,20 @@ export const BooksModule: React.FC = () => {
 
               <div>
                 <label className="block text-slate-300 font-medium mb-1">Cover Image URL (Optional)</label>
-                <input
-                  type="url"
-                  placeholder="https://..."
-                  value={coverUrl}
-                  onChange={(e) => setCoverUrl(e.target.value)}
-                  className="w-full glass-input px-3 py-2 rounded-xl text-xs"
-                />
+                <div className="flex gap-2.5 items-center">
+                  {coverUrl && (
+                    <div className="w-12 h-16 shrink-0 rounded-md overflow-hidden border border-emerald-400/50 shadow-md bg-black">
+                      <img src={coverUrl} alt="Cover preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <input
+                    type="url"
+                    placeholder="https://... (auto-filled by ISBN or custom)"
+                    value={coverUrl}
+                    onChange={(e) => setCoverUrl(e.target.value)}
+                    className="flex-1 glass-input px-3 py-2 rounded-xl text-xs"
+                  />
+                </div>
               </div>
 
               <div>
@@ -1546,7 +1682,12 @@ export const BooksModule: React.FC = () => {
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => {
+                    setIsbnInput('');
+                    setIsbnError(null);
+                    setIsbnSuccessMessage(null);
+                    setShowAddModal(false);
+                  }}
                   className="px-3 py-2 rounded-xl bg-white/[0.05] text-slate-300 hover:bg-white/[0.1] cursor-pointer"
                 >
                   Cancel
