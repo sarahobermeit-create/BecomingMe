@@ -9,6 +9,8 @@ import {
   CheckCircle,
   Bookmark,
   BookMarked,
+  Sparkles,
+  Flame,
 } from 'lucide-react';
 import { Book, BookStatus } from '../../types';
 
@@ -73,26 +75,50 @@ export const BooksModule: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl lg:text-2xl font-bold text-white flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-emerald-400" />
-            <span>Welcome To Your Library</span>
-          </h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Build your personal library, track page progress, and save meaningful quotes.
-          </p>
-        </div>
+    <div className="relative min-h-full space-y-6 -m-4 md:-m-6 lg:-m-8 p-4 md:p-6 lg:p-8 rounded-3xl overflow-hidden">
+      {/* Victorian Library Ambient Background Image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none -z-10"
+        style={{
+          backgroundImage: `url('./victorian-library.jpg')`,
+        }}
+      />
+      {/* Dark Vignette Overlay for readability & dark forest mood */}
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-[#070e0a]/80 via-[#070e0a]/90 to-[#070e0a] pointer-events-none -z-10 backdrop-blur-[1px]"
+      />
 
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-medium text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition-all shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Book</span>
-        </button>
+      {/* Atmospheric Victorian Hero Header */}
+      <div className="relative overflow-hidden rounded-2xl border border-emerald-500/25 p-6 lg:p-8 backdrop-blur-md shadow-2xl">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-30 pointer-events-none"
+          style={{ backgroundImage: `url('./victorian-library.jpg')` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070e0a]/95 via-[#070e0a]/85 to-transparent pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/25 text-xs font-medium text-emerald-300 mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Victorian Reading Sanctuary</span>
+            </div>
+            <h2 className="text-2xl lg:text-3xl font-extrabold text-white flex items-center gap-2.5 tracking-tight">
+              <BookOpen className="w-7 h-7 text-emerald-400" />
+              <span>Welcome To Your Library</span>
+            </h2>
+            <p className="text-xs text-emerald-100/70 mt-1.5 max-w-lg leading-relaxed flex items-center gap-2">
+              <span>Warm hearth fire crackling, rain pouring against the arched windows, and floor-to-ceiling shelves of timeless knowledge.</span>
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-medium text-xs flex items-center justify-center gap-2 shadow-xl shadow-emerald-950/60 transition-all shrink-0 self-start sm:self-auto border border-emerald-400/20"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add New Book</span>
+          </button>
+        </div>
       </div>
 
       {/* Stats bar */}
