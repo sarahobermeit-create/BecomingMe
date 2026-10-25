@@ -589,15 +589,15 @@ export const BooksModule: React.FC = () => {
 
             <div className="flex items-center gap-3 self-end sm:self-auto text-[11px] text-amber-100/80 flex-wrap">
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
                 <span>Reading</span>
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
+                <span className="w-2 h-2 rounded-full bg-amber-400 inline-block shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
                 <span>Next Read</span>
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-yellow-300 inline-block shadow-[0_0_6px_rgba(253,224,71,0.8)]" />
+                <span className="w-2 h-2 rounded-full bg-yellow-300 inline-block shadow-[0_0_6px_rgba(253,224,71,0.8)]" />
                 <span>Completed</span>
               </span>
 
@@ -617,12 +617,12 @@ export const BooksModule: React.FC = () => {
               >
                 {rearrangeMode || pickedUpBookId ? (
                   <>
-                    <Check className="w-3.5 h-3.5" />
+                    <Check className="w-3 h-3" />
                     <span>Done Rearranging</span>
                   </>
                 ) : (
                   <>
-                    <Move className="w-3.5 h-3.5 text-emerald-300" />
+                    <Move className="w-3 h-3 text-emerald-300" />
                     <span>Rearrange Books</span>
                   </>
                 )}
@@ -777,18 +777,18 @@ export const BooksModule: React.FC = () => {
                               type="button"
                               title="Move left"
                               onClick={(e) => nudgeBook(book.id, -1, e)}
-                              className="p-1 rounded hover:bg-emerald-500/40 text-emerald-300 hover:text-white transition-colors cursor-pointer"
+                              className="p-0.5 rounded hover:bg-emerald-500/40 text-emerald-300 hover:text-white transition-colors cursor-pointer"
                             >
-                              <ArrowLeft className="w-3 h-3" />
+                              <ArrowLeft className="w-2.5 h-2.5" />
                             </button>
-                            <span className="text-[9px] text-emerald-200 font-mono px-0.5">Move</span>
+                            <span className="text-[8px] text-emerald-200 font-mono px-0.5">Move</span>
                             <button
                               type="button"
                               title="Move right"
                               onClick={(e) => nudgeBook(book.id, 1, e)}
-                              className="p-1 rounded hover:bg-emerald-500/40 text-emerald-300 hover:text-white transition-colors cursor-pointer"
+                              className="p-0.5 rounded hover:bg-emerald-500/40 text-emerald-300 hover:text-white transition-colors cursor-pointer"
                             >
-                              <ArrowRight className="w-3 h-3" />
+                              <ArrowRight className="w-2.5 h-2.5" />
                             </button>
                           </div>
                         )}
@@ -799,15 +799,15 @@ export const BooksModule: React.FC = () => {
 
                           {book.status === 'reading' && (
                             <div
-                              className="w-3.5 h-3.5 rounded-full bg-emerald-400 ring-2 ring-emerald-300/60 shadow-[0_0_10px_rgba(52,211,153,0.95)] flex items-center justify-center my-0.5"
+                              className="w-2.5 h-2.5 rounded-full bg-emerald-400 ring-1 ring-emerald-300/60 shadow-[0_0_8px_rgba(52,211,153,0.95)] flex items-center justify-center my-0.5"
                               title={`Currently reading (${progressPct}%)`}
                             >
-                              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                              <span className="w-1 h-1 rounded-full bg-white" />
                             </div>
                           )}
                           {book.status === 'completed' && (
                             <div
-                              className="w-3.5 h-3.5 rounded-full bg-amber-400 ring-1 ring-amber-300/80 shadow-[0_0_8px_rgba(245,158,11,0.9)] flex items-center justify-center my-0.5 text-[#2b1807] font-bold text-[8px]"
+                              className="w-2.5 h-2.5 rounded-full bg-amber-400 ring-1 ring-amber-300/80 shadow-[0_0_6px_rgba(245,158,11,0.9)] flex items-center justify-center my-0.5 text-[#2b1807] font-bold text-[7px]"
                               title="Completed"
                             >
                               ★
@@ -815,7 +815,7 @@ export const BooksModule: React.FC = () => {
                           )}
                           {book.status === 'want_to_read' && (
                             <div
-                              className="w-3.5 h-3.5 rounded-full bg-amber-600/80 ring-1 ring-amber-400/50 shadow-[0_0_6px_rgba(217,119,6,0.8)] flex items-center justify-center my-0.5 text-amber-200 text-[8px]"
+                              className="w-2.5 h-2.5 rounded-full bg-amber-600/80 ring-1 ring-amber-400/50 shadow-[0_0_5px_rgba(217,119,6,0.8)] flex items-center justify-center my-0.5 text-amber-200 text-[7px]"
                               title="Next Read"
                             >
                               ✦
@@ -878,7 +878,7 @@ export const BooksModule: React.FC = () => {
                       className="shrink-0 h-[220px] w-12 sm:w-14 rounded-t-md border-2 border-dashed border-emerald-500/40 hover:border-emerald-400/80 bg-emerald-950/20 hover:bg-emerald-900/40 transition-all flex flex-col items-center justify-center gap-2 p-1.5 text-emerald-300/70 hover:text-emerald-100 group cursor-pointer shadow-inner"
                       title="Add a new physical book to this shelf"
                     >
-                      <Plus className="w-5 h-5 group-hover:scale-125 transition-transform text-emerald-400" />
+                      <Plus className="w-3.5 h-3.5 group-hover:scale-110 transition-transform text-emerald-400" />
                       <span className="writing-mode-vertical font-serif text-[10px] tracking-wider uppercase font-semibold">
                         + New Tome
                       </span>
