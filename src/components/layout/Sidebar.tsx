@@ -38,13 +38,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
       id: 'overview',
       label: 'Overview',
       icon: LayoutDashboard,
-      accentColor: 'text-violet-400 group-hover:text-violet-300',
+      accentColor: 'text-emerald-400 group-hover:text-emerald-300',
     },
     {
       id: 'routines',
       label: 'Routines & Habits',
       icon: CheckSquare,
-      accentColor: 'text-emerald-400 group-hover:text-emerald-300',
+      accentColor: 'text-green-400 group-hover:text-green-300',
       badge: (s, t) => {
         const remaining = s.routines.filter((r: any) => !r.completedDates.includes(t)).length;
         return remaining > 0 ? remaining : null;
@@ -81,7 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
       id: 'books',
       label: 'Books Tracker',
       icon: BookOpen,
-      accentColor: 'text-indigo-400 group-hover:text-indigo-300',
+      accentColor: 'text-teal-400 group-hover:text-teal-300',
       badge: (s) => {
         const reading = s.books.filter((b: any) => b.status === 'reading').length;
         return reading > 0 ? `${reading} reading` : null;
@@ -97,14 +97,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
       id: 'journal',
       label: 'Junk Journal',
       icon: BookHeart,
-      accentColor: 'text-pink-400 group-hover:text-pink-300',
+      accentColor: 'text-emerald-300 group-hover:text-emerald-200',
       badge: (s) => (s.journalEntries.length > 0 ? s.journalEntries.length : null),
     },
     {
       id: 'hobbies',
       label: 'Hobbies Tracker',
       icon: Palette,
-      accentColor: 'text-purple-400 group-hover:text-purple-300',
+      accentColor: 'text-forest-400 group-hover:text-forest-300',
     },
     {
       id: 'exercise',
@@ -131,10 +131,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
   ];
 
   return (
-    <aside className="w-full lg:w-64 bg-[#0c0e17]/60 lg:border-r border-white/[0.06] flex flex-col shrink-0">
+    <aside className="w-full lg:w-64 bg-[#08140d]/80 lg:border-r border-emerald-500/10 flex flex-col shrink-0">
       {/* Category header for desktop */}
       <div className="px-5 pt-5 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 hidden lg:block">
-        Life OS Modules
+        Life Modules
       </div>
 
       <nav className="p-3 space-y-1 overflow-x-auto lg:overflow-x-hidden flex lg:flex-col no-scrollbar">
@@ -149,14 +149,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
               onClick={() => setActiveTab(item.id)}
               className={`group flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left whitespace-nowrap ${
                 isActive
-                  ? 'bg-gradient-to-r from-violet-600/20 to-indigo-600/10 text-white border border-violet-500/30 shadow-md shadow-violet-950/40'
+                  ? 'bg-gradient-to-r from-emerald-800/40 to-forest-800/25 text-white border border-emerald-500/40 shadow-md shadow-emerald-950/60'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
               }`}
             >
               <div className="flex items-center gap-3">
                 <Icon
                   className={`w-4 h-4 transition-transform group-hover:scale-110 ${
-                    isActive ? 'text-violet-400' : item.accentColor
+                    isActive ? 'text-emerald-400' : item.accentColor
                   }`}
                 />
                 <span className={isActive ? 'font-semibold text-white' : ''}>{item.label}</span>
@@ -167,7 +167,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                   <span
                     className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                       isActive
-                        ? 'bg-violet-500/30 text-violet-200 border border-violet-400/30'
+                        ? 'bg-emerald-500/30 text-emerald-200 border border-emerald-400/30'
                         : 'bg-white/[0.06] text-slate-400 group-hover:bg-white/[0.1]'
                     }`}
                   >
@@ -175,7 +175,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                   </span>
                 )}
                 {isActive && (
-                  <ChevronRight className="w-3.5 h-3.5 text-violet-400 hidden lg:block" />
+                  <ChevronRight className="w-3.5 h-3.5 text-emerald-400 hidden lg:block" />
                 )}
               </div>
             </button>
@@ -184,9 +184,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
       </nav>
 
       {/* Aesthetic bottom widget in sidebar */}
-      <div className="mt-auto p-4 hidden lg:block border-t border-white/[0.04]">
-        <div className="p-3 rounded-xl bg-gradient-to-br from-violet-950/40 via-indigo-950/20 to-transparent border border-violet-500/15">
-          <p className="text-xs font-semibold text-violet-300">Daily Mindfulness</p>
+      <div className="mt-auto p-4 hidden lg:block border-t border-emerald-500/10">
+        <div className="p-3 rounded-xl bg-gradient-to-br from-forest-950/80 via-emerald-950/40 to-transparent border border-emerald-500/20">
+          <p className="text-xs font-semibold text-emerald-300">Daily Mindfulness</p>
           <p className="text-[11px] text-slate-400 mt-1 italic leading-relaxed">
             "You do not rise to the level of your goals. You fall to the level of your systems."
           </p>
@@ -194,7 +194,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
             <span>BecomingMe v1.0</span>
             <span className="text-emerald-400 flex items-center gap-1 font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              All saved locally
+              Live Synced
             </span>
           </div>
         </div>

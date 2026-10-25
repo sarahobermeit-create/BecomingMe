@@ -78,7 +78,7 @@ export const BooksModule: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl lg:text-2xl font-bold text-white flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-indigo-400" />
+            <BookOpen className="w-6 h-6 text-emerald-400" />
             <span>Books & Reading Tracker</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1">
@@ -88,7 +88,7 @@ export const BooksModule: React.FC = () => {
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-900/30 transition-all shrink-0"
+          className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-medium text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition-all shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Book</span>
@@ -128,7 +128,7 @@ export const BooksModule: React.FC = () => {
           <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
             Total Library
           </span>
-          <p className="text-2xl font-black text-indigo-400 font-mono mt-1">
+          <p className="text-2xl font-black text-emerald-400 font-mono mt-1">
             {state.books.length}
           </p>
         </div>
@@ -140,7 +140,7 @@ export const BooksModule: React.FC = () => {
           onClick={() => setActiveTab('all')}
           className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
             activeTab === 'all'
-              ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
               : 'text-slate-400 hover:text-white bg-white/[0.03]'
           }`}
         >
@@ -150,7 +150,7 @@ export const BooksModule: React.FC = () => {
           onClick={() => setActiveTab('reading')}
           className={`px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 transition-colors ${
             activeTab === 'reading'
-              ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
               : 'text-slate-400 hover:text-white bg-white/[0.03]'
           }`}
         >
@@ -160,7 +160,7 @@ export const BooksModule: React.FC = () => {
           onClick={() => setActiveTab('want_to_read')}
           className={`px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 transition-colors ${
             activeTab === 'want_to_read'
-              ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
               : 'text-slate-400 hover:text-white bg-white/[0.03]'
           }`}
         >
@@ -202,7 +202,7 @@ export const BooksModule: React.FC = () => {
                 <div className="flex-1 overflow-hidden">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
                         {book.status.replace('_', ' ')}
                       </span>
                       <h3 className="text-sm font-bold text-white mt-1.5 truncate">{book.title}</h3>
@@ -236,11 +236,11 @@ export const BooksModule: React.FC = () => {
                   <div className="mt-3">
                     <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
                       <span>Progress</span>
-                      <span className="font-mono text-indigo-300 font-bold">{progressPct}%</span>
+                      <span className="font-mono text-emerald-300 font-bold">{progressPct}%</span>
                     </div>
                     <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden mb-2">
                       <div
-                        className="bg-indigo-500 h-full rounded-full transition-all"
+                        className="bg-emerald-500 h-full rounded-full transition-all"
                         style={{ width: `${progressPct}%` }}
                       />
                     </div>
@@ -273,7 +273,7 @@ export const BooksModule: React.FC = () => {
                 <div className="mt-4 pt-3 border-t border-white/[0.05] space-y-2">
                   {book.favoriteQuotes && book.favoriteQuotes.length > 0 && (
                     <div className="flex items-start gap-2 text-xs text-slate-300 italic bg-white/[0.02] p-2 rounded-lg border border-white/[0.04]">
-                      <Quote className="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5" />
+                      <Quote className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
                       <span>"{book.favoriteQuotes[0]}"</span>
                     </div>
                   )}
@@ -295,7 +295,7 @@ export const BooksModule: React.FC = () => {
           <div className="bg-[#12141f] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-indigo-400" />
+                <BookOpen className="w-4 h-4 text-emerald-400" />
                 <span>Add Book to Library</span>
               </h3>
               <button
@@ -399,7 +399,7 @@ export const BooksModule: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-md shadow-indigo-900/30"
+                  className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-medium shadow-md shadow-emerald-950/40"
                 >
                   Save Book
                 </button>

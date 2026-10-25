@@ -30,7 +30,7 @@ export const MoodModule: React.FC = () => {
   const moodOptions: { score: MoodScore; emoji: string; label: string; color: string; desc: string }[] = [
     { score: 5, emoji: '😄', label: 'Ecstatic & Inspired', color: 'border-emerald-500 bg-emerald-500/10 text-emerald-300', desc: 'High enthusiasm, creative flow' },
     { score: 4, emoji: '🙂', label: 'Good & Peaceful', color: 'border-cyan-500 bg-cyan-500/10 text-cyan-300', desc: 'Content, balanced, calm momentum' },
-    { score: 3, emoji: '😐', label: 'Neutral & Grounded', color: 'border-indigo-500 bg-indigo-500/10 text-indigo-300', desc: 'Okay, regular day, cruising' },
+    { score: 3, emoji: '😐', label: 'Neutral & Grounded', color: 'border-emerald-600/40 bg-emerald-950/20 text-emerald-300', desc: 'Okay, regular day, cruising' },
     { score: 2, emoji: '😔', label: 'Low & Melancholy', color: 'border-amber-500 bg-amber-500/10 text-amber-300', desc: 'Need gentle care, slower pace' },
     { score: 1, emoji: '😫', label: 'Exhausted & Overwhelmed', color: 'border-rose-500 bg-rose-500/10 text-rose-300', desc: 'Stress, high burnout, rest required' },
   ];
@@ -138,7 +138,7 @@ export const MoodModule: React.FC = () => {
                     }}
                     className={`p-3.5 rounded-xl border text-center transition-all flex flex-col items-center gap-1.5 ${
                       isSelected
-                        ? `${opt.color} ring-2 ring-violet-500/30 scale-[1.02] shadow-lg`
+                        ? `${opt.color} ring-2 ring-emerald-500/40 scale-[1.02] shadow-lg`
                         : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] text-slate-300'
                     }`}
                   >

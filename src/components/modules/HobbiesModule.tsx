@@ -72,7 +72,7 @@ export const HobbiesModule: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl lg:text-2xl font-bold text-white flex items-center gap-2">
-            <Palette className="w-6 h-6 text-purple-400" />
+            <Palette className="w-6 h-6 text-forest-400" />
             <span>Hobbies & Craft Mastery</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1">
@@ -82,7 +82,7 @@ export const HobbiesModule: React.FC = () => {
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all shrink-0"
+          className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-medium text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition-all shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Track New Hobby</span>
@@ -110,7 +110,7 @@ export const HobbiesModule: React.FC = () => {
                     <div>
                       <h3 className="text-sm font-bold text-white">{hobby.name}</h3>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] text-purple-300 font-medium px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20">
+                        <span className="text-[10px] text-emerald-300 font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
                           {hobby.level}
                         </span>
                         <span className="text-[10px] text-slate-400">{hobby.category}</span>
@@ -131,7 +131,7 @@ export const HobbiesModule: React.FC = () => {
                 <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.05] mb-4 space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-slate-400 flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-purple-400" /> Total Hours
+                      <Clock className="w-3.5 h-3.5 text-forest-400" /> Total Hours
                     </span>
                     <span className="text-white font-mono font-bold text-sm">
                       {hobby.hoursSpent} hrs
@@ -143,13 +143,13 @@ export const HobbiesModule: React.FC = () => {
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleLogHours(hobby, 0.5)}
-                        className="px-2 py-0.5 rounded bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 text-[10px]"
+                        className="px-2 py-0.5 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 text-[10px]"
                       >
                         +30m
                       </button>
                       <button
                         onClick={() => handleLogHours(hobby, 1)}
-                        className="px-2 py-0.5 rounded bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 text-[10px]"
+                        className="px-2 py-0.5 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 text-[10px]"
                       >
                         +1h
                       </button>
@@ -163,7 +163,7 @@ export const HobbiesModule: React.FC = () => {
                     <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
                       Current Focus Project
                     </span>
-                    <p className="text-xs text-purple-200 font-medium mt-1 p-2 rounded-lg bg-purple-950/20 border border-purple-500/15">
+                    <p className="text-xs text-emerald-200 font-medium mt-1 p-2 rounded-lg bg-emerald-950/20 border border-emerald-500/15">
                       {hobby.currentProject}
                     </p>
                   </div>
@@ -174,12 +174,12 @@ export const HobbiesModule: React.FC = () => {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-[11px] text-slate-400">
                       <span>Milestones ({completedMilestones}/{totalMilestones})</span>
-                      <span className="font-mono text-purple-300">{milestonePct}%</span>
+                      <span className="font-mono text-emerald-300">{milestonePct}%</span>
                     </div>
 
                     <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden mb-2">
                       <div
-                        className="bg-purple-500 h-full rounded-full transition-all"
+                        className="bg-emerald-500 h-full rounded-full transition-all"
                         style={{ width: `${milestonePct}%` }}
                       />
                     </div>
@@ -196,7 +196,7 @@ export const HobbiesModule: React.FC = () => {
                           }`}
                         >
                           {m.completed ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                           ) : (
                             <Circle className="w-3.5 h-3.5 text-slate-600 shrink-0" />
                           )}
@@ -224,7 +224,7 @@ export const HobbiesModule: React.FC = () => {
           <div className="bg-[#12141f] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Palette className="w-4 h-4 text-purple-400" />
+                <Palette className="w-4 h-4 text-emerald-400" />
                 <span>Track a New Hobby</span>
               </h3>
               <button
@@ -246,7 +246,7 @@ export const HobbiesModule: React.FC = () => {
                       onClick={() => setIcon(ic)}
                       className={`w-8 h-8 rounded-lg text-base flex items-center justify-center transition-all ${
                         icon === ic
-                          ? 'bg-purple-500/20 border border-purple-400 scale-110'
+                          ? 'bg-emerald-500/20 border border-emerald-400 scale-110'
                           : 'bg-white/[0.03] border border-white/[0.06]'
                       }`}
                     >
@@ -328,7 +328,7 @@ export const HobbiesModule: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium shadow-md shadow-purple-900/30"
+                  className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-medium shadow-md shadow-emerald-950/40"
                 >
                   Create Hobby Tracker
                 </button>

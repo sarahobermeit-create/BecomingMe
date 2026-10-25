@@ -31,10 +31,10 @@ export const JunkJournalModule: React.FC = () => {
 
   const colorStyles: Record<JunkJournalCard['colorScheme'], { border: string; bg: string; badge: string; text: string }> = {
     lavender: {
-      border: 'border-purple-500/30',
-      bg: 'bg-gradient-to-br from-purple-950/25 via-slate-900/60 to-purple-950/10',
-      badge: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-      text: 'text-purple-200',
+      border: 'border-emerald-500/35',
+      bg: 'bg-gradient-to-br from-forest-950/50 via-emerald-950/30 to-dark-900/40',
+      badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+      text: 'text-emerald-200',
     },
     rose: {
       border: 'border-rose-500/30',

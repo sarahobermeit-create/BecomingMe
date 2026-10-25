@@ -32,7 +32,7 @@ export const IdeasModule: React.FC = () => {
   const columns: { id: IdeaStatus; label: string; icon: React.ComponentType<any>; color: string }[] = [
     { id: 'spark', label: 'Sparks & Someday', icon: Sparkles, color: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20' },
     { id: 'planning', label: 'Exploring & Planning', icon: Compass, color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' },
-    { id: 'in_progress', label: 'Active In Progress', icon: Rocket, color: 'text-violet-400 bg-violet-500/10 border-violet-500/20' },
+    { id: 'in_progress', label: 'Active In Progress', icon: Rocket, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
     { id: 'completed', label: 'Achieved & Completed', icon: CheckCheck, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
   ];
 

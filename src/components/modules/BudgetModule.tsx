@@ -165,7 +165,7 @@ export const BudgetModule: React.FC = () => {
         <div className="glass-panel p-5 rounded-2xl border border-white/[0.08]">
           <div className="flex items-center justify-between text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Transactions</span>
-            <PieChart className="w-4 h-4 text-violet-400" />
+            <PieChart className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-2xl font-black font-mono text-white">
             {state.transactions.length}

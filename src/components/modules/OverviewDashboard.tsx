@@ -62,11 +62,11 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ setActiveT
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-900/40 via-indigo-900/30 to-purple-900/20 border border-violet-500/20 p-6 lg:p-8 backdrop-blur-md">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-forest-900/80 via-emerald-950/60 to-dark-900/40 border border-emerald-500/25 p-6 lg:p-8 backdrop-blur-md">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-400/20 text-xs font-medium text-violet-300 mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/25 text-xs font-medium text-emerald-300 mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
               <span>Personal Life HQ</span>
             </div>
             <h1 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
@@ -80,7 +80,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ setActiveT
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setActiveTab('routines')}
-              className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-medium text-xs shadow-lg shadow-violet-600/30 transition-all flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-medium text-xs shadow-lg shadow-emerald-950/50 transition-all flex items-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Complete Routines</span>
@@ -89,14 +89,14 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ setActiveT
               onClick={() => setActiveTab('journal')}
               className="px-4 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-white/[0.1] font-medium text-xs transition-all flex items-center gap-2"
             >
-              <Pin className="w-4 h-4 text-pink-400" />
+              <Pin className="w-4 h-4 text-emerald-300" />
               <span>Junk Journal</span>
             </button>
           </div>
         </div>
 
         {/* Decorative background glow */}
-        <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-violet-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
       </div>
 
       {/* Main Grid: Key Today Widgets */}
@@ -266,7 +266,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ setActiveT
         <div className="glass-panel rounded-2xl p-5 border border-white/[0.08] flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
                 <BookOpen className="w-5 h-5" />
               </div>
               <div>
@@ -276,7 +276,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ setActiveT
             </div>
             <button
               onClick={() => setActiveTab('books')}
-              className="text-xs text-indigo-400 hover:underline"
+              className="text-xs text-emerald-400 hover:underline"
             >
               Library
             </button>
@@ -297,13 +297,13 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ setActiveT
                     <span>
                       Page {currentBook.currentPage} of {currentBook.totalPages}
                     </span>
-                    <span className="font-mono text-indigo-300">
+                    <span className="font-mono text-emerald-300">
                       {Math.round((currentBook.currentPage / currentBook.totalPages) * 100)}%
                     </span>
                   </div>
                   <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
                     <div
-                      className="bg-indigo-500 h-full rounded-full"
+                      className="bg-emerald-500 h-full rounded-full"
                       style={{
                         width: `${Math.round(
                           (currentBook.currentPage / currentBook.totalPages) * 100
@@ -320,7 +320,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ setActiveT
 
           <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
             <span>Finished this year: 1</span>
-            <span className="text-indigo-400">Goal: 12 books</span>
+            <span className="text-emerald-400">Goal: 12 books</span>
           </div>
         </div>
 

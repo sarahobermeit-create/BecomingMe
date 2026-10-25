@@ -61,21 +61,21 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   const todayMood = state.moods.find((m) => m.date === todayDate);
 
   return (
-    <header className="sticky top-0 z-30 bg-[#0c0e17]/85 backdrop-blur-md border-b border-white/[0.08] px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-30 bg-[#08140d]/90 backdrop-blur-md border-b border-emerald-500/15 px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4">
       {/* Left: Branding & Date */}
       <div className="flex items-center gap-4">
         <div
           onClick={() => setActiveTab('overview')}
           className="flex items-center gap-2.5 cursor-pointer group"
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-cyan-400 p-[1px] shadow-lg shadow-violet-500/20 group-hover:scale-105 transition-transform">
-            <div className="w-full h-full bg-[#0c0e17] rounded-[11px] flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-violet-400 animate-pulse" />
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-700 to-green-500 p-[1px] shadow-lg shadow-emerald-950/50 group-hover:scale-105 transition-transform">
+            <div className="w-full h-full bg-[#0a180f] rounded-[11px] flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
             </div>
           </div>
           <div>
             <h1 className="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
-              Becoming<span className="text-violet-400 font-extrabold">Me</span>
+              Becoming<span className="text-emerald-400 font-extrabold">Me</span>
             </h1>
             <p className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
               <CalendarIcon className="w-3 h-3 text-slate-500" />

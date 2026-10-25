@@ -51,7 +51,7 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#090a0f] text-slate-100 flex flex-col font-sans selection:bg-purple-600/30 selection:text-purple-200">
+    <div className="min-h-screen bg-[#070e0a] text-slate-100 flex flex-col font-sans selection:bg-emerald-700/30 selection:text-emerald-200">
       {/* Top Navbar */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 

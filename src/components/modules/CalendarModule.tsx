@@ -24,11 +24,11 @@ export const CalendarModule: React.FC = () => {
   const [time, setTime] = useState('10:00');
   const [endTime, setEndTime] = useState('11:00');
   const [category, setCategory] = useState<CalendarEvent['category']>('personal');
-  const [color, setColor] = useState('#8b5cf6');
+  const [color, setColor] = useState('#2d7a58');
   const [notes, setNotes] = useState('');
 
   const colors = [
-    { label: 'Violet', hex: '#8b5cf6' },
+    { label: 'Forest Green', hex: '#2d7a58' },
     { label: 'Emerald', hex: '#10b981' },
     { label: 'Cyan', hex: '#06b6d4' },
     { label: 'Amber', hex: '#f59e0b' },
@@ -178,7 +178,7 @@ export const CalendarModule: React.FC = () => {
                     isSelected
                       ? 'border-teal-400/80 bg-teal-500/15 shadow-md shadow-teal-950/40 ring-1 ring-teal-400/30'
                       : isToday
-                      ? 'border-violet-500/50 bg-violet-500/10'
+                      ? 'border-emerald-500/50 bg-emerald-500/15'
                       : 'border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.05]'
                   }`}
                 >
@@ -186,7 +186,7 @@ export const CalendarModule: React.FC = () => {
                     <span
                       className={`text-xs font-mono font-bold ${
                         isToday
-                          ? 'w-5 h-5 rounded-full bg-violet-500 text-white flex items-center justify-center'
+                          ? 'w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center'
                           : isSelected
                           ? 'text-teal-300'
                           : 'text-slate-300'

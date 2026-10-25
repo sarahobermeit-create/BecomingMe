@@ -190,7 +190,7 @@ export const LifeProvider: React.FC<{ children: React.ReactNode }> = ({ children
       particleCount: 60,
       spread: 70,
       origin: { y: 0.7 },
-      colors: ['#8b5cf6', '#10b981', '#06b6d4', '#f59e0b', '#f43f5e'],
+      colors: ['#2d7a58', '#10b981', '#52b788', '#f59e0b', '#06b6d4'],
     });
   };
 
