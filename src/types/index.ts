@@ -60,7 +60,7 @@ export interface Transaction {
 }
 
 // 5. Books Tracker
-export type BookStatus = 'want_to_read' | 'reading' | 'completed' | 'on_hold';
+export type BookStatus = 'want_to_read' | 'reading' | 'completed' | 'on_hold' | 'dnf';
 export type BookFormat = 'physical' | 'ebook' | 'audiobook';
 
 export interface Book {

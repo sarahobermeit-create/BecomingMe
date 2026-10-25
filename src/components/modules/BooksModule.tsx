@@ -7,6 +7,7 @@ import {
   Star,
   Quote,
   CheckCircle,
+  XCircle,
   Bookmark,
   BookMarked,
   Sparkles,
@@ -40,7 +41,8 @@ type LibraryTab =
   | 'all'
   | 'reading'
   | 'want_to_read'
-  | 'completed';
+  | 'completed'
+  | 'dnf';
 
 // Victorian leather spine color palettes
 const SPINE_PALETTES = [
@@ -416,7 +418,7 @@ export const BooksModule: React.FC = () => {
       </div>
 
       {/* SECTION 2: READING STATUS COUNTERS */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {/* Currently Reading */}
         <button
           onClick={() => setActiveTab('reading')}
@@ -474,6 +476,26 @@ export const BooksModule: React.FC = () => {
           </div>
           <p className="text-lg font-black text-emerald-400 font-mono mt-0.5">
             {state.books.filter((b) => b.status === 'completed').length}
+          </p>
+        </button>
+
+        {/* DNF */}
+        <button
+          onClick={() => setActiveTab('dnf')}
+          className={`p-3 rounded-xl text-left bg-[#06140b]/35 backdrop-blur-sm border transition-all shadow-md hover:border-rose-500/40 cursor-pointer ${
+            activeTab === 'dnf'
+              ? 'border-rose-400/60 ring-1 ring-rose-400/30 bg-[#240a10]/50'
+              : 'border-emerald-500/20'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-300">
+              DNF
+            </span>
+            <XCircle className="w-3 h-3 text-rose-400" />
+          </div>
+          <p className="text-lg font-black text-rose-400 font-mono mt-0.5">
+            {state.books.filter((b) => b.status === 'dnf').length}
           </p>
         </button>
       </div>
@@ -568,6 +590,17 @@ export const BooksModule: React.FC = () => {
         >
           <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> Completed ({state.books.filter((b) => b.status === 'completed').length})
         </button>
+
+        <button
+          onClick={() => setActiveTab('dnf')}
+          className={`px-3 py-2 rounded-xl font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
+            activeTab === 'dnf'
+              ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+              : 'text-slate-400 hover:text-white bg-[#06140b]/30 border border-emerald-500/10'
+          }`}
+        >
+          <XCircle className="w-3.5 h-3.5 text-rose-400" /> DNF ({state.books.filter((b) => b.status === 'dnf').length})
+        </button>
       </div>
 
       {/* VIEW 1: VICTORIAN PHYSICAL BOOKSHELVES VIEW (WITH RAVEN BOOKENDS & DARK DARK WOOD) */}
@@ -599,6 +632,10 @@ export const BooksModule: React.FC = () => {
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-yellow-300 inline-block shadow-[0_0_6px_rgba(253,224,71,0.8)]" />
                 <span>Completed</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-rose-400 inline-block shadow-[0_0_6px_rgba(244,63,94,0.8)]" />
+                <span>DNF</span>
               </span>
 
               {/* Rearrange Shelves Toggle Button */}
@@ -819,6 +856,14 @@ export const BooksModule: React.FC = () => {
                               title="Next Read"
                             >
                               ✦
+                            </div>
+                          )}
+                          {book.status === 'dnf' && (
+                            <div
+                              className="w-2.5 h-2.5 rounded-full bg-rose-500 ring-1 ring-rose-300/80 shadow-[0_0_6px_rgba(244,63,94,0.9)] flex items-center justify-center my-0.5 text-white font-bold text-[7px]"
+                              title="DNF (Did Not Finish)"
+                            >
+                              ✕
                             </div>
                           )}
 
@@ -1073,7 +1118,7 @@ export const BooksModule: React.FC = () => {
                   <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
                     Reading Status
                   </label>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                     <button
                       onClick={() => handleUpdateStatus(selectedBook, 'reading')}
                       className={`py-1.5 px-2 rounded-lg font-medium transition-colors cursor-pointer text-center ${
@@ -1103,6 +1148,16 @@ export const BooksModule: React.FC = () => {
                       }`}
                     >
                       ✅ Completed
+                    </button>
+                    <button
+                      onClick={() => handleUpdateStatus(selectedBook, 'dnf')}
+                      className={`py-1.5 px-2 rounded-lg font-medium transition-colors cursor-pointer text-center ${
+                        selectedBook.status === 'dnf'
+                          ? 'bg-rose-900/80 text-rose-200 border border-rose-500/50 shadow-md'
+                          : 'bg-white/[0.04] text-slate-300 hover:bg-white/[0.08]'
+                      }`}
+                    >
+                      🛑 DNF
                     </button>
                   </div>
                 </div>
@@ -1388,6 +1443,7 @@ export const BooksModule: React.FC = () => {
                     <option value="reading" className="bg-[#0e1711]">Reading</option>
                     <option value="want_to_read" className="bg-[#0e1711]">Next Reads</option>
                     <option value="completed" className="bg-[#0e1711]">Completed</option>
+                    <option value="dnf" className="bg-[#0e1711]">DNF (Did Not Finish)</option>
                     <option value="on_hold" className="bg-[#0e1711]">On Hold</option>
                   </select>
                 </div>

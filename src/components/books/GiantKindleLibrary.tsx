@@ -191,6 +191,10 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
                 <span className="w-2.5 h-2.5 rounded-full bg-slate-500 inline-block shadow-sm" />
                 <span>Finished</span>
               </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-600 inline-block shadow-sm" />
+                <span>DNF</span>
+              </span>
             </div>
           </div>
 
@@ -229,10 +233,18 @@ export const GiantKindleLibrary: React.FC<GiantKindleLibraryProps> = ({
                                     ? 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50'
                                     : book.status === 'want_to_read'
                                     ? 'bg-amber-500/30 text-amber-300 border-amber-400/50'
+                                    : book.status === 'dnf'
+                                    ? 'bg-rose-500/30 text-rose-300 border-rose-400/50'
                                     : 'bg-slate-700/50 text-slate-300 border-slate-500/40'
                                 }`}
                               >
-                                {book.status === 'reading' ? 'Reading' : book.status === 'want_to_read' ? 'Next' : 'Done'}
+                                {book.status === 'reading'
+                                  ? 'Reading'
+                                  : book.status === 'want_to_read'
+                                  ? 'Next'
+                                  : book.status === 'dnf'
+                                  ? 'DNF'
+                                  : 'Done'}
                               </span>
                               <BookOpen className="w-3 h-3 text-amber-300/80" />
                             </div>

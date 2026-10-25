@@ -273,10 +273,18 @@ export const PhoneAudiobookLibrary: React.FC<PhoneAudiobookLibraryProps> = ({
                                     ? 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50'
                                     : book.status === 'want_to_read'
                                     ? 'bg-amber-500/30 text-amber-300 border-amber-400/50'
+                                    : book.status === 'dnf'
+                                    ? 'bg-rose-500/30 text-rose-300 border-rose-400/50'
                                     : 'bg-slate-700/50 text-slate-300 border-slate-500/40'
                                 }`}
                               >
-                                {book.status === 'reading' ? 'Listening' : book.status === 'want_to_read' ? 'Next' : 'Done'}
+                                {book.status === 'reading'
+                                  ? 'Listening'
+                                  : book.status === 'want_to_read'
+                                  ? 'Next'
+                                  : book.status === 'dnf'
+                                  ? 'DNF'
+                                  : 'Done'}
                               </span>
 
                               {/* Studio Headphone Emblem */}
