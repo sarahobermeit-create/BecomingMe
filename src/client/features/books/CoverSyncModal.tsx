@@ -81,7 +81,7 @@ export function CoverSyncModal({ open, onClose }: Props) {
             <span className="text-slate-400 block text-[11px] font-medium">In Active Queue</span>
             <span className="text-base font-bold text-cyan-300 font-mono mt-0.5 flex items-center gap-1.5">
               {status.isProcessing && <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-400" />}
-              {status.queueRemaining}
+              {status.isProcessing ? Math.max(1, status.queueRemaining) : status.queueRemaining}
             </span>
           </div>
           <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xl">

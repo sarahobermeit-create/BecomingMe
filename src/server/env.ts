@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { accessSync, constants, existsSync } from "node:fs";
 
 function required(name: string): string {
   const value = process.env[name];
@@ -6,10 +6,28 @@ function required(name: string): string {
   return value;
 }
 
+function isDirWritable(dir: string): boolean {
+  try {
+    if (!existsSync(dir)) return false;
+    accessSync(dir, constants.W_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function resolveDataDir(): string {
-  if (process.env.DATA_DIR) return process.env.DATA_DIR;
-  if (process.env.NODE_ENV === "production" && existsSync("/data")) {
-    return "/data";
+  if (process.env.DATA_DIR && isDirWritable(process.env.DATA_DIR)) {
+    return process.env.DATA_DIR;
+  }
+  if (process.env.NODE_ENV === "production") {
+    if (isDirWritable("/data")) {
+      return "/data";
+    }
+    if (isDirWritable("/app/data")) {
+      console.warn("[env] /data is not writable by current user; falling back to /app/data");
+      return "/app/data";
+    }
   }
   return "./data";
 }

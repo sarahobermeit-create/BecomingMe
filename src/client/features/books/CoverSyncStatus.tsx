@@ -18,7 +18,7 @@ export function CoverSyncStatus() {
           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-300 bg-amber-950/40 hover:bg-amber-900/50 border border-amber-500/30 rounded-xl transition-all animate-pulse"
         >
           <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
-          <span>Caching covers: {status.queueRemaining} left</span>
+          <span>Caching covers: {Math.max(1, status.queueRemaining)} left</span>
         </button>
       ) : status.pendingRemote > 0 ? (
         <button

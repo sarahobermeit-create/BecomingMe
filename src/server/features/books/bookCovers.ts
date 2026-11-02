@@ -6,13 +6,17 @@ import { db } from "#server/db.ts";
 import { env } from "#server/env.ts";
 import { books } from "#server/features/books/books.table.ts";
 
-export const coversDir = join(env.dataDir, "covers");
-
-try {
-  mkdirSync(coversDir, { recursive: true });
-} catch (err) {
-  console.warn("[covers] Failed to create covers directory:", err);
-}
+export const coversDir = (() => {
+  for (const dir of [join(env.dataDir, "covers"), join(process.cwd(), "data", "covers")]) {
+    try {
+      mkdirSync(dir, { recursive: true });
+      return dir;
+    } catch {
+      // try next
+    }
+  }
+  return join(env.dataDir, "covers");
+})();
 
 export function getCoverFilePath(filename: string): string {
   return join(coversDir, filename);
@@ -45,11 +49,17 @@ export async function downloadAndSaveCover(url: string, bookId: string): Promise
 
   try {
     const res = await fetch(url, {
-      signal: AbortSignal.timeout(6000),
-      headers: { "User-Agent": "BecomingMe/1.0" },
+      signal: AbortSignal.timeout(10000),
+      headers: {
+        "User-Agent": "BecomingMe/1.1 (https://github.com/sarahobermeit/life)",
+        "Accept": "image/*,*/*;q=0.8",
+      },
     });
     if (res.status === 404) return { status: "not_found" };
-    if (!res.ok) return { status: "error" };
+    if (!res.ok) {
+      console.warn(`[covers] HTTP ${res.status} fetching ${url} for ${bookId}`);
+      return { status: "error" };
+    }
 
     const buffer = await res.arrayBuffer();
     // Open Library returns 1x1 gif (<500 bytes) when cover does not exist
@@ -57,7 +67,8 @@ export async function downloadAndSaveCover(url: string, bookId: string): Promise
 
     await writeFile(filepath, Buffer.from(buffer));
     return { status: "saved", localUrl: `/api/books/covers/${filename}` };
-  } catch {
+  } catch (err) {
+    console.error(`[covers] Failed to download ${url} for ${bookId}:`, err);
     return { status: "error" };
   }
 }
@@ -79,6 +90,7 @@ export function cancelCoverSync(): { canceled: number } {
   const count = downloadQueue.length;
   downloadQueue.length = 0;
   queuedBookIds.clear();
+  failedBookIds.clear();
   return { canceled: count };
 }
 
@@ -168,6 +180,7 @@ export async function getCoversStatus() {
 }
 
 export async function cacheAllMissingCovers(): Promise<number> {
+  failedBookIds.clear();
   const externalBooks = await db
     .select({ id: books.id, coverUrl: books.coverUrl })
     .from(books)
@@ -175,7 +188,7 @@ export async function cacheAllMissingCovers(): Promise<number> {
 
   let queued = 0;
   for (const b of externalBooks) {
-    if (b.coverUrl && !failedBookIds.has(b.id) && !queuedBookIds.has(b.id)) {
+    if (b.coverUrl && !queuedBookIds.has(b.id)) {
       queueCoverDownload(b.coverUrl, b.id);
       queued++;
     }
