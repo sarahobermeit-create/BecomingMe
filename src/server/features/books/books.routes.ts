@@ -6,6 +6,7 @@ import { parseChangedAt } from "#server/dates.ts";
 import { db } from "#server/db.ts";
 import {
   cacheAllMissingCovers,
+  cancelCoverSync,
   coverExists,
   getCoverFilePath,
   getCoversStatus,
@@ -171,6 +172,10 @@ export async function booksRoutes(app: FastifyInstance) {
 
   app.get("/covers/status", async () => {
     return getCoversStatus();
+  });
+
+  app.post("/covers/cancel", async () => {
+    return cancelCoverSync();
   });
 
   app.post("/cache-covers", async () => {

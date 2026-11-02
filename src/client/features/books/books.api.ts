@@ -148,3 +148,18 @@ export function useCacheMissingCovers() {
     },
   });
 }
+
+export function useCancelCoverSync() {
+  return useMutation({
+    mutationFn: async () => {
+      return request<{ canceled: number }>("/books/covers/cancel", {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["books", "covers-status"] });
+      void queryClient.invalidateQueries({ queryKey: ["books"] });
+    },
+  });
+}

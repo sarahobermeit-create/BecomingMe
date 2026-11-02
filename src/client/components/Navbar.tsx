@@ -4,6 +4,7 @@ import { useIsOnline } from "#client/api/connectivity.ts";
 import { useMood } from "#client/features/mood/mood.api.ts";
 import { useRoutines } from "#client/features/routines/routines.api.ts";
 import { useWaterLogs } from "#client/features/water/water.api.ts";
+import { APP_VERSION } from "#shared/version.ts";
 
 export function Navbar() {
   const isOnline = useIsOnline();
@@ -36,6 +37,9 @@ export function Navbar() {
         <div>
           <h1 className="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
             Becoming<span className="text-emerald-400 font-extrabold">Me</span>
+            <span className="text-[10px] font-mono font-medium text-emerald-400/70 bg-emerald-950/50 border border-emerald-500/20 px-1.5 py-0.5 rounded-md">
+              v{APP_VERSION}
+            </span>
           </h1>
           <p className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
             <CalendarIcon className="w-3 h-3 text-slate-500" />

@@ -52,13 +52,14 @@ Routes are declared in `src/client/App.tsx`.
 | Victorian wood shelf | `src/client/features/books/VictorianBookshelf.tsx` |
 | Bookshelf search, sort & pagination | `src/client/features/books/BookshelfControls.tsx` |
 | Cover offline sync status & trigger | `src/client/features/books/CoverSyncStatus.tsx` |
+| Cover offline sync modal & controls | `src/client/features/books/CoverSyncModal.tsx` |
 | Victorian leather spine | `src/client/features/books/VictorianBookSpine.tsx` |
 | Giant Kindle Oasis library view | `src/client/features/books/GiantKindleLibrary.tsx` |
 | Phone Audiobook player & shelf | `src/client/features/books/PhoneAudiobookLibrary.tsx` |
 | Table `books` | `src/server/features/books/books.table.ts` |
 | Local cover image caching & storage in `/data/covers` | `src/server/features/books/bookCovers.ts` |
 | Open Library proxy search & ISBN metadata | `src/server/features/books/openLibrary.ts` |
-| API: `GET /api/books`, `PUT /api/books/:id`, `POST /api/books/batch`, `GET /api/books/covers/status`, `POST /api/books/cache-covers`, `GET /api/books/covers/:file`, `GET /api/books/search`, `GET /api/books/isbn` | `src/server/features/books/books.routes.ts` |
+| API: `GET /api/books`, `PUT /api/books/:id`, `POST /api/books/batch`, `GET /api/books/covers/status`, `POST /api/books/cache-covers`, `POST /api/books/covers/cancel`, `GET /api/books/covers/:file`, `GET /api/books/search`, `GET /api/books/isbn` | `src/server/features/books/books.routes.ts` |
 | Types shared by client and server | `src/shared/books.ts` |
 
 ### Routines
@@ -97,6 +98,7 @@ Routes are declared in `src/client/App.tsx`.
 | Server startup, migrations | `src/server/index.ts` |
 | Safe date parsing & offline conflict timestamps | `src/server/dates.ts` |
 | Database connection | `src/server/db.ts` |
+| Application release version | `src/shared/version.ts` |
 | Environment variables | `src/server/env.ts`, `.env.example` |
 | Build, dev proxy | `vite.config.ts` |
 | Local development runner (Postgres + Fastify + Vite) | `scripts/dev.js` |

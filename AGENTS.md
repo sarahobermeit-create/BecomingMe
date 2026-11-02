@@ -10,7 +10,7 @@ Do not write any CI/CD pipelines or GitHub Actions. Deployment is handled automa
 
 The root `Dockerfile` is production-ready and must stay that way. It exposes the app on a single port (3000) and includes every build step. It runs `npm run verify` during the build, so a change that doesn't typecheck or build never deploys.
 
-To deploy updates, commit and push directly to `main`.
+To deploy updates, bump the version in `package.json` and `src/shared/version.ts`, then commit and push directly to `main`.
 
 ## Stack
 

@@ -66,6 +66,15 @@ const downloadQueue: QueueItem[] = [];
 const queuedBookIds = new Set<string>();
 const failedBookIds = new Set<string>();
 let isProcessingQueue = false;
+let cancelRequested = false;
+
+export function cancelCoverSync(): { canceled: number } {
+  cancelRequested = true;
+  const count = downloadQueue.length;
+  downloadQueue.length = 0;
+  queuedBookIds.clear();
+  return { canceled: count };
+}
 
 export function queueCoverDownload(url: string, bookId: string) {
   if (!url || url.startsWith("/api/books/covers/")) return;
@@ -83,8 +92,9 @@ export function queueCoverDownload(url: string, bookId: string) {
 async function processDownloadQueue() {
   if (isProcessingQueue) return;
   isProcessingQueue = true;
+  cancelRequested = false;
 
-  while (downloadQueue.length > 0) {
+  while (downloadQueue.length > 0 && !cancelRequested) {
     const item = downloadQueue.shift();
     if (!item) continue;
     queuedBookIds.delete(item.bookId);
@@ -104,11 +114,14 @@ async function processDownloadQueue() {
       failedBookIds.add(item.bookId);
     }
 
+    if (cancelRequested) break;
+
     // Rate-limiting delay to respect Open Library
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
 
   isProcessingQueue = false;
+  cancelRequested = false;
 }
 
 export async function getCoversStatus() {
