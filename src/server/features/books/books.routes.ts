@@ -1,9 +1,18 @@
+import { createReadStream } from "node:fs";
+import { basename } from "node:path";
 import { and, asc, eq, isNull, lte } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { parseChangedAt } from "#server/dates.ts";
 import { db } from "#server/db.ts";
+import {
+  cacheAllMissingCovers,
+  coverExists,
+  getCoverFilePath,
+  queueCoverDownload,
+} from "#server/features/books/bookCovers.ts";
 import { books } from "#server/features/books/books.table.ts";
-import type { Book, BookWrite, ExternalBookInfo } from "#shared/books.ts";
+import { lookupOpenLibraryIsbn, searchOpenLibrary } from "#server/features/books/openLibrary.ts";
+import type { Book, BookWrite } from "#shared/books.ts";
 
 const idParams = {
   type: "object",
@@ -23,7 +32,7 @@ function toBook(row: typeof books.$inferSelect): Book {
     title: row.title,
     author: row.author,
     status: row.status as Book["status"],
-    format: (row.format ?? undefined) as Book["format"],
+    format: (row.format as Book["format"]) ?? "physical",
     totalPages: row.totalPages,
     currentPage: row.currentPage,
     audioDurationMinutes: row.audioDurationMinutes ?? undefined,
@@ -34,7 +43,7 @@ function toBook(row: typeof books.$inferSelect): Book {
     finishDate: row.finishDate ?? undefined,
     favoriteQuotes: (row.favoriteQuotes as string[]) ?? undefined,
     notes: row.notes ?? undefined,
-    sortOrder: row.sortOrder ?? undefined,
+    sortOrder: row.sortOrder ?? 0,
     updatedAt: row.updatedAt.toISOString(),
   };
 }
@@ -93,6 +102,11 @@ export async function booksRoutes(app: FastifyInstance) {
         .returning();
 
       if (!row) return reply.code(409).send({ error: "Item changed after this write was made" });
+
+      if (changes.coverUrl && changes.coverUrl.startsWith("http")) {
+        queueCoverDownload(changes.coverUrl, request.params.id);
+      }
+
       return toBook(row);
     },
   );
@@ -132,70 +146,41 @@ export async function booksRoutes(app: FastifyInstance) {
         .onConflictDoUpdate({ target: books.id, set: changes, setWhere: lte(books.updatedAt, updatedAt) })
         .returning();
 
-      if (row) results.push(toBook(row));
+      if (row) {
+        results.push(toBook(row));
+        if (changes.coverUrl && changes.coverUrl.startsWith("http")) {
+          queueCoverDownload(changes.coverUrl, b.id);
+        }
+      }
     }
     return { count: results.length, items: results };
   });
 
-  app.get<{ Querystring: { q: string } }>("/search", async (request, reply) => {
-    const q = request.query.q?.trim();
-    if (!q) return { results: [] };
-    try {
-      const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=8&fields=title,author_name,cover_i,number_of_pages_median,first_publish_year,isbn`;
-      const res = await fetch(url, { headers: { "User-Agent": "LifeApp/1.0" } });
-      if (!res.ok) return { results: [] };
-      const data = (await res.json()) as { docs?: Array<Record<string, unknown>> };
-      const results: ExternalBookInfo[] = (data.docs || []).map((d) => {
-        const isbnArr = Array.isArray(d.isbn) ? (d.isbn as string[]) : [];
-        const authorArr = Array.isArray(d.author_name) ? (d.author_name as string[]) : [];
-        const coverI = d.cover_i as number | undefined;
-        return {
-          title: String(d.title || ""),
-          author: authorArr.join(", "),
-          totalPages: Number(d.number_of_pages_median) || 300,
-          coverUrl: coverI
-            ? `https://covers.openlibrary.org/b/id/${coverI}-L.jpg`
-            : isbnArr[0]
-              ? `https://covers.openlibrary.org/b/isbn/${isbnArr[0]}-L.jpg`
-              : "",
-          publishYear: d.first_publish_year ? String(d.first_publish_year) : undefined,
-          isbn: isbnArr[0],
-        };
-      });
-      return { results };
-    } catch (err) {
-      request.log.error(err, "Open Library search error");
-      return reply.code(502).send({ error: "Failed to search books" });
+  app.get<{ Params: { filename: string } }>("/covers/:filename", async (request, reply) => {
+    const filename = basename(request.params.filename);
+    if (!coverExists(filename)) {
+      return reply.code(404).send({ error: "Cover not found" });
     }
+    const stream = createReadStream(getCoverFilePath(filename));
+    return reply
+      .header("content-type", "image/jpeg")
+      .header("cache-control", "public, max-age=31536000, immutable")
+      .send(stream);
+  });
+
+  app.post("/cache-covers", async () => {
+    const count = await cacheAllMissingCovers();
+    return { queued: count };
+  });
+
+  app.get<{ Querystring: { q: string } }>("/search", async (request) => {
+    const results = await searchOpenLibrary(request.query.q || "");
+    return { results };
   });
 
   app.get<{ Querystring: { isbn: string } }>("/isbn", async (request, reply) => {
-    const isbnRaw = request.query.isbn?.trim().replace(/[^0-9X]/gi, "");
-    if (!isbnRaw) return reply.code(400).send({ error: "Invalid ISBN" });
-    try {
-      const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${isbnRaw}&format=json&jscmd=data`;
-      const res = await fetch(url, { headers: { "User-Agent": "LifeApp/1.0" } });
-      if (!res.ok) return reply.code(404).send({ error: "Book not found" });
-      const data = (await res.json()) as Record<string, any>;
-      const item = data[`ISBN:${isbnRaw}`];
-      if (!item) return reply.code(404).send({ error: "Book not found" });
-      const authors = Array.isArray(item.authors) ? item.authors.map((a: { name: string }) => a.name).join(", ") : "";
-      const coverUrl =
-        item.cover?.large || item.cover?.medium || `https://covers.openlibrary.org/b/isbn/${isbnRaw}-L.jpg`;
-      const result: ExternalBookInfo = {
-        title: String(item.title || ""),
-        author: authors,
-        totalPages: Number(item.number_of_pages) || 300,
-        coverUrl,
-        publishYear: item.publish_date ? String(item.publish_date) : undefined,
-        isbn: isbnRaw,
-        description: typeof item.description === "string" ? item.description : item.description?.value,
-        quote: item.excerpts?.[0]?.text,
-      };
-      return result;
-    } catch (err) {
-      request.log.error(err, "Open Library ISBN error");
-      return reply.code(502).send({ error: "Failed to lookup ISBN" });
-    }
+    const result = await lookupOpenLibraryIsbn(request.query.isbn || "");
+    if (!result) return reply.code(404).send({ error: "Book not found" });
+    return result;
   });
 }

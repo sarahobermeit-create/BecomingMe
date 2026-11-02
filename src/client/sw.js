@@ -24,6 +24,27 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // Cache-first for local book covers so images load instantly and work 100% offline
+  if (request.method === "GET" && url.origin === self.location.origin && url.pathname.startsWith("/api/books/covers/")) {
+    event.respondWith(
+      caches.open(CACHE).then(async (cache) => {
+        const cached = await cache.match(request);
+        if (cached) return cached;
+        try {
+          const response = await fetch(request);
+          if (response.ok) {
+            void cache.put(request, response.clone());
+          }
+          return response;
+        } catch {
+          return Response.error();
+        }
+      }),
+    );
+    return;
+  }
+
   if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
 
   if (request.mode === "navigate") {

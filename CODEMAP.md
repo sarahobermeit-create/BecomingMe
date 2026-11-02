@@ -55,7 +55,9 @@ Routes are declared in `src/client/App.tsx`.
 | Giant Kindle Oasis library view | `src/client/features/books/GiantKindleLibrary.tsx` |
 | Phone Audiobook player & shelf | `src/client/features/books/PhoneAudiobookLibrary.tsx` |
 | Table `books` | `src/server/features/books/books.table.ts` |
-| API: `GET /api/books`, `PUT /api/books/:id`, `POST /api/books/batch`, `GET /api/books/search`, `GET /api/books/isbn` | `src/server/features/books/books.routes.ts` |
+| Local cover image caching & storage in `/data/covers` | `src/server/features/books/bookCovers.ts` |
+| Open Library proxy search & ISBN metadata | `src/server/features/books/openLibrary.ts` |
+| API: `GET /api/books`, `PUT /api/books/:id`, `POST /api/books/batch`, `GET /api/books/covers/:file`, `GET /api/books/search`, `GET /api/books/isbn` | `src/server/features/books/books.routes.ts` |
 | Types shared by client and server | `src/shared/books.ts` |
 
 ### Routines
