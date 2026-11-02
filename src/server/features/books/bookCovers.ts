@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, statSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { eq, like } from "drizzle-orm";
+import { eq, like, sql } from "drizzle-orm";
 import { db } from "#server/db.ts";
 import { env } from "#server/env.ts";
 import { books } from "#server/features/books/books.table.ts";
@@ -56,14 +56,25 @@ export async function downloadAndSaveCover(url: string, bookId: string): Promise
   }
 }
 
-// Background queue to download covers without blocking API requests or overloading Open Library
-const downloadQueue: Array<{ url: string; bookId: string }> = [];
+// Background queue state
+interface QueueItem {
+  url: string;
+  bookId: string;
+}
+
+const downloadQueue: QueueItem[] = [];
+const queuedBookIds = new Set<string>();
+const failedBookIds = new Set<string>();
 let isProcessingQueue = false;
 
 export function queueCoverDownload(url: string, bookId: string) {
   if (!url || url.startsWith("/api/books/covers/")) return;
   if (!url.startsWith("http://") && !url.startsWith("https://")) return;
+  if (queuedBookIds.has(bookId) || failedBookIds.has(bookId)) return;
+
+  queuedBookIds.add(bookId);
   downloadQueue.push({ url, bookId });
+
   if (!isProcessingQueue) {
     void processDownloadQueue();
   }
@@ -76,6 +87,7 @@ async function processDownloadQueue() {
   while (downloadQueue.length > 0) {
     const item = downloadQueue.shift();
     if (!item) continue;
+    queuedBookIds.delete(item.bookId);
 
     try {
       const localUrl = await downloadAndSaveCover(item.url, item.bookId);
@@ -84,16 +96,46 @@ async function processDownloadQueue() {
           .update(books)
           .set({ coverUrl: localUrl, updatedAt: new Date() })
           .where(eq(books.id, item.bookId));
+      } else {
+        // Failed or non-existent cover; don't re-queue continuously in this process
+        failedBookIds.add(item.bookId);
       }
     } catch {
-      // Continue next in queue
+      failedBookIds.add(item.bookId);
     }
 
-    // Gentle delay to respect rate limits
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    // Rate-limiting delay to respect Open Library
+    await new Promise((resolve) => setTimeout(resolve, 250));
   }
 
   isProcessingQueue = false;
+}
+
+export async function getCoversStatus() {
+  const [totalRes] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(books);
+  const [localRes] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(books)
+    .where(like(books.coverUrl, "/api/books/covers/%"));
+  const [remoteRes] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(books)
+    .where(like(books.coverUrl, "http%"));
+
+  const total = totalRes?.count ?? 0;
+  const local = localRes?.count ?? 0;
+  const remote = remoteRes?.count ?? 0;
+
+  return {
+    total,
+    localCached: local,
+    pendingRemote: remote,
+    queueRemaining: downloadQueue.length,
+    isProcessing: isProcessingQueue,
+    failedCount: failedBookIds.size,
+  };
 }
 
 export async function cacheAllMissingCovers(): Promise<number> {
@@ -102,11 +144,13 @@ export async function cacheAllMissingCovers(): Promise<number> {
     .from(books)
     .where(like(books.coverUrl, "http%"));
 
+  let queued = 0;
   for (const b of externalBooks) {
-    if (b.coverUrl) {
+    if (b.coverUrl && !failedBookIds.has(b.id) && !queuedBookIds.has(b.id)) {
       queueCoverDownload(b.coverUrl, b.id);
+      queued++;
     }
   }
 
-  return externalBooks.length;
+  return queued;
 }

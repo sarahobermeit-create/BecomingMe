@@ -8,6 +8,7 @@ import {
   cacheAllMissingCovers,
   coverExists,
   getCoverFilePath,
+  getCoversStatus,
   queueCoverDownload,
 } from "#server/features/books/bookCovers.ts";
 import { books } from "#server/features/books/books.table.ts";
@@ -166,6 +167,10 @@ export async function booksRoutes(app: FastifyInstance) {
       .header("content-type", "image/jpeg")
       .header("cache-control", "public, max-age=31536000, immutable")
       .send(stream);
+  });
+
+  app.get("/covers/status", async () => {
+    return getCoversStatus();
   });
 
   app.post("/cache-covers", async () => {

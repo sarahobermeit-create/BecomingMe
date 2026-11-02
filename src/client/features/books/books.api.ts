@@ -113,3 +113,38 @@ export async function searchBooksOnline(query: string): Promise<ExternalBookInfo
 export async function lookupBookByIsbn(isbn: string): Promise<ExternalBookInfo> {
   return request<ExternalBookInfo>(`/books/isbn?isbn=${encodeURIComponent(isbn)}`);
 }
+
+export interface CoversStatus {
+  total: number;
+  localCached: number;
+  pendingRemote: number;
+  queueRemaining: number;
+  isProcessing: boolean;
+  failedCount: number;
+}
+
+export function useCoversStatus() {
+  return useQuery({
+    queryKey: ["books", "covers-status"],
+    queryFn: ({ signal }) => request<CoversStatus>("/books/covers/status", { signal }),
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      return data?.isProcessing || (data?.queueRemaining ?? 0) > 0 ? 3000 : 30000;
+    },
+  });
+}
+
+export function useCacheMissingCovers() {
+  return useMutation({
+    mutationFn: async () => {
+      return request<{ queued: number }>("/books/cache-covers", {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["books", "covers-status"] });
+      void queryClient.invalidateQueries({ queryKey: ["books"] });
+    },
+  });
+}

@@ -1,4 +1,5 @@
 import { BookOpen, CheckCircle, FileSpreadsheet, Plus } from "lucide-react";
+import { CoverSyncStatus } from "#client/features/books/CoverSyncStatus.tsx";
 import type { Book } from "#shared/books.ts";
 
 interface Props {
@@ -42,7 +43,8 @@ export function BooksStatsHeader({ books, onOpenAdd, onOpenImport }: Props) {
         </div>
       </div>
 
-      <div className="flex items-center gap-2.5">
+      <div className="flex flex-wrap items-center gap-2.5">
+        <CoverSyncStatus />
         <button
           onClick={onOpenImport}
           className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-emerald-300 bg-emerald-950/50 hover:bg-emerald-900/60 border border-emerald-500/30 rounded-xl transition-all shadow-md"

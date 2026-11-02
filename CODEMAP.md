@@ -51,13 +51,14 @@ Routes are declared in `src/client/App.tsx`.
 | Book detail & progress modal | `src/client/features/books/BookDetailModal.tsx` |
 | Victorian wood shelf | `src/client/features/books/VictorianBookshelf.tsx` |
 | Bookshelf search, sort & pagination | `src/client/features/books/BookshelfControls.tsx` |
+| Cover offline sync status & trigger | `src/client/features/books/CoverSyncStatus.tsx` |
 | Victorian leather spine | `src/client/features/books/VictorianBookSpine.tsx` |
 | Giant Kindle Oasis library view | `src/client/features/books/GiantKindleLibrary.tsx` |
 | Phone Audiobook player & shelf | `src/client/features/books/PhoneAudiobookLibrary.tsx` |
 | Table `books` | `src/server/features/books/books.table.ts` |
 | Local cover image caching & storage in `/data/covers` | `src/server/features/books/bookCovers.ts` |
 | Open Library proxy search & ISBN metadata | `src/server/features/books/openLibrary.ts` |
-| API: `GET /api/books`, `PUT /api/books/:id`, `POST /api/books/batch`, `GET /api/books/covers/:file`, `GET /api/books/search`, `GET /api/books/isbn` | `src/server/features/books/books.routes.ts` |
+| API: `GET /api/books`, `PUT /api/books/:id`, `POST /api/books/batch`, `GET /api/books/covers/status`, `POST /api/books/cache-covers`, `GET /api/books/covers/:file`, `GET /api/books/search`, `GET /api/books/isbn` | `src/server/features/books/books.routes.ts` |
 | Types shared by client and server | `src/shared/books.ts` |
 
 ### Routines
