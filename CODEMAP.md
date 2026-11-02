@@ -94,4 +94,5 @@ Routes are declared in `src/client/App.tsx`.
 | Database connection | `src/server/db.ts` |
 | Environment variables | `src/server/env.ts`, `.env.example` |
 | Build, dev proxy | `vite.config.ts` |
+| Local development runner (Postgres + Fastify + Vite) | `scripts/dev.js` |
 | Production image | `Dockerfile` |
