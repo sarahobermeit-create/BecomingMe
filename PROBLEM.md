@@ -1,23 +1,21 @@
 # Problem
 
-Fill this in before any code is written. Agents read it first. Keep it short and specific.
-
 ## What problem does this app solve?
 
-One or two sentences on the problem, from the user's point of view.
+A personal, offline-first Life Operating System ("Becoming Me") that helps users cultivate habits, reading goals, nutrition, hydration, financial clarity, and emotional well-being inside a Victorian-themed dashboard.
 
 ## Who uses it, and where?
 
-Who the users are, what device they're mostly on, and anything about where they use it (for example on a phone in a shop with weak signal).
+The user on desktop and mobile browsers, deployed via Coolify. Works seamlessly across short offline outages (syncing writes when the connection restores).
 
 ## Core flows
 
-The few things a user must be able to do, in order of importance.
-
-1.
-2.
-3.
+1. **The Grand Library (Books)**: Import books via Bookshelf/Goodreads CSV, search books online or by ISBN, view books on realistic Victorian oak shelves with leather spines, Kindle Oasis e-ink view, and audiobook phone player.
+2. **Daily Habits & Routines**: Check off daily routines, morning/evening rituals, and track habit streaks.
+3. **Hydration & Meal Logging**: Quick-log water intake towards a daily target (2,500 ml) and track daily meals and recipes.
+4. **Finances & Mood**: Track daily expenses/income and check in daily with mood, energy, and journal reflections.
 
 ## Out of scope
 
-What this app deliberately doesn't do, so agents don't build it.
+- Third-party social networking or public feeds.
+- Complex multi-tenant enterprise authentication (single user / personal life companion).

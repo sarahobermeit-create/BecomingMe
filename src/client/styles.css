@@ -2,54 +2,29 @@
 @import "tw-animate-css";
 @import "./shadcn.css";
 
-/* Theme colours. Change the look of the whole app here. */
+/* Dark Victorian Emerald Theme */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --warning: oklch(0.962 0.059 95.617);
-  --warning-foreground: oklch(0.414 0.112 45.904);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --background: oklch(0.12 0.02 155); /* Deep dark forest #070e0a */
+  --foreground: oklch(0.95 0.01 155);
+  --card: oklch(0.16 0.03 155 / 80%);
+  --card-foreground: oklch(0.95 0.01 155);
+  --popover: oklch(0.15 0.02 155);
+  --popover-foreground: oklch(0.95 0.01 155);
+  --primary: oklch(0.70 0.17 155); /* Vibrant emerald */
+  --primary-foreground: oklch(0.12 0.02 155);
+  --secondary: oklch(0.22 0.04 155);
+  --secondary-foreground: oklch(0.95 0.01 155);
+  --muted: oklch(0.20 0.03 155);
+  --muted-foreground: oklch(0.70 0.03 155);
+  --accent: oklch(0.25 0.05 155);
+  --accent-foreground: oklch(0.95 0.01 155);
+  --destructive: oklch(0.60 0.22 28);
+  --warning: oklch(0.80 0.16 85);
+  --warning-foreground: oklch(0.20 0.05 85);
+  --border: oklch(0.35 0.06 155 / 25%);
+  --input: oklch(0.35 0.06 155 / 30%);
+  --ring: oklch(0.70 0.17 155);
   --radius: 0.625rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --warning: oklch(0.279 0.077 45.635);
-    --warning-foreground: oklch(0.924 0.12 95.746);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-  }
 }
 
 @theme inline {
@@ -81,9 +56,83 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    background-color: #070e0a;
+    color: #e2e8f0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
+}
+
+/* Custom subtle dark forest scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #09130d;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #173b26;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #25583b;
+}
+
+/* Glass card utilities */
+.glass-panel {
+  background: rgba(12, 26, 18, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(82, 183, 136, 0.15);
+}
+
+.glass-panel-subtle {
+  background: rgba(17, 36, 25, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(82, 183, 136, 0.1);
+}
+
+.glass-input {
+  background: rgba(9, 19, 13, 0.85);
+  border: 1px solid rgba(82, 183, 136, 0.2);
+  color: #f8fafc;
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: #52b788;
+  box-shadow: 0 0 0 2px rgba(82, 183, 136, 0.25);
+}
+
+/* Victorian Bookshelf & Book Spine Styles */
+.writing-mode-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
+
+.wood-grain {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.02) 0px,
+    rgba(255, 255, 255, 0.02) 2px,
+    transparent 2px,
+    transparent 12px
+  );
+}
+
+.victorian-wood-panel {
+  background-color: #040505;
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.65) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 8, 4, 0.4) 1px, transparent 1px);
+  background-size: 100% 48px, 72px 100%;
 }

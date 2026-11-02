@@ -19,7 +19,7 @@ export class ApiError extends Error {
 }
 
 interface RequestOptions {
-  method?: "GET" | "PUT";
+  method?: "GET" | "PUT" | "POST" | "DELETE";
   body?: string;
   signal?: AbortSignal;
 }
