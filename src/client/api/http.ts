@@ -38,7 +38,9 @@ export async function request<T>(path: string, { method = "GET", body, signal }:
       signal: AbortSignal.any(signals),
     });
   } catch (error) {
-    if (signal?.aborted) throw error;
+    if ((error instanceof Error && error.name === "AbortError") || signal?.aborted) {
+      throw error;
+    }
     markOffline();
     throw new NetworkError("Server unreachable", { cause: error });
   }

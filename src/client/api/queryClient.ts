@@ -13,6 +13,8 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       gcTime: DAY_MS,
+      staleTime: 60 * 1000,
+      refetchOnWindowFocus: false,
       retry: retryWhileUnreachable,
       retryDelay: 1000,
       // Queued writes refetch once they land. Refetching on reconnect too could briefly show the server's

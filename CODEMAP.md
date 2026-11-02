@@ -50,6 +50,7 @@ Routes are declared in `src/client/App.tsx`.
 | Add & Edit book modal | `src/client/features/books/BookFormModal.tsx` |
 | Book detail & progress modal | `src/client/features/books/BookDetailModal.tsx` |
 | Victorian wood shelf | `src/client/features/books/VictorianBookshelf.tsx` |
+| Bookshelf search, sort & pagination | `src/client/features/books/BookshelfControls.tsx` |
 | Victorian leather spine | `src/client/features/books/VictorianBookSpine.tsx` |
 | Giant Kindle Oasis library view | `src/client/features/books/GiantKindleLibrary.tsx` |
 | Phone Audiobook player & shelf | `src/client/features/books/PhoneAudiobookLibrary.tsx` |
