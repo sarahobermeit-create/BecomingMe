@@ -39,7 +39,12 @@ export async function buildApp() {
       root: clientDir,
       cacheControl: false,
       setHeaders: (reply, path) =>
-        reply.header("cache-control", path.includes("/assets/") ? "public, max-age=31536000, immutable" : "no-cache"),
+        reply.header(
+          "cache-control",
+          path.endsWith(".html") || path.endsWith("sw.js")
+            ? "no-cache"
+            : "public, max-age=31536000, immutable",
+        ),
     });
 
     // Client-side routes all serve the app shell, so a deep link or refresh never 404s.
