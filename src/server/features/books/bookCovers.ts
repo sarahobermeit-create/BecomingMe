@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, statSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { eq, like, sql } from "drizzle-orm";
+import { eq, isNull, like, sql } from "drizzle-orm";
 import { db } from "#server/db.ts";
 import { env } from "#server/env.ts";
 import { books } from "#server/features/books/books.table.ts";
@@ -27,15 +27,20 @@ export function coverExists(filename: string): boolean {
   }
 }
 
-export async function downloadAndSaveCover(url: string, bookId: string): Promise<string> {
-  if (!url || url.startsWith("/api/books/covers/")) return url;
-  if (!url.startsWith("http://") && !url.startsWith("https://")) return url;
+export type CoverDownloadResult =
+  | { status: "saved"; localUrl: string }
+  | { status: "not_found" }
+  | { status: "error" };
+
+export async function downloadAndSaveCover(url: string, bookId: string): Promise<CoverDownloadResult> {
+  if (!url || url.startsWith("/api/books/covers/")) return { status: "not_found" };
+  if (!url.startsWith("http://") && !url.startsWith("https://")) return { status: "not_found" };
 
   const filename = `${bookId}.jpg`;
   const filepath = getCoverFilePath(filename);
 
   if (coverExists(filename)) {
-    return `/api/books/covers/${filename}`;
+    return { status: "saved", localUrl: `/api/books/covers/${filename}` };
   }
 
   try {
@@ -43,16 +48,17 @@ export async function downloadAndSaveCover(url: string, bookId: string): Promise
       signal: AbortSignal.timeout(6000),
       headers: { "User-Agent": "BecomingMe/1.0" },
     });
-    if (!res.ok) return url;
+    if (res.status === 404) return { status: "not_found" };
+    if (!res.ok) return { status: "error" };
 
     const buffer = await res.arrayBuffer();
     // Open Library returns 1x1 gif (<500 bytes) when cover does not exist
-    if (buffer.byteLength < 500) return url;
+    if (buffer.byteLength < 500) return { status: "not_found" };
 
     await writeFile(filepath, Buffer.from(buffer));
-    return `/api/books/covers/${filename}`;
+    return { status: "saved", localUrl: `/api/books/covers/${filename}` };
   } catch {
-    return url;
+    return { status: "error" };
   }
 }
 
@@ -100,14 +106,19 @@ async function processDownloadQueue() {
     queuedBookIds.delete(item.bookId);
 
     try {
-      const localUrl = await downloadAndSaveCover(item.url, item.bookId);
-      if (localUrl.startsWith("/api/books/covers/")) {
+      const result = await downloadAndSaveCover(item.url, item.bookId);
+      if (result.status === "saved") {
         await db
           .update(books)
-          .set({ coverUrl: localUrl, updatedAt: new Date() })
+          .set({ coverUrl: result.localUrl, updatedAt: new Date() })
           .where(eq(books.id, item.bookId));
+      } else if (result.status === "not_found") {
+        await db
+          .update(books)
+          .set({ coverUrl: null, updatedAt: new Date() })
+          .where(eq(books.id, item.bookId));
+        failedBookIds.add(item.bookId);
       } else {
-        // Failed or non-existent cover; don't re-queue continuously in this process
         failedBookIds.add(item.bookId);
       }
     } catch {
@@ -136,10 +147,15 @@ export async function getCoversStatus() {
     .select({ count: sql<number>`count(*)::int` })
     .from(books)
     .where(like(books.coverUrl, "http%"));
+  const [missingRes] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(books)
+    .where(isNull(books.coverUrl));
 
   const total = totalRes?.count ?? 0;
   const local = localRes?.count ?? 0;
   const remote = remoteRes?.count ?? 0;
+  const missing = missingRes?.count ?? 0;
 
   return {
     total,
@@ -147,7 +163,7 @@ export async function getCoversStatus() {
     pendingRemote: remote,
     queueRemaining: downloadQueue.length,
     isProcessing: isProcessingQueue,
-    failedCount: failedBookIds.size,
+    failedCount: missing,
   };
 }
 
