@@ -50,17 +50,22 @@ export function BookCsvImporterModal({ isOpen, onClose }: Props) {
 
   const handleConfirmImport = async () => {
     if (parsedBooks.length === 0) return;
-    const now = Date.now();
-    const writes: BookWrite[] = parsedBooks.map((b, idx) => ({
-      ...b,
-      sortOrder: idx,
-      deleted: false,
-      changedAt: now,
-    }));
+    setErrorMsg(null);
+    try {
+      const now = Date.now();
+      const writes: BookWrite[] = parsedBooks.map((b, idx) => ({
+        ...b,
+        sortOrder: idx,
+        deleted: false,
+        changedAt: now,
+      }));
 
-    await batchSave.mutateAsync(writes);
-    void confetti({ particleCount: 75, spread: 70, origin: { y: 0.6 } });
-    onClose();
+      await batchSave.mutateAsync(writes);
+      void confetti({ particleCount: 75, spread: 70, origin: { y: 0.6 } });
+      onClose();
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Failed to import books");
+    }
   };
 
   const countReading = parsedBooks.filter((b) => b.status === "reading").length;

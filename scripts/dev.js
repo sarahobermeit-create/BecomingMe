@@ -32,6 +32,7 @@ async function ensureDatabase() {
     password: "app",
     port: 5432,
     persistent: true,
+    initdbFlags: ["-E", "UTF8", "--no-locale"],
   });
 
   const isInitialized = existsSync(join(dbDir, "PG_VERSION"));

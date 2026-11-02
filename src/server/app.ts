@@ -17,7 +17,7 @@ import { waterRoutes } from "#server/features/water/water.routes.ts";
 const clientDir = join(import.meta.dirname, "../../dist/client");
 
 export async function buildApp() {
-  const app = Fastify({ logger: true });
+  const app = Fastify({ logger: true, bodyLimit: 50 * 1024 * 1024 });
 
   app.get("/api/health", async () => ({ ok: true }));
 

@@ -11,6 +11,12 @@ const idParams = {
   properties: { id: { type: "string", format: "uuid" } },
 } as const;
 
+function sanitizeText(str?: unknown): string | undefined {
+  if (typeof str !== "string") return undefined;
+  const cleaned = str.replace(/\0/g, "").trim();
+  return cleaned.length > 0 ? cleaned : undefined;
+}
+
 function toBook(row: typeof books.$inferSelect): Book {
   return {
     id: row.id,
@@ -59,21 +65,23 @@ export async function booksRoutes(app: FastifyInstance) {
       const b = request.body;
       const updatedAt = parseChangedAt(b.changedAt);
       const changes = {
-        title: b.title,
-        author: b.author,
+        title: sanitizeText(b.title) ?? "Untitled",
+        author: sanitizeText(b.author) ?? "Unknown Author",
         status: b.status,
         format: b.format,
-        totalPages: b.totalPages,
-        currentPage: b.currentPage,
+        totalPages: typeof b.totalPages === "number" ? b.totalPages : 0,
+        currentPage: typeof b.currentPage === "number" ? b.currentPage : 0,
         audioDurationMinutes: b.audioDurationMinutes,
         currentAudioMinutes: b.currentAudioMinutes,
         rating: b.rating,
-        coverUrl: b.coverUrl,
-        startDate: b.startDate,
-        finishDate: b.finishDate,
-        favoriteQuotes: b.favoriteQuotes,
-        notes: b.notes,
-        sortOrder: b.sortOrder,
+        coverUrl: sanitizeText(b.coverUrl),
+        startDate: sanitizeText(b.startDate),
+        finishDate: sanitizeText(b.finishDate),
+        favoriteQuotes: Array.isArray(b.favoriteQuotes)
+          ? b.favoriteQuotes.map((q) => String(q).replace(/\0/g, ""))
+          : undefined,
+        notes: sanitizeText(b.notes),
+        sortOrder: typeof b.sortOrder === "number" ? b.sortOrder : 0,
         updatedAt,
         ...(b.deleted && { deletedAt: updatedAt }),
       };
@@ -97,21 +105,23 @@ export async function booksRoutes(app: FastifyInstance) {
     for (const b of items) {
       const updatedAt = parseChangedAt(b.changedAt);
       const changes = {
-        title: b.title,
-        author: b.author,
+        title: sanitizeText(b.title) ?? "Untitled",
+        author: sanitizeText(b.author) ?? "Unknown Author",
         status: b.status,
         format: b.format,
-        totalPages: b.totalPages,
-        currentPage: b.currentPage,
+        totalPages: typeof b.totalPages === "number" ? b.totalPages : 0,
+        currentPage: typeof b.currentPage === "number" ? b.currentPage : 0,
         audioDurationMinutes: b.audioDurationMinutes,
         currentAudioMinutes: b.currentAudioMinutes,
         rating: b.rating,
-        coverUrl: b.coverUrl,
-        startDate: b.startDate,
-        finishDate: b.finishDate,
-        favoriteQuotes: b.favoriteQuotes,
-        notes: b.notes,
-        sortOrder: b.sortOrder,
+        coverUrl: sanitizeText(b.coverUrl),
+        startDate: sanitizeText(b.startDate),
+        finishDate: sanitizeText(b.finishDate),
+        favoriteQuotes: Array.isArray(b.favoriteQuotes)
+          ? b.favoriteQuotes.map((q) => String(q).replace(/\0/g, ""))
+          : undefined,
+        notes: sanitizeText(b.notes),
+        sortOrder: typeof b.sortOrder === "number" ? b.sortOrder : 0,
         updatedAt,
         ...(b.deleted && { deletedAt: updatedAt }),
       };
