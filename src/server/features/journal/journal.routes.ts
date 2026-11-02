@@ -1,5 +1,6 @@
 import { desc, isNull, lte } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { parseChangedAt } from "#server/dates.ts";
 import { db } from "#server/db.ts";
 import { journalCards } from "#server/features/journal/journal.table.ts";
 import type { JunkJournalCard, JunkJournalWrite } from "#shared/journal.ts";
@@ -41,7 +42,7 @@ export async function journalRoutes(app: FastifyInstance) {
     { schema: { params: idParams } },
     async (request, reply) => {
       const b = request.body;
-      const updatedAt = new Date(Math.min(b.changedAt ?? Date.now(), Date.now()));
+      const updatedAt = parseChangedAt(b.changedAt);
       const changes = {
         date: b.date,
         title: b.title,

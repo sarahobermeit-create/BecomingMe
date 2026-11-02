@@ -1,5 +1,6 @@
 import { and, asc, eq, isNull, lte } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { parseChangedAt } from "#server/dates.ts";
 import { db } from "#server/db.ts";
 import { books } from "#server/features/books/books.table.ts";
 import type { Book, BookWrite, ExternalBookInfo } from "#shared/books.ts";
@@ -56,7 +57,7 @@ export async function booksRoutes(app: FastifyInstance) {
     { schema: { params: idParams } },
     async (request, reply) => {
       const b = request.body;
-      const updatedAt = new Date(Math.min(b.changedAt ?? Date.now(), Date.now()));
+      const updatedAt = parseChangedAt(b.changedAt);
       const changes = {
         title: b.title,
         author: b.author,
@@ -94,7 +95,7 @@ export async function booksRoutes(app: FastifyInstance) {
 
     const results: Book[] = [];
     for (const b of items) {
-      const updatedAt = new Date(Math.min(b.changedAt ?? Date.now(), Date.now()));
+      const updatedAt = parseChangedAt(b.changedAt);
       const changes = {
         title: b.title,
         author: b.author,

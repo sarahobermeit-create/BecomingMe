@@ -1,5 +1,6 @@
 import { asc, isNull, lte } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { parseChangedAt } from "#server/dates.ts";
 import { db } from "#server/db.ts";
 import { hobbies } from "#server/features/hobbies/hobbies.table.ts";
 import type { Hobby, HobbyWrite } from "#shared/hobbies.ts";
@@ -41,7 +42,7 @@ export async function hobbiesRoutes(app: FastifyInstance) {
     { schema: { params: idParams } },
     async (request, reply) => {
       const b = request.body;
-      const updatedAt = new Date(Math.min(b.changedAt ?? Date.now(), Date.now()));
+      const updatedAt = parseChangedAt(b.changedAt);
       const changes = {
         name: b.name,
         category: b.category,

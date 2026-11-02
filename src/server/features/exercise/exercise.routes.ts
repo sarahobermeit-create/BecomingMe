@@ -1,5 +1,6 @@
 import { asc, isNull, lte } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { parseChangedAt } from "#server/dates.ts";
 import { db } from "#server/db.ts";
 import { workoutPlans } from "#server/features/exercise/exercise.table.ts";
 import type { WorkoutPlan, WorkoutWrite } from "#shared/exercise.ts";
@@ -38,7 +39,7 @@ export async function exerciseRoutes(app: FastifyInstance) {
     { schema: { params: idParams } },
     async (request, reply) => {
       const b = request.body;
-      const updatedAt = new Date(Math.min(b.changedAt ?? Date.now(), Date.now()));
+      const updatedAt = parseChangedAt(b.changedAt);
       const changes = {
         title: b.title,
         category: b.category,

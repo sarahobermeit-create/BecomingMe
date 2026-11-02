@@ -1,5 +1,6 @@
 import { and, asc, eq, isNull, lte } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { parseChangedAt } from "#server/dates.ts";
 import { db } from "#server/db.ts";
 import { routines } from "#server/features/routines/routines.table.ts";
 import type { RoutineItem, RoutineWrite } from "#shared/routines.ts";
@@ -47,7 +48,7 @@ export async function routinesRoutes(app: FastifyInstance) {
     { schema: { params: idParams } },
     async (request, reply) => {
       const b = request.body;
-      const updatedAt = new Date(Math.min(b.changedAt ?? Date.now(), Date.now()));
+      const updatedAt = parseChangedAt(b.changedAt);
       const changes = {
         title: b.title,
         category: b.category,

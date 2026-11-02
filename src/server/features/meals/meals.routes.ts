@@ -1,5 +1,6 @@
 import { desc, isNull, lte } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { parseChangedAt } from "#server/dates.ts";
 import { db } from "#server/db.ts";
 import { meals } from "#server/features/meals/meals.table.ts";
 import type { MealLogItem, MealWrite } from "#shared/meals.ts";
@@ -39,7 +40,7 @@ export async function mealsRoutes(app: FastifyInstance) {
     { schema: { params: idParams } },
     async (request, reply) => {
       const b = request.body;
-      const updatedAt = new Date(Math.min(b.changedAt ?? Date.now(), Date.now()));
+      const updatedAt = parseChangedAt(b.changedAt);
       const changes = {
         date: b.date,
         mealType: b.mealType,

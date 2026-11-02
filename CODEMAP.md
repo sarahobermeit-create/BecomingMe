@@ -91,6 +91,7 @@ Routes are declared in `src/client/App.tsx`.
 | Offline page loading (service worker) | `src/client/sw.js` |
 | Registering API routes, serving the client | `src/server/app.ts` |
 | Server startup, migrations | `src/server/index.ts` |
+| Safe date parsing & offline conflict timestamps | `src/server/dates.ts` |
 | Database connection | `src/server/db.ts` |
 | Environment variables | `src/server/env.ts`, `.env.example` |
 | Build, dev proxy | `vite.config.ts` |

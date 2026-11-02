@@ -1,5 +1,6 @@
 import { desc, isNull, lte } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { parseChangedAt } from "#server/dates.ts";
 import { db } from "#server/db.ts";
 import { moodEntries } from "#server/features/mood/mood.table.ts";
 import type { MoodEntry, MoodWrite } from "#shared/mood.ts";
@@ -38,7 +39,7 @@ export async function moodRoutes(app: FastifyInstance) {
     { schema: { params: idParams } },
     async (request, reply) => {
       const b = request.body;
-      const updatedAt = new Date(Math.min(b.changedAt ?? Date.now(), Date.now()));
+      const updatedAt = parseChangedAt(b.changedAt);
       const changes = {
         date: b.date,
         score: b.score,

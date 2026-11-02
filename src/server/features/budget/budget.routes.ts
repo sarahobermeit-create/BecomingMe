@@ -1,5 +1,6 @@
 import { desc, isNull, lte } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { parseChangedAt } from "#server/dates.ts";
 import { db } from "#server/db.ts";
 import { budgetTransactions } from "#server/features/budget/budget.table.ts";
 import type { Transaction, TransactionWrite } from "#shared/budget.ts";
@@ -38,7 +39,7 @@ export async function budgetRoutes(app: FastifyInstance) {
     { schema: { params: idParams } },
     async (request, reply) => {
       const b = request.body;
-      const updatedAt = new Date(Math.min(b.changedAt ?? Date.now(), Date.now()));
+      const updatedAt = parseChangedAt(b.changedAt);
       const changes = {
         date: b.date,
         type: b.type,
